@@ -22,24 +22,20 @@
                 "ms-vscode-remote.remote-ssh",
                 "tht13.html-preview-vscode",
                 "github.codespaces",
-                "jroesch.lean",
+                "leanprover.lean4",
                 "github.vscode-pull-request-github",
                 "esbenp.prettier-vscode",
                 "vscjava.vscode-java-pack",
-                "Dart-Code.flutter",
-                "vaticle.typeql",
                 "mechatroner.rainbow-csv",
                 "redhat.fabric8-analytics",
                 "ZainChen.json",
                 "ms-python.python",
-                "amazonwebservices.aws-toolkit-vscode",
-                "mark-tucker.aws-cli-configure",
                 "redhat.vscode-yaml",
-                "DanielThielking.aws-cloudformation-yaml",
                 "donjayamanne.python-extension-pack",
                 "ms-vscode.makefile-tools"
             ]
         }
     },
+    "postCreateCommand": "lean --run Test/hello.lean",
 	"forwardPorts": []
 }
