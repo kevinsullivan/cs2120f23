@@ -41,10 +41,6 @@ Welcome to UVa CS2120 Fall 2022. Here are the instructions for setting up your l
 
 You now have, up and running, a nice discrete math development environment. You're done here now!
 
-## If you find a problem or an opportunity
-
-## Legal and contact
-
 - Acknowledgement: This work is supported in part by the National Science Foundation under grant (Award Abstract) #1909414.
 - Copyright: © 2021-2023 by Kevin Sullivan
 - Contact Author: Kevin Sullivan. sullivan@virginia.edu.
