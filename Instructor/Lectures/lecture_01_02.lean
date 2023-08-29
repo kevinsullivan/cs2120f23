@@ -1,4 +1,10 @@
 /-!
+# Lectures 1 and 2: Types, Terms, Applications
+`-/
+
+/-!
+
+## Data Types
 Here are some basic data types. The #check command
 tells you that each of these is a Type.
 `-/
@@ -34,108 +40,176 @@ some terms of type String
 #check "I love DM1" ++ "!"
 
 /-!
-Some function types 
+## Function Types
+
+Given and two types, let's call them α and β,
+we can form a new type, written α → β, which is
+the type of *functions*, each of which takes an
+argument of type α and returns a value of type,
+β. Note, again, that (α → β) is a *type*.  
 `-/
 
 /-!
-A function that takes a Boolean argument and that returns
-a Boolean result has this type.
+A function that takes a Boolean argument and that 
+returns a Boolean result has this type.
 `-/
 #check Bool → Bool
 
 /-!
-Takes two Booleans and returns a Boolean
+Here's the type of functiont hat two Boolean values
+as argument and that and returns a Boolean value as
+a result. 
 `-/
 #check Bool → Bool → Bool
 
 /-!
-Takes a natural number and returns a natural number
+Here's the type of function that takes a natural number 
+and that returns a natural number as a result. 
 `-/
 #check Nat → Nat
 
 /-!
-Takes two natural numbers and returns a natural number
+This is the type of any function that takes two natural 
+numbers and returns a natural number as a result. 
 `-/
 #check Nat → Nat → Nat
 
 /-!
-Takes two string arguments and returns a string result
+A function of this type takes two string arguments and 
+returns a string result.
 `-/
 #check String → String → String
 
 /-!
-Takes a string and returns a function that takes a string and returns a string
+## Higher-order functions
+
+In Lean and many other functional languages, a function that
+takes two arguments (such as two strings) and that returns a
+result (say another string), can be understood instead as a 
+function that takes only *one* argument and  that returns a 
+function that takes the *second* argument and returns a final
+result. To makes sense of this statement, we just need to know
+that *→* is *right-associative*. Whenever we write a chain of
+→, elements are implicitly grouped *from the right*. So the 
+type we just saw, String → String → String, is really exactly
+the same as this type! 
 `-/
 #check String → (String → String)
 
 /-!
-Takes a function that takes and returns a string, and returns a string
+In general, a function that either returns a function as a
+result or that takes a function as an argument is called a
+higher-order function. A function that takes two arguments 
+in a functional language such as Lean is thus a higher-order
+function in that it really takes one argument and returns a
+function that that takes the second argument and that returns
+a final result. 
+`-/
+
+/-!
+Here's the type of any function that takes two argument, the
+first being a *function* (from String to String), the second
+being a String, with the function finally returning a String
+result. 
 `-/
 #check (String → String) → String → String
 
 /-!
-Some terms of these types
+## Function Terms
+Let's check the type types of some built-in terms of these 
+function types.
 `-/
 #check (not)
 #check (and)
 #check (String.append)  
-#check (Nat.succ) -- thus function adds 1 to its argument  
-#check (Nat.add)  -- takes two nats and returns their sum
-#check (String.append)  -- appends to strings
-
+#check (Nat.succ)       -- adds 1 to its argument  
+#check (Nat.add)        -- returns sum of two natural numbers
+#check (String.append)  -- appends two strings
 
 /-!
-What about that last example, (String → String) → String?
+## Example of a higher-order function involving Strings
+
+Consider the type, (String → String) → String → String.
 A function of this type takes a function (that takes and
 returns a String) and a String as its arguments and returns 
-a string as a result.
+a string as a result. 
+
+To make our ideas more concrete, let's analyze the String
+append function to see how we can consider it to be such a
+higher-order function. 
 `-/
 
 /-!
+### Binding of variable names (identifiers) to values
+
 To begin we introduce the idea of giving (or binding) a 
-name (aka identifier, variable name) to a term. Here we 
-bind the names, s1 and s2, to the terms (of type String), 
-"Hello," and "Lean!" 
+"variable" name (aka identifier, variable name) to a term. 
+Here we bind the names, s1 and s2, to the terms (of type 
+String), "Hello," and "Lean!" 
 `-/
 def s1 := "Hello, "
 def s2 := "Lean!"
 
-
 /-!
-Evaluating a name yields the same result as evaluating
-the term that it names.
+The type of an identifier is the type of the term of
+which it is bound.
 `-/
-#eval s1
+
+#check s1
+#check s2
 
 
 /-!
+### Evaluating an identifier returns the value 
+Evaluating a name yields the result of evaluating
+the term to which it is bound.
+`-/
+#eval s1    -- "Hello, "
+#eval s2    -- "Lean!"
+
+
+/-!
+### Identifiers can be passed as arguments
+
 We can use names to pass terms to functions
 `-/
 #eval String.append s1 s2
 
+/-!
+### Function *application* terms
+
+Here we have a *function application term*, in
+which the string append function is *applied* to
+two arguments, s1 and s2. *Evaluating* a function 
+application term *reduces* it to the value that 
+is designates, here "Hello, Lean!" 
+`-/
 
 /-!
 We can bind a name to the result of evaluating 
 another expression, here a function application. 
 `-/
 def s3 := String.append s1 s2
+#check s3
 #eval s3
 
 /-!
+### Viewing String.append as a higher-order function
+
 Now recall the type of the String.append function.
 We'd normally write it as String → String → String.
 We understand this to be the type of function that
 takes two string arguments and returns a result that
 is also a string. 
 
-The → operator is right associative, so this really
-means the type, String → (String → String). That is
-the append function takes *one* string as an argument
-and returns a function that takes the second string
-and that finally returns the result string.
-
-The following expressions should thus be, and are,
-equivalent.
+The → operator is right associative, so this means 
+that the type, String → String → String really means
+String → (String → String). That is append takes *one* 
+string as an argument and returns a function as a
+result: of type String → String. You can understand
+this point by seeing that function *application* is
+*left* associative! The following expressions should 
+thus be, and are, equivalent.
 `-/
 
 #eval String.append "Hello, " "Lean!"
@@ -143,25 +217,29 @@ equivalent.
 
 /-!
 The second expression makes it clear what's really
-going on when the first one is evaluated: First the
-append function consumes "Hello, " and it then returns
-a *function* (without a name at this point). This 
-function then consumes the second string, "Lean!"
-and returns "Hello, Lean!" What does the function,
-(String.append "Hello, ") do? It returns "Hello, "
-appended with whatever argument is receives -- in
-this example, "Lean!"
+going on: First the append function consumes "Hello, " 
+and returns a *function* (without a name that then 
+consumes the second string, "Lean!" and returns the
+final result, "Hello, Lean!" From now on, remember
+that → is right associative and function application
+is left associative. 
 `-/
 
+
 /-!
-That means that we *should* be able to apply append
-to one string and get ourselves a function (of type
-String → String), and then bind a name to it. And yes 
-it actually works! Recall that s1 here is the string, 
+So what does the weird, unnamed intermediate function, 
+(String.append "Hello, ") do? It appends "Hello, " and
+whatever argument is receives -- in this example, "Lean!"
+
+Putting all these ideas together, we should be able to 
+apply append to one string and get ourselves a function 
+(of type String → String), then bind a name to it, and
+finally apply *that* function to another string argument! 
+Yes, it actually works! Recall that s1 here is the string, 
 "Hello, ".
 `-/
 def f1 := String.append s1
-#check (f1)      
+#check (f1) -- f1 is a function of type String → String
 
 /-!
 Whoa, so f1 is a some function that takes just one
@@ -175,13 +253,15 @@ s2 has.
 #eval f1 "Joe!"
 
 /-!
+### Some more examples
+
 All multi-argument functions are evaluated in the same
 way in Lean: a function consumes its first argument and
 returns a function that consumes its second argument and
 returns a function that consumes its ... until you get
 to the end of the chain of arguments at which point you
 get a value: either a function or just a data value. For
-example, the natural number addition function works in 
+example, the natural number *addition* function works in 
 the same way.
 `-/
 
@@ -194,6 +274,8 @@ def add2 := Nat.add 2
 
 
 /-!
+### A self-test
+
 To see if you've gotten it, consider these three
 function types and answer the following questions.
 `-/
@@ -210,23 +292,32 @@ Questions:
 `-/
 
 /-!
+## Functions that take functions as arguments
 Here's a function that takes two arguments, f and a, 
-where f is a function taking a string and returning a
+where f is a function taking a string and returns a
 string, where a is a string, and where the result is
-obtained by applying f to a. Note that f1 as defined
-above is a function that takes and returns a string,
-so f1 can be used as a valid first argument to crazy.
+a string obtained by applying f to a. 
 `-/
 
 def crazy (f : String → String) (a : String) : String := (f a) 
-#eval crazy f1 s1
 
 /-!
+Note that f1 as defined above is a function that takes 
+and returns a string, so f1 can be used as a valid first 
+argument to crazy.
+`-/
+#eval crazy f1 s1   -- Results in application of f1 to s1
+
+/-!
+### Self-test
+
 Question: What is the type of the crazy function? Be
-careful. 
+careful. How can you check if your answer is correct?
 `-/
 
 /-!
+### Function definition syntax in Lean
+
 Important detail. The preceding definition of crazy uses
 a Java-ish syntax to define the function type. It explains
 that the argument f is a function; a is a string; the type
@@ -250,13 +341,17 @@ the return value.
 `-/
 
 /-!
-Self test: What does the following expression evaluate to?
+### Self-test
+
+What does the following expression evaluate to?
 Answer before using Lean to compute it for you. Recall that
 f1 is a function as defined above and s2 is the string, "Lean!".
 `-/
 #eval crazy2 f1 s2    
 
 /-!
+## Defining (more of) our own functions
+
 Let's now turn to the question of how to define our own
 functions. To provide motivation, we'll observe that Lean
 provides definitions of the Boolean functions, not, and, 
@@ -264,7 +359,11 @@ as well as or, but not of xor, nand, or nor.
 `-/
 
 /-!
-Terms (function)
+### Focus on Boolean functions
+
+Here are the names of three built-in Boolean functions in
+Lean. You might know them as !, &&, and || from your first
+programming class. 
 `-/
 #check (not)
 #check (and)
@@ -288,6 +387,9 @@ We can confirm that these functions behave as expected
 #check or false false   -- false
 
 /-!
+
+### Not all Boolean functions are built-in
+
 But xor, nor, and nand are not defined
 `-/
 
@@ -296,6 +398,8 @@ But xor, nor, and nand are not defined
 #check (nor)
 
 /-!
+### We can define them for ourselves
+
 We can use the second style of function definition
 (from above) to define the xor function. Recall that
 (xor b1 b2) is true when either b1 or b2 is true but
@@ -323,6 +427,8 @@ def xor : Bool -> Bool -> Bool
 #eval xor false false   -- true
 
 /-!
+### Self-tests
+
 The nand function, short for "not and" gives exactly the
 opposite of the answer that and function gives for each case.
 Self-test: Fill in the correct output values for this function.
@@ -335,7 +441,7 @@ def nand : Bool -> Bool -> Bool
 | false, false => _
 
 /-!
-Self-test: Complete this definition of the
+Complete this definition of the
 nor (not or) function. It must return the
 opposite of what the or function returns in
 each case.
@@ -345,7 +451,7 @@ def nor : Bool -> Bool -> Bool
 := _  -- delete this line and fill in the four cases
 
 /-!
-Self-test. Suppose that a function takes two
+Suppose that a function takes two
 Boolean inputs and returns the "conjunction"
 (and) of the "negation" (not) of each argument.
 Which of the preceding results?
@@ -355,6 +461,8 @@ def mystery : Bool -> Bool -> Bool
 | b1, b2 => and (not b1) (not b2)
 
 /-!
+## Pattern matching
+
 Now there's something rather perplexing going on
 here, that needs explanation. Look at the definition
 of nand above and the definition of mystery here.
@@ -382,6 +490,8 @@ the overall application of the mystery function.
 
 
 /-!
+## Abstract and Concrete Syntax 
+
 We've written application expressions, such as (Nat.add 1 2)
 placing the function name before its arguments. This we can
 call "abstract" syntax. In everyday paper-and-pencil mathematics
@@ -416,7 +526,7 @@ syntax as a first step in evaluating such expressions.
 
 
 /-!
-On the ambiguity of Natural language
+## On the ambiguity of Natural language
 
 Consider a warning sign on escalator: "Shoes must be worn; 
 Dogs must be carried." How many different meanings could you
@@ -454,6 +564,8 @@ and mathematics to really analyze and reason about them.
 `-/
 
 /-!
+### Self-test
+
 Self test: Which mathematical function captures this, most 
 plausible, interpretation of the snack policy that the Dad 
 was communicating to his daughter? (You can have one or none

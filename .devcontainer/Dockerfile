@@ -18,7 +18,8 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8  
 
 # Install essential tools and libraries
-RUN apt-get -y install lsb-release build-essential git vim wget gnupg curl unzip libssl-dev libffi-dev libconfig-dev
+RUN apt-get -y install lsb-release build-essential git vim wget gnupg curl unzip libssl-dev libffi-dev libconfig-dev tzdata keyboard-configuration groff less
+
 
 # Perform following actions in containers /root directory
 WORKDIR /root 
@@ -68,3 +69,7 @@ RUN python3 -m pip install git+https://github.com/Kha/alectryon.git@typeid
 # WORKDIR /opt 
 # RUN wget -q https://github.com/tlaplus/tlaplus/releases/download/v1.7.1/TLAToolbox-1.7.1-linux.gtk.amd64.deb && apt -y install ./TLAToolbox-1.7.1-linux.gtk.amd64.deb && rm ./TLAToolbox-1.7.1-linux.gtk.amd64.deb
 # RUN echo "export PATH=$PATH:/opt/TLA+Toolbox" >> ~/.profile
+
+# AWS CLI installation commands
+RUN	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN	unzip awscliv2.zip && ./aws/install
