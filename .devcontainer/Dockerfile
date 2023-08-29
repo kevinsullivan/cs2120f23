@@ -50,6 +50,20 @@ RUN apt-get update && apt-get install -y apt-transport-https && apt-get update &
 RUN apt -y install default-jre default-jdk
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> ~/.profile
 
+# Documentation
+## Rust for mdBook
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal
+## mdBook
+RUN ~/.cargo/bin/cargo install --git https://github.com/leanprover/mdBook mdbook
+## LeanInk
+RUN git clone https://github.com/leanprover/LeanInk.git
+WORKDIR /opt/LeanInk
+RUN /root/.elan/bin/lake build
+RUN echo "export PATH=/opt/LeanInk/build/bin:\$PATH" >> ~/.profile
+WORKDIR /opt
+## Alectryon
+RUN python3 -m pip install git+https://github.com/Kha/alectryon.git@typeid
+
 # TLA+
 # WORKDIR /opt 
 # RUN wget -q https://github.com/tlaplus/tlaplus/releases/download/v1.7.1/TLAToolbox-1.7.1-linux.gtk.amd64.deb && apt -y install ./TLAToolbox-1.7.1-linux.gtk.amd64.deb && rm ./TLAToolbox-1.7.1-linux.gtk.amd64.deb

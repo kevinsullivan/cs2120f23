@@ -1,2 +1,6 @@
 /build
 /lake-packages/*
+
+# mdBook output
+Instructor/DMT1/book/*
+Instructor/DMT1/src/*
