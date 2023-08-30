@@ -18,7 +18,8 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8  
 
 # Install essential tools and libraries
-RUN apt-get -y install lsb-release build-essential git vim wget gnupg curl unzip libssl-dev libffi-dev libconfig-dev
+RUN apt-get -y install lsb-release build-essential git vim wget gnupg curl unzip libssl-dev libffi-dev libconfig-dev tzdata keyboard-configuration groff less
+
 
 # Perform following actions in containers /root directory
 WORKDIR /root 
@@ -50,7 +51,25 @@ RUN apt-get update && apt-get install -y apt-transport-https && apt-get update &
 RUN apt -y install default-jre default-jdk
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> ~/.profile
 
+# Documentation
+## Rust for mdBook
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal
+## mdBook
+RUN ~/.cargo/bin/cargo install --git https://github.com/leanprover/mdBook mdbook
+## LeanInk
+RUN git clone https://github.com/leanprover/LeanInk.git
+WORKDIR /opt/LeanInk
+RUN /root/.elan/bin/lake build
+RUN echo "export PATH=/opt/LeanInk/build/bin:\$PATH" >> ~/.profile
+WORKDIR /opt
+## Alectryon
+RUN python3 -m pip install git+https://github.com/Kha/alectryon.git@typeid
+
 # TLA+
 # WORKDIR /opt 
 # RUN wget -q https://github.com/tlaplus/tlaplus/releases/download/v1.7.1/TLAToolbox-1.7.1-linux.gtk.amd64.deb && apt -y install ./TLAToolbox-1.7.1-linux.gtk.amd64.deb && rm ./TLAToolbox-1.7.1-linux.gtk.amd64.deb
 # RUN echo "export PATH=$PATH:/opt/TLA+Toolbox" >> ~/.profile
+
+# AWS CLI installation commands
+RUN	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN	unzip awscliv2.zip && ./aws/install
