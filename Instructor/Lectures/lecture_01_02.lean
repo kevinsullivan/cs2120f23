@@ -463,31 +463,52 @@ def mystery : Bool -> Bool -> Bool
 /-!
 ## Pattern matching
 
-Now there's something rather perplexing going on
-here, that needs explanation. Look at the definition
-of nand above and the definition of mystery here.
-In the former (nand) the cases "match" possible
-values of the arguments, e.g., if the first is
-true and the second is false then ... The crucial
-observation is that we *match* with already defined
-values. 
+Now there's something perplexing going on here that 
+needs explanation. Look at the definition of nand 
+above and the definition of mystery here. In the first
+(nand) example, the cases "match" possible values of 
+the arguments, e.g., if the first is true and the 
+second is false then ... The key observation now is 
+that we're matching on *already defined* values. 
 
 In the case of the mystery function, b1 and b2 are 
-not defined when they appear in the single case for
-this function. Rather, they are names that are bound
-to whatever arguments are provided so that the result
-value can be expressed in terms of these names for the
-arguments. In the following "application" for example,
-b1 is bound to true, b2 is bound to false, and in 
-this context, the result is and (not b1) (not b2).
-That in turn is and false true. And that expression
-finally evaluates to false, which is the result of
-the overall application of the mystery function. 
+*not defined* when they appear in the single case for
+this function. In this situation, they become names 
+that are bound to the arguments to the function, so 
+that the result value can be expressed in terms of 
+these *now named* argument values. 
+
+In the following "application" for example, b1 is 
+bound to true, b2 is bound to false, and in this 
+context, the return result is defined to be the value
+of the expression, *and (not b1) (not b2).* That in 
+turn is *and false true*. And that expression then 
+evaluates to false:  the result of the application 
+of the mystery function to these arguments. 
 `-/
 
 #eval mystery true false  -- false
 --             b1   b2    (!b1 && !b2)
 
+/-!
+Remember, an undefined identifier matches with and
+becomes bound to *any* value of the corresponding
+argument to a function, while defined values match
+only when the argument values are the same. It's a
+little more complicated than that but not much.     
+`-/
+
+/-!
+Finally, a rule in Lean and similar proof assistants
+is that functions have to have defined return values
+for *all* possible combinations of their argument
+values. If you leave out one or more cases, Lean will
+give you an error message according.
+`-/
+
+def error_example : Bool → Bool
+| true => true
+-- error, missing case for false argument value
 
 /-!
 ## Abstract and Concrete Syntax 
