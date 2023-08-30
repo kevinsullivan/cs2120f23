@@ -1,13 +1,13 @@
 /-!
 # Lectures 1 and 2: Types, Terms, Applications
-`-/
+-/
 
 /-!
 
 ## Data Types
 Here are some basic data types. The #check command
 tells you that each of these is a Type.
-`-/
+-/
 
 #check Bool
 #check Nat 
@@ -16,8 +16,8 @@ tells you that each of these is a Type.
 /-!
 Here are some terms (values) of these types. 
 Every term in Lean has a type. 
-#check tells you the type of any term.
-`-/
+#check tells you the type ofF any term.
+-/
 
 #check true               -- "literal" term of type Bool
 #check false              -- another one
@@ -29,11 +29,11 @@ some terms of type Nat (for "natural number")
 #check 0
 #check 1
 #check 2
-`-/
+-/
 
 /-!
 some terms of type String
-`-/
+-/
 #check "" 
 #check "Logic is the best!"
 #check String.append "I love DM1" "!"
@@ -42,42 +42,43 @@ some terms of type String
 /-!
 ## Function Types
 
-Given and two types, let's call them α and β,
-we can form a new type, written α → β, which is
-the type of *functions*, each of which takes an
-argument of type α and returns a value of type,
-β. Note, again, that (α → β) is a *type*.  
-`-/
+Given any two types, let's call them α and β,
+we can form a new type, written α → β. This is
+the type of *functions* that takes an argument 
+of type α and that return (or *reduce to*) a 
+value of type, β. Note, again, that (α → β) is 
+a *type*.  
+-/
 
 /-!
 A function that takes a Boolean argument and that 
 returns a Boolean result has this type.
-`-/
+-/
 #check Bool → Bool
 
 /-!
 Here's the type of functiont hat two Boolean values
 as argument and that and returns a Boolean value as
 a result. 
-`-/
+-/
 #check Bool → Bool → Bool
 
 /-!
 Here's the type of function that takes a natural number 
 and that returns a natural number as a result. 
-`-/
+-/
 #check Nat → Nat
 
 /-!
 This is the type of any function that takes two natural 
 numbers and returns a natural number as a result. 
-`-/
+-/
 #check Nat → Nat → Nat
 
 /-!
 A function of this type takes two string arguments and 
 returns a string result.
-`-/
+-/
 #check String → String → String
 
 /-!
@@ -93,7 +94,7 @@ that *→* is *right-associative*. Whenever we write a chain of
 →, elements are implicitly grouped *from the right*. So the 
 type we just saw, String → String → String, is really exactly
 the same as this type! 
-`-/
+-/
 #check String → (String → String)
 
 /-!
@@ -104,21 +105,21 @@ in a functional language such as Lean is thus a higher-order
 function in that it really takes one argument and returns a
 function that that takes the second argument and that returns
 a final result. 
-`-/
+-/
 
 /-!
 Here's the type of any function that takes two argument, the
 first being a *function* (from String to String), the second
 being a String, with the function finally returning a String
 result. 
-`-/
+-/
 #check (String → String) → String → String
 
 /-!
 ## Function Terms
 Let's check the type types of some built-in terms of these 
 function types.
-`-/
+-/
 #check (not)
 #check (and)
 #check (String.append)  
@@ -134,10 +135,21 @@ A function of this type takes a function (that takes and
 returns a String) and a String as its arguments and returns 
 a string as a result. 
 
+Similarly a function of type String → (String → String)
+can be understood either as a function that takes two
+String arguments, or as a function that takes one String
+and returns a function, of type String → String, that in 
+turn takes a second argument before reducing to a final
+String-valued result. 
+
 To make our ideas more concrete, let's analyze the String
-append function to see how we can consider it to be such a
-higher-order function. 
-`-/
+append function to see how we can view it as higher-order
+function: namely one that, when applied to *one* argument,
+returns a function. This will be a function that has that
+first argument *baked in* and that takes what amounts to
+the second argument to append before returning the final
+result.  
+-/
 
 /-!
 ### Binding of variable names (identifiers) to values
@@ -146,14 +158,14 @@ To begin we introduce the idea of giving (or binding) a
 "variable" name (aka identifier, variable name) to a term. 
 Here we bind the names, s1 and s2, to the terms (of type 
 String), "Hello," and "Lean!" 
-`-/
+-/
 def s1 := "Hello, "
 def s2 := "Lean!"
 
 /-!
 The type of an identifier is the type of the term of
 which it is bound.
-`-/
+-/
 
 #check s1
 #check s2
@@ -163,7 +175,7 @@ which it is bound.
 ### Evaluating an identifier returns the value 
 Evaluating a name yields the result of evaluating
 the term to which it is bound.
-`-/
+-/
 #eval s1    -- "Hello, "
 #eval s2    -- "Lean!"
 
@@ -172,7 +184,7 @@ the term to which it is bound.
 ### Identifiers can be passed as arguments
 
 We can use names to pass terms to functions
-`-/
+-/
 #eval String.append s1 s2
 
 /-!
@@ -183,12 +195,12 @@ which the string append function is *applied* to
 two arguments, s1 and s2. *Evaluating* a function 
 application term *reduces* it to the value that 
 is designates, here "Hello, Lean!" 
-`-/
+-/
 
 /-!
 We can bind a name to the result of evaluating 
 another expression, here a function application. 
-`-/
+-/
 def s3 := String.append s1 s2
 #check s3
 #eval s3
@@ -210,7 +222,7 @@ result: of type String → String. You can understand
 this point by seeing that function *application* is
 *left* associative! The following expressions should 
 thus be, and are, equivalent.
-`-/
+-/
 
 #eval String.append "Hello, " "Lean!"
 #eval (String.append "Hello, ") "Lean!"
@@ -223,7 +235,7 @@ consumes the second string, "Lean!" and returns the
 final result, "Hello, Lean!" From now on, remember
 that → is right associative and function application
 is left associative. 
-`-/
+-/
 
 
 /-!
@@ -237,7 +249,7 @@ apply append to one string and get ourselves a function
 finally apply *that* function to another string argument! 
 Yes, it actually works! Recall that s1 here is the string, 
 "Hello, ".
-`-/
+-/
 def f1 := String.append s1
 #check (f1) -- f1 is a function of type String → String
 
@@ -246,7 +258,7 @@ Whoa, so f1 is a some function that takes just one
 string as an argument and that returns "Hello, " (which 
 is now "baked into" f1) and whatever second string value
 s2 has. 
-`-/
+-/
 
 #eval f1 "Lean!"
 #eval f1 "Mary!"
@@ -263,7 +275,7 @@ to the end of the chain of arguments at which point you
 get a value: either a function or just a data value. For
 example, the natural number *addition* function works in 
 the same way.
-`-/
+-/
 
 #eval Nat.add 2 5
 
@@ -278,7 +290,7 @@ def add2 := Nat.add 2
 
 To see if you've gotten it, consider these three
 function types and answer the following questions.
-`-/
+-/
 #check (String → String) → String   -- #1
 #check String → (String → String)   -- #2
 #check String → String → String     -- #3
@@ -289,7 +301,7 @@ Questions:
 - Are #1 and #3 equivalent?
 - Give English explanations of these function types
 - Give some examples of functions of these types
-`-/
+-/
 
 /-!
 ## Functions that take functions as arguments
@@ -297,7 +309,7 @@ Here's a function that takes two arguments, f and a,
 where f is a function taking a string and returns a
 string, where a is a string, and where the result is
 a string obtained by applying f to a. 
-`-/
+-/
 
 def crazy (f : String → String) (a : String) : String := (f a) 
 
@@ -305,7 +317,7 @@ def crazy (f : String → String) (a : String) : String := (f a)
 Note that f1 as defined above is a function that takes 
 and returns a string, so f1 can be used as a valid first 
 argument to crazy.
-`-/
+-/
 #eval crazy f1 s1   -- Results in application of f1 to s1
 
 /-!
@@ -313,7 +325,7 @@ argument to crazy.
 
 Question: What is the type of the crazy function? Be
 careful. How can you check if your answer is correct?
-`-/
+-/
 
 /-!
 ### Function definition syntax in Lean
@@ -327,7 +339,7 @@ is computed by applying f to a.
 There's another syntax in Lean that we can use to define
 the same function. It's nice because the function type is
 clearer in this notation.
-`-/
+-/
 
 def crazy2 : (String → String) → String → String 
 | f, a => (f a)
@@ -338,7 +350,7 @@ On the first line we state the type of the crazy function
 the arguments of the function to the left of the =>, and to
 the right of the => we provide an expression that computes
 the return value.
-`-/
+-/
 
 /-!
 ### Self-test
@@ -346,7 +358,7 @@ the return value.
 What does the following expression evaluate to?
 Answer before using Lean to compute it for you. Recall that
 f1 is a function as defined above and s2 is the string, "Lean!".
-`-/
+-/
 #eval crazy2 f1 s2    
 
 /-!
@@ -356,7 +368,7 @@ Let's now turn to the question of how to define our own
 functions. To provide motivation, we'll observe that Lean
 provides definitions of the Boolean functions, not, and, 
 as well as or, but not of xor, nand, or nor.
-`-/
+-/
 
 /-!
 ### Focus on Boolean functions
@@ -364,14 +376,14 @@ as well as or, but not of xor, nand, or nor.
 Here are the names of three built-in Boolean functions in
 Lean. You might know them as !, &&, and || from your first
 programming class. 
-`-/
+-/
 #check (not)
 #check (and)
 #check (or)
 
 /-!
 We can confirm that these functions behave as expected
-`-/
+-/
 
 #check not true         -- false
 #check not false        -- true
@@ -391,7 +403,7 @@ We can confirm that these functions behave as expected
 ### Not all Boolean functions are built-in
 
 But xor, nor, and nand are not defined
-`-/
+-/
 
 #check (xor)
 #check (nand)
@@ -413,7 +425,7 @@ if the first argument (to which xor is applied) is true
 and the second argument is true then the xor function
 will return true. The remaining lines give answers
 for the other three cases of possible input pairs.  
-`-/
+-/
 
 def xor : Bool -> Bool -> Bool
 | true, true => false
@@ -432,7 +444,7 @@ def xor : Bool -> Bool -> Bool
 The nand function, short for "not and" gives exactly the
 opposite of the answer that and function gives for each case.
 Self-test: Fill in the correct output values for this function.
-`-/
+-/
 
 def nand : Bool -> Bool -> Bool
 | true, true => _
@@ -445,7 +457,7 @@ Complete this definition of the
 nor (not or) function. It must return the
 opposite of what the or function returns in
 each case.
-`-/
+-/
 
 def nor : Bool -> Bool -> Bool
 := _  -- delete this line and fill in the four cases
@@ -455,7 +467,7 @@ Suppose that a function takes two
 Boolean inputs and returns the "conjunction"
 (and) of the "negation" (not) of each argument.
 Which of the preceding results?
-`-/
+-/
 
 def mystery : Bool -> Bool -> Bool
 | b1, b2 => and (not b1) (not b2)
@@ -485,7 +497,7 @@ of the expression, *and (not b1) (not b2).* That in
 turn is *and false true*. And that expression then 
 evaluates to false:  the result of the application 
 of the mystery function to these arguments. 
-`-/
+-/
 
 #eval mystery true false  -- false
 --             b1   b2    (!b1 && !b2)
@@ -496,7 +508,7 @@ becomes bound to *any* value of the corresponding
 argument to a function, while defined values match
 only when the argument values are the same. It's a
 little more complicated than that but not much.     
-`-/
+-/
 
 /-!
 Finally, a rule in Lean and similar proof assistants
@@ -504,7 +516,7 @@ is that functions have to have defined return values
 for *all* possible combinations of their argument
 values. If you leave out one or more cases, Lean will
 give you an error message according.
-`-/
+-/
 
 def error_example : Bool → Bool
 | true => true
@@ -526,7 +538,7 @@ in all cases henceforth we should understand that all such
 expressions just represent applications of functions to given
 arguments. Lean simply translates concrete syntax into abstract
 syntax as a first step in evaluating such expressions. 
-`-/
+-/
 
 #eval !true           -- prefix notation for not
 #eval !false
@@ -582,7 +594,7 @@ The ambiguity of natural language is resolved by giving
 such terms. And once our informal ideas are represented
 formally, we can then apply the amazing tools of logic
 and mathematics to really analyze and reason about them.  
-`-/
+-/
 
 /-!
 ### Self-test
@@ -591,4 +603,4 @@ Self test: Which mathematical function captures this, most
 plausible, interpretation of the snack policy that the Dad 
 was communicating to his daughter? (You can have one or none
 but not both)?
-`-/
+-/

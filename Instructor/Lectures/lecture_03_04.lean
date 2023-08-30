@@ -11,7 +11,7 @@ Each one simply returns the single value
 given as its single argument. We call these 
 function *identity functions*, for arguments
 of types Nat, String, and Bool respectively.
-`-/
+-/
 
 def id_nat : Nat → Nat
 | n => n
@@ -34,7 +34,7 @@ such function for each of hundreds of
 types. We can avoid such repetition by
 "factoring out" the varying part of the
 definition into a parameter (argument). 
-`-/
+-/
 
 /-!
 ## Factor out variability into a type parameter
@@ -52,7 +52,7 @@ an infinitude of identity functions, varying in
 the types of their argument and return values. 
 Then we'll analyze the definition to understand 
 it in detail.
-`-/
+-/
 
 def id_poly (α : Type) : α → α 
 | v => v
@@ -71,7 +71,7 @@ Here are the elements of this definition:
 
 Now we can see that our single definition provides an identity
 function for any type of value.
-`-/
+-/
 
 #eval id_poly String "Hello!"
 #eval id_poly Nat 7
@@ -88,7 +88,7 @@ types. Here the *type* of it's second argument is given by the type
 Lean easily detects type errors in such expressions. For example,
 if we pass Bool as the first argument but 7 as the second, Lean 
 will report an error. Let's try. 
-`-/
+-/
 
 #check id_poly Bool 7   -- Lean says it can't convert 7 into a Bool
 
@@ -109,7 +109,7 @@ value of the first *type* argument to id_poly, you specify it as
 an argument when defining the function not using (α : Type) but 
 using curly braces instead: {α : Type}. Let's define the function 
 again (with the name id_poly') to see this idea in action.
-`-/
+-/
 
 def id_poly' {α : Type} : α → α   -- α is now an implicit argument 
 | v => v
@@ -124,7 +124,7 @@ simple and evidently polymorphic. It also eliminates possible
 type mismatches between the first and second arguments, as the
 type in question is inferred automatically from the value to 
 be returned. 
-`-/
+-/
 
 #eval id_poly' 7
 #eval id_poly' "Hello!"
