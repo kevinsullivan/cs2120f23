@@ -567,28 +567,29 @@ and function.
 
 In the third example, the dad almost certainly meant
 that you can have one or the other but not both. But in 
-propositional and predicate logic, and or expression is
+propositional and predicate logic, an *or* expression is
 true if either or both of its arguments are true. Now did
 the dad mean that you can have one or the other but not 
-both and that you must have at least one? That would be
+both *and that you must have at least one*? That would be
 xor. However, he probably didn't really mean that she
-*had to* have at least one sweet; so she'd only get the
+*had to* have at least one sweet. So she'd only get the
 nope-buzzer (false) if she answered that she wanted both,
 while it'd be okay (true) if she asked for one, the other, 
 or neither! 
 
 The ambiguity of natural language is resolved by giving 
 "formal," which is to say mathematical, definitions of 
-such terms. And once our informal ideas are represented
-formally, we can then apply the amazing tools of logic
-and mathematics to really analyze and reason about them.  
+terms such as *and* and *or*. And once our informal ideas 
+are represented formally, we can then apply the amazing 
+tools of logic and mathematics to reason about them very
+precisely.  
 `-/
 
 /-!
 ### Self-test
 
-Self test: Which mathematical function captures this, most 
-plausible, interpretation of the snack policy that the Dad 
+Self test: Which mathematical function captures the,\ most 
+plausible interpretation of the snack policy that the Dad 
 was communicating to his daughter? (You can have one or none
 but not both)?
 `-/

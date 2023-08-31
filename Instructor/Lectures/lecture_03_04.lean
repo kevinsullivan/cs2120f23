@@ -22,6 +22,10 @@ def id_string : String → String
 def id_bool : Bool → Bool
 | n => n
 
+#eval id_nat 7
+#eval id_string "Hello"
+#eval id_bool true
+
 /-!
 ## Functions varying in argument types
 
