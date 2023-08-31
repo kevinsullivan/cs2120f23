@@ -410,7 +410,7 @@ But xor, nor, and nand are not defined
 #check (nor)
 
 /-!
-### We can define them for ourselves
+### We can define functions ourselves
 
 We can use the second style of function definition
 (from above) to define the xor function. Recall that
@@ -436,7 +436,7 @@ def xor : Bool -> Bool -> Bool
 #eval xor true true     -- false
 #eval xor true false    -- true
 #eval xor false true    -- true
-#eval xor false false   -- true
+#eval xor false false   -- false (corrected)
 
 /-!
 ### Self-tests
