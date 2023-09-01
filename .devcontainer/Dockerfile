@@ -18,7 +18,7 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8  
 
 # Install essential tools and libraries
-RUN apt-get -y install lsb-release build-essential git vim wget gnupg curl unzip libssl-dev libffi-dev libconfig-dev groff less
+RUN apt-get -y install lsb-release build-essential git vim wget gnupg curl unzip libssl-dev libffi-dev libconfig-dev
 
 
 # Perform following actions in containers /root directory
