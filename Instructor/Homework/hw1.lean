@@ -45,7 +45,7 @@ Tuesday, September, 5.
 -/
 
 /-! 
-## 1. 
+## Problem 1: A type question 
 
 The String.length function takes any string
 as an argument and returns the natural number that
@@ -57,19 +57,24 @@ Answer here:
 
 
 /-!
-## 2. 
-The *implies* takes two Boolean values as its
-arguments and returns a Boolean value as a result.
-If the first argument is true and the second is
-false, then *implies* returns false, otherwise it
-returns *true*. Define the implies function here,
-calling it imp. 
+## 2: Define a Boolean operation
+The *implies* function from Boolean algebra takes 
+two Boolean values as its arguments and returns a 
+Boolean value as a result. It's one of the standard
+Boolean operations, along with *and*, *or*, etc. It
+behaves as follows: If the first argument is true 
+and the second is false, then it returns false and
+otherwise it returns *true*. 
+
+Define the implies function here, calling it imp.
+Hint: Review the notes to see how we define several
+similar Boolean operators, such as *xor* and *nor*. 
 -/
 
 -- Write your code here
 
 /-!
-## 3. 
+## Problem 3: Prove correctness by exhaustive testing
 Prove that your implementation of imp is corret
 by writing test cases, using #eval, for all possible
 combinations of input arguments. Document the corret
@@ -78,9 +83,10 @@ end of each #eval line, as we've done in class.
 -/
 
 -- Write your answers here:
+#eval _   -- etc
 
 /-!
-## 4. 
+## 4. Glue together two compatible functions
 Write a function, *glue_funs'*, that takes 
 three arguments and returns a Boolean result. 
 The first argument is any function, *g*, that 
@@ -143,7 +149,7 @@ def glue_funs' : _
 #eval glue_funs' isEven String.length "Hello!" -- true
 
 /-!
-## 5. 
+## 5. Generalize to arbitrary compatible function types
 Note that glue_funs' works only for functions
 of types (Nat → Bool) and (String → Nat). It works
 because the output type of any (String → Nat) function
@@ -190,7 +196,7 @@ def glue_funs : _
 #eval glue_funs isEven String.length "Hello!" -- true
 
 /-!
-#6. 
+## 6. Show that apply2 is a special case
 
 Write a test case for glue_funs using the double and 
 square functions from the class notes as function 
