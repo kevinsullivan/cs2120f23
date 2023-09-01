@@ -69,7 +69,10 @@ call it *α : Type.* Here's the code we want.
 -/
 
 def id_poly : (α : Type) → α → α 
-| α, v => v
+| _, v => v
+
+def id_poly' (α : Type) : α → α 
+| v => v
 
 /-
 The key idea in play here is that we bind a name, 
@@ -90,9 +93,11 @@ are the elements of the whole function definition:
 -/
 
 -- And we can see that it works!
-#eval id_poly String "Hello!"
-#eval id_poly Nat 7
-#eval id_poly Bool true
+#eval (id_poly String) "Hello!"
+#eval (id_poly Nat) 7
+#eval (id_poly Bool) true
+
+
 
 /-!
 ## Specialization by (partial) application 
@@ -137,6 +142,11 @@ Lean  will report an error. Let's try.
 
 #check id_poly Bool 7   -- Lean can't convert 7 into a Bool
 
+#check id_poly Bool true
+#check id_poly Nat 7 
+#check id_poly String "Hello"
+
+
 /-!
 ## Implicit Arguments
 
@@ -156,7 +166,7 @@ using curly braces instead: {α : Type}. Let's define the function
 again (with the name id_poly') to see this idea in action.
 -/
 
-def id_poly' : {α : Type} → α → α   -- α is an implicit argument 
+def id_poly'' : {α : Type} → α → α   -- α is an implicit argument 
 | _, v => v
 
 /-!
@@ -171,9 +181,17 @@ type in question is inferred automatically from the value to
 be returned. 
 -/
 
-#eval id_poly' 7          -- α = Nat, inferred!
-#eval id_poly' "Hello!"   -- α = String, inferred!
-#eval id_poly' true       -- α = Bool, inferred!
+#eval id_poly'' 7          -- α = Nat, inferred!
+#eval id_poly'' "Hello!"   -- α = String, inferred!
+#eval id_poly'' true       -- α = Bool, inferred!
+
+#eval id_poly'' Nat 7          -- α = Nat, inferred!
+#eval id_poly'' String "Hello!"   -- α = String, inferred!
+#eval id_poly'' Bool true       -- α = Bool, inferred!
+
+#eval @id_poly'' Nat 7          -- α = Nat, inferred!
+#eval @id_poly'' String "Hello!"   -- α = String, inferred!
+#eval @id_poly'' Bool true       -- α = Bool, inferred!
 
 /-!
 ## Extended Example: A polymorphic apply2 function
@@ -233,7 +251,7 @@ example, *double 4* should reduce to *8*.
 -/
 
 def double : Nat → Nat
-| _ => _
+| n => 2 * n
 
 #eval apply2_nat double 4     -- expect 16 (2 * (2 * 4))
 #eval apply2_nat double 10    -- expect 40 (2 * (2 * 10))
@@ -252,13 +270,22 @@ few inputs, including 5. Give your answer here:
 
 -- here:
 
+def square : Nat → Nat
+| n => n^2
+
+#eval square 4  -- expect 16
+
 /-!
 Write test cases for apply2_nat square for several values,
 including 5, and use them to develop confidence that your
 function definition appears to be working more generally.
 -/
 
--- here:
+#eval apply2_nat square 1   -- expect 1
+#eval apply2_nat square 2   -- expect 16
+#eval apply2_nat square 3   -- expect 81
+#eval apply2_nat square 4   -- expect 256
+
 
 /-! 
 ### A Stringy Example
@@ -276,76 +303,102 @@ string argument values.
 
 You can make up your own String → String functions.
 For example, a function, exclaim : String → String,
-applied to a string, s, could (append s "!"). There
-is a notation for this: *s ++ "!"*. Go ahead and 
-complete its definition here.
+applied to a string, s, could return (append s "!"). 
+There is a notation: *s ++ "!"*. 
 -/
 
--- here, fill in the missing expression
-
 def exclaim : String → String 
-| s => _    -- with s bound to first argument value
+| s => s ++ "!"    -- with s bound to first argument value
 
-#check (exclaim "Hello")
-#eval exclaim "Hello"
-#eval exclaim (exclaim "Hello")
+#eval exclaim "Hello"             -- apply it once
+#eval exclaim (exclaim "Hello")   -- apply it twice
 
 /-!
-Now you can use this function, exclaimm as a first
-argument to apply2_string. The result is a function
-that is waiting for an argument, s, and that then
-returns returns the result of applying the "baked 
-in") function, f, to s, to compute (f s), and then 
-applies f to that value, for the second time. The
-result is the value of *f (f s))*.  
+Now you can use this function, exclaim, as a first
+argument to apply2_string. Defining this function 
+is easy, as it's the same as apply2_nat except for
+the type of objects being handled: String not Nat.
+-/
 
-Show that you can write the programs analogous
-to the corresponding ones for Natty things but
-now for Stringy things, while writing demo and
-test cases. Key idea: A test case defines some
-value to be computed *and* an expected result.
-The passing or failure of a test case reflects
-the consistency of expected and compute value.
+def apply2_string : (String → String) → String → String
+| f, a => f (f a)
 
+#eval apply2_string exclaim "Hello" -- expect "Hello!!"
+
+/-!
 ## Generalizing the Type of Objects Handled
 
 At this point it should be clear, by analogy
 with earlier material, that we can generalize
 over the specific Nat and String types in the
-previous examples to a general type: call it α!
-Replace the _ here with the *rest of the type*
-of the apply2 function, given that we alrady
-have a specific type in hand, such as String
-or Nat, to which we've bound α. You can now
-use α to specify the rest of the type of the
-function.  
+previous examples to write a version of apply2
+that can handle objects of any type, α. The
+trick, as usual, is to add handle variation in
+object types by adding a type *parameter*.
 -/
 
 def apply2 : (α : Type) → (α → α) → α → α  
 | _, f, a => f (f a)
 
+/-
+Let's explain this function in detail:
 
-#eval apply2 Nat Nat.succ 0   -- expect 2
-#eval apply2 Nat double 1     -- expect 4
-#eval apply2 Nat square 2     -- expect 16
-#eval apply2 String exclaim "Hello" 
+- def is the keyword for binding names to values
+- apply2 is the name of our new function
+- the type of the function is give after the :
+- the function takes three arguments:
+  - a type value, α, such as Nat or String
+  - a function of type α → α, such as exclaim
+  - a value of type α 
+- next is rule for computing the result
+  - first we match all three arguments
+    - the type value (we don't have to name it)
+    - the function (we name it f)
+    - the argument (we name it a)
+  - after the => is the expression for the result
+
+We can now try it out to see that it works!
+-/
+
+#eval apply2 Nat Nat.succ 0         -- expect 2
+#eval apply2 Nat double 1           -- expect 4
+#eval apply2 Nat square 2           -- expect 16
+#eval apply2 String exclaim "Hello" -- "Hello!!" 
 
 /-!
-## Type Inference
+## Type Inference and Implicit Arguments
 
 As a final exercise in good notation, redefine
 apply2 (calling it apply2') so that the first
-argument, the type value, is implicit: where
-Lean infers its value from the types of the 
-remaining arguments. When you get it right, the
-following test cases should work.
+argument, the type value, is implicit. Write the
+definition so that Lean infers the value of α 
+(the first, type, argument) from the values of 
+the remaining arguments. When you get it right, 
+the following test cases should work.
 -/
 
--- Now you can and should write the code here:
+-- Answer:
 
+def apply2' : { α : Type } → (α → α) → α → α 
+| _, f, a => f (f a)
 
--- same tests again
+-- Now the type arguments are implicit!
 #eval apply2' Nat.succ 0   -- expect 2
 #eval apply2' double 1     -- expect 4
 #eval apply2' square 2     -- expect 16
 #eval apply2' exclaim "Hello" -- Hello!!
+
+/-!
+Yay! This example is an important achievement. 
+It exhibits the following fundamental concepts:
+- types and values; every value has a type
+- types are values too; their type is Type
+- types parameters make definitions polymorphic
+- types can be inferred and can remain implicit
+- functions are values, too, and can be arguments
+
+With all the work required to get to this point
+now in hand, we're ready to introduce a new and
+important concept in mathematics. It will be the
+subject of your first homework assignment. 
+-/
