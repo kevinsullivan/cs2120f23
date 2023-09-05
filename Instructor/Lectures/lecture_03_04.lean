@@ -74,7 +74,7 @@ def id_poly : (α : Type) → α → α
 def id_poly' (α : Type) : α → α 
 | v => v
 
-/-
+/-!
 The key idea in play here is that we bind a name, 
 α, to the value of the (first) type parameter, and,
 having done that, we then express the rest of the 
@@ -185,9 +185,19 @@ be returned.
 #eval id_poly'' "Hello!"   -- α = String, inferred!
 #eval id_poly'' true       -- α = Bool, inferred!
 
-#eval id_poly'' Nat 7          -- α = Nat, inferred!
-#eval id_poly'' String "Hello!"   -- α = String, inferred!
-#eval id_poly'' Bool true       -- α = Bool, inferred!
+#eval id_poly'' Nat 7             -- error
+#eval id_poly'' String "Hello!"   -- error
+#eval id_poly'' Bool true         -- error
+
+/-!
+Sometimes we will have to give type arguments
+explicitly, even when they're declared to be
+implicit. In these cases, we disable implicit
+argument inference, In Lean, by writing an @
+before the given expression. Note that in the
+following examples we once again can, and must,
+give the type argument values explicitly. 
+-/
 
 #eval @id_poly'' Nat 7          -- α = Nat, inferred!
 #eval @id_poly'' String "Hello!"   -- α = String, inferred!
@@ -196,33 +206,31 @@ be returned.
 /-!
 ## Extended Example: A polymorphic apply2 function
 
-We'll now work up to defining a polymorphic function,
+We'll now work up to defining a *polymorphic* function,
 apply2, that takes as its arguments a function, f, 
 and a value, a, and that returns the result of applying
 f to a twice: that it, it returns the value of f (f a).
 
 ### A Natty Example
 
-We'll define apply2 as a function that takes a 
+We'll define apply2_nat as a function that takes a 
 function, f, and an argument, a, to that function 
 as its arguments, and that then returns the result 
 of applying the function f to the argument a twice.
 That is, apply will return the value of f (f a).
 
 As an example, if f is the function, Nat.succ, that 
-returns one more than a given natural number a, the 
-result of "applying f twice to 0" is *succ (succ 0)*,
-where inner expression reduces to 1 and the successor
-of that is 2. That's the result.
+returns *one more than* a given natural number a, the 
+result of "applying f twice to 0" is 2. 
 
-Let's write this apply2 function where the function
-and argument values are Natty. We define *apply2_nat*
+Let's write this apply2_nat function where the function
+and its argument values are Natty. We define *apply2_nat*
 that takes (1) a function, *f : Nat → Nat*, and (2) a 
 second argument, *a : Nat*, and that returns a result 
-of applying f twice to a: namely *f (f a)*. 
+of applying f twice to a: namely *f (f a)*, also a Nat. 
 -/
 
--- This apply2 version is specialized for Natty values                         f         a
+-- This apply2 version is specialized for "Natty" values                         f         a
 def apply2_nat : (Nat → Nat) → Nat → Nat
 | f, a => f (f a)
 
@@ -238,6 +246,7 @@ argument.
 #check (Nat.succ)           -- Nat → Nat
 #eval Nat.succ 0            -- 1
 #eval apply2_nat Nat.succ 0 -- expect 2
+#eval apply2_nat Nat.succ 3 -- expect 5
 
 /-!
 Yay, it seems to work. It gets more interesting when we
@@ -304,11 +313,11 @@ string argument values.
 You can make up your own String → String functions.
 For example, a function, exclaim : String → String,
 applied to a string, s, could return (append s "!"). 
-There is a notation: *s ++ "!"*. 
+There is an infix notation: *s ++ "!"*. 
 -/
 
 def exclaim : String → String 
-| s => s ++ "!"    -- with s bound to first argument value
+| s => s ++ "!"    
 
 #eval exclaim "Hello"             -- apply it once
 #eval exclaim (exclaim "Hello")   -- apply it twice
@@ -326,25 +335,29 @@ def apply2_string : (String → String) → String → String
 #eval apply2_string exclaim "Hello" -- expect "Hello!!"
 
 /-!
+It works!
+-/
+
+/-!
 ## Generalizing the Type of Objects Handled
 
 At this point it should be clear, by analogy
 with earlier material, that we can generalize
-over the specific Nat and String types in the
-previous examples to write a version of apply2
+from the specific Nat and String types, in the
+previous examples, to write a version of apply2
 that can handle objects of any type, α. The
-trick, as usual, is to add handle variation in
+trick, as usual, is to handle the variation in
 object types by adding a type *parameter*.
 -/
 
-def apply2 : (α : Type) → (α → α) → α → α  
+def apply2' : (α : Type) → (α → α) → α → α  
 | _, f, a => f (f a)
 
 /-
 Let's explain this function in detail:
 
 - def is the keyword for binding names to values
-- apply2 is the name of our new function
+- apply2' is the name of our new function
 - the type of the function is give after the :
 - the function takes three arguments:
   - a type value, α, such as Nat or String
@@ -360,10 +373,10 @@ Let's explain this function in detail:
 We can now try it out to see that it works!
 -/
 
-#eval apply2 Nat Nat.succ 0         -- expect 2
-#eval apply2 Nat double 1           -- expect 4
-#eval apply2 Nat square 2           -- expect 16
-#eval apply2 String exclaim "Hello" -- "Hello!!" 
+#eval apply2' Nat Nat.succ 0         -- expect 2
+#eval apply2' Nat double 1           -- expect 4
+#eval apply2' Nat square 2           -- expect 16
+#eval apply2' String exclaim "Hello" -- "Hello!!" 
 
 /-!
 ## Type Inference and Implicit Arguments
@@ -379,26 +392,249 @@ the following test cases should work.
 
 -- Answer:
 
-def apply2' : { α : Type } → (α → α) → α → α 
+def apply2 : { α : Type } → (α → α) → α → α 
 | _, f, a => f (f a)
 
 -- Now the type arguments are implicit!
-#eval apply2' Nat.succ 0   -- expect 2
-#eval apply2' double 1     -- expect 4
-#eval apply2' square 2     -- expect 16
-#eval apply2' exclaim "Hello" -- Hello!!
+#eval apply2 Nat.succ 0   -- expect 2
+#eval apply2 double 1     -- expect 4
+#eval apply2 square 2     -- expect 16
+#eval apply2 exclaim "Hello" -- Hello!!
 
 /-!
-Yay! This example is an important achievement. 
+This example is an important achievement. 
 It exhibits the following fundamental concepts:
-- types and values; every value has a type
+- every value has a type
 - types are values too; their type is Type
 - types parameters make definitions polymorphic
-- types can be inferred and can remain implicit
+- type arguments can be implicit and inferred
 - functions are values, too, and can be arguments
 
 With all the work required to get to this point
 now in hand, we're ready to introduce a new and
-important concept in mathematics. It will be the
-subject of your first homework assignment. 
+important concept in mathematics. 
+
+Note: The concept is introduced as a homework
+assignment, then reviewed in class. Once it's
+done, this lecture then continues to completion.
+-/ 
+
+/-!
+## Combining Functions Into New Functions
+
+We can now highlight first great generalization 
+of this course: a function, we call it *compose*,
+that combines any two *compatible* functions, *g*
+and *f*, into a new function, denoted (g ∘ f), and
+pronounced *g after f*, where for any *compatible* 
+argument, *a*, *(g ∘ f) a* is defined as *g (f a)*.
+
+By *compatible* we mean that *a* is the input type
+of *f*, and the *output* type of *f* is the *input*
+type of *g*. When this is the case, we can provide
+*a* as an input value to *f* and *(f a)* as an input
+value to *g*. Drawing a diagram can be helpful. 
+-/ 
+
+/-!
+### The apply2 function takes f and returns (f ∘ f).
+
+The *apply2* function takes a function, *f : α → α*,
+and an argument, *a : α*, and returns the result of
+applying *f* to *a* twice. That is, evaluating *apply2 
+f a* return the value of *f (f a)*. Ah ha! Given *f* 
+and *a*, we now see that it applies *(f ∘ f)*, to *a*, 
+as we've defined (f ∘ f)*, to be *(f (f a))*. 
+-/
+
+#eval apply2 double 5   -- (double (double 5)
+                        -- (double ∘ double) 5
+
+
+/-!
+Now consider what happens if we leave out the argument 
+(*5*). By partial evaluation, which you've now seen quite
+a few times, the expression *(apply2 double)* returns a
+*function* that then takes a next argument, such as 5, 
+which it then doubles twice. 
+-/
+
+-- Assign (apply2 double) to a variable
+def double_after_double := (apply2 double)
+
+-- It works as expected
+#eval double_after_double 0 -- expect 0 (double (double 0))
+#eval double_after_double 1 -- expect 4 (double (double 1))
+#eval double_after_double 5 -- expect 20(double (double 5))
+
+/-!
+Leaving the final argument to be provided later,
+we see that (apply2 f) returns the funtion (f ∘ f).
+-/
+
+def square_after_square := apply2 square  -- square ∘ square
+#eval square_after_square 5               -- expect 625
+
+/-!
+Furthermore, because we generalized *apply2* to
+make it polymorphic, then for any type, α, it can be 
+used to compose any function, *f : α → α* with itself.
+-/
+
+def exclaim_after_exclaim := apply2 exclaim -- exclaim ∘ exclaim
+#eval exclaim_after_exclaim "I love this stuff"
+
+
+/-!
+Here, then, is the first big idea we can highlight:
+Not only can you treat functions as "things"---that
+you can "store" in variables, pass as arguments, and
+get back as return results---but you now have a way
+to *combine* functions into new functions.
+
+Just as in your earlier math classes you've had ways
+to combine numbers into new numbers using operators 
+such as + and *. You can now combine functions into
+new functions. And just as we talk about *addition* 
+of numbers, we can now talk about the *composition*
+of functions. You're now doing higher mathematics!
+-/
+
+/-!
+Of course, apply2 is a pretty limited mechanism for
+composing functions: it can only compose a function,
+f, with itself, to return *(f ∘ f)*. As you saw on
+the homework, we can also glue different functions
+together, as long as they are compatible: the output
+type of the first has to be the same as the input
+type of the second. 
+
+On the homework, we worked up to defined *glue_funs*
+as a polymorphic function that, given any three types,
+α, β, and γ, takes two functions, *g : β → γ* and *f :
+α → β* along with an argument *a : α* and that returns 
+*(g (f a))*, which we can now write as *(g ∘ f) a*.
+-/ 
+
+def glue_funs {α β γ : Type} :
+  (β → γ) →
+  (α → β) → 
+   α → 
+   γ 
+| g, f, a => g (f a)
+
+/-!
+Moreover, if we leave off the third argument, *a*, to
+*glue_funs*, we will get back exactly *(g ∘ f)*, which
+of course is a function of, ..., well, of what type? 
+Hint: What is the associativity of →? Try putting in
+a pair of parentheses and then read the function type
+of *glue_funs* in a slightly different way.
+-/
+
+#eval glue_funs square double 4
+
+/-!
+Self-test: What is the type of the function returned 
+by *glue_funs* when applied to two function arguments? 
+-/
+
+/-!
+Insight: glue_funs *is* a general function composition
+operation! A better name for it is compose! We'll start
+by calling it compose' and then make a final improvement.
+-/
+
+def compose' {α β γ : Type} :
+  (β → γ) →
+  (α → β) → 
+   α → 
+   γ 
+| g, f, a => g (f a)
+
+
+#eval 5%2 = 1
+
+-- Here's an is_even function for Nat
+def is_even : Nat → Bool
+| k => k % 2 == 0
+
+/-! 
+Self-test: using *compose'*, define a function,
+is_even_len' : String → Bool, that takes a string
+and returns true if it's of even length and false 
+otherwise.
+-/
+
+-- Answer here.
+
+def is_even_len := compose' is_even String.length
+
+#eval is_even_len "Love"
+#eval is_even_len "Love!"
+#eval is_even_len "Love!!"
+
+/-!
+## Function (aka lambda) expressions
+
+Our code for *compose'* is a little more complex than
+it needs to be. If all we're going to do is use it to
+return functions, then in a sense we don't expect to
+be getting a final argument value, *a*. Rather, the
+normal use will be to apply it to just two function
+arguments and get a function value back. We'll now see
+how to write an expression for the function we want to 
+return. Here it is.
+-/
+
+def compose {α β γ : Type} :
+  (β → γ) → 
+  (α → β) → 
+  (α → γ)       
+| g, f => (fun a => g (f a)) 
+
+
+/-!
+Read the expression, (fun a => g (f a)), as
+*an unnamed function taking an argument, *a*,
+and returning the value of *g (f a)*. You can
+use an expression like this anywhere you need
+to pass a function argument! 
+-/
+
+#eval compose (fun (n : Nat) => n%2 == 0) String.length "Love!"
+
+
+/-!
+Self test: Is the function type of compose really any
+different than before?
+-/
+
+
+/-!
+In Lean4, the *compose* function is *Function.compose*
+and the infix notation, ∘, is a convenient way to apply
+it.
+-/
+
+-- Combining functions as if they were numbers!
+def is_even_len'' := (is_even ∘ String.length)
+
+
+#eval is_even_len'' "Hello Higher Mathematics!"
+#eval String.length "Hello Higher Mathematics!"
+
+
+/-!
+Celebrate! Being able to understand, write, apply a
+generalized, polymorphic, function-returning function
+such as compose is a major milestone in this class. 
+You will use the concepts embedded in this beautiful
+example for the rest of the semester.
+
+def compose {α β γ : Type} :
+  (β → γ) → 
+  (α → β) → 
+  (α → γ)       
+| g, f => (fun a => g (f a)) 
 -/
