@@ -175,22 +175,42 @@ explicit.
 #check (@put)     -- @put : {α : Type} → α → Box α
 
 /-!
-### Destructor
+### Eliminator
 
 Having *put* some value in a Box, we will often want to
-get it back out. To do this, we need to *destroy* the box
-to get at what's inside. The way we destroy an object to
+get it back out. To do this, we need to *eliminate* the box
+to get at what's inside. The way we eliminate an object to
 get at what's inside it is by pattern matching! We define
-a (polymorphic) function, let's call it *get* that takes
-an object of type *(Box α)* for some type, α, and we use
-pattern matching to (a) determine which constructor was
-used to construct the box, (2) give a name to the value
-that was provided to that particular constructor when the 
-Box was constructed; then we just return that named thing. 
+a (polymorphic) function, let's call it *get*, that takes
+an object of type *(Box α)* for some type, α, and that
+uses pattern matching to (a) determine which constructor 
+was used to construct the box, (2) give a name to the value
+that was provided to that constructor when the Box was 
+built. Then we just return that now named thing inside
+the box. 
 -/
 
 def get {α : Type} : Box α → α 
 | (put o) => o
+
+/-!
+Let's analyze that. The function name is get. It's
+polymorphic with implicit type argument α. It takes
+a value of type *Box α* and from that argument it
+derives and returns a value of type α. The way it
+does this is by pattern matching on the argument
+of type *Box α*. There's only one way that such an
+argument can exist: it *must* have been constructed
+by the *put* constructor applied to *some* object of
+type α. By pattern matching we give that object the
+name, o. That's the key! Now we have a handle on
+the object inside the box, and all that's left to
+do is to return it. Study this example deeply and
+be sure you fully understand what's going on. Here
+are examples to show it in operation. Remind yourself
+of the definitions of boxed_nat, etc., from above,
+as needed to see that the results are as expected.  
+-/
 
 #eval get boxed_nat     -- expect 1
 #eval get boxed_bool    -- expect true
@@ -226,12 +246,12 @@ example.
 Indeed, given any arbitrary types, α and β, we can define
 a type of ordered pairs whose first values are of type α
 and whose second values are of type β. We now have the idea
-of the polymorphic *product* type, called *Prod* in Lean. It
-is a *type builder* with *two* type arguments. It still has a
-single constructor, called *pair* that takes two arguments,
-one (a : α) and a second (b : β). The term *(Prod.pair a b)*
-then represents the specific ordered pair, (a, b) : Prod α β.
-Indeed, Lean provides the notation *(a, b)* for any such pair.  
+of the polymorphic *product* type. It's a *type builder* with 
+*two* type arguments. It still has a single constructor, 
+here called *pair* that takes two arguments,
+(a : α) and (b : β). The term *(Prod.pair a b)* then represents 
+the ordered pair, (a, b) : Prod α β. Lean provides the notation 
+*(a, b)* for any such pair.  
 -/
 
 namespace cs2120
@@ -243,19 +263,18 @@ open Prod
 
 /-!
 ### Constructor
-The pair constructor is polymorphic with two implicit type arguments,
-α and β, and two explicit arguments, (a : α) and (b : β). These types
-are inferred from the arguments to which *pair* is applied. The term,
-*(pair a b)* that results is then of type *Prod α β*. Take some time
-to internalize this structure.  
+Our pair constructor is polymorphic with two implicit type arguments,
+α and β, and two explicit arguments, (a : α) and (b : β). The types
+are inferred. The term, *(pair a b)* is then of type *Prod α β*. Take 
+some timeto internalize this structure.  
 -/
 
 -- Here's the type of the constructor including implicit arguments
 #check (@pair)
 
 -- Here we build two ordered pair values
-def a_pair_string_nat := pair "Love" 4
-def a_pair_nat_bool := pair 5 false
+def a_pair_string_nat : Prod String Nat := pair "Love" 4
+def a_pair_nat_bool : Prod Nat Bool := pair 5 false
 
 -- These objects are of the "parameterized" types you expect
 #check a_pair_string_nat    -- type of ("Love",5) is (Prod String Nat)
@@ -266,11 +285,11 @@ def a_pair_nat_bool := pair 5 false
 
 Now suppose we have an ordered pair, *p = (a, b)*, and that we 
 want to *get* the first, or respectovely the second, value, "out 
-of the box." We'll need two destructors: one that is given a pair,
-*(a, b)* and that returns the *first* element, *a*, and one that 
-returns the second element, *b*. We take just the same approach as
-before, using pattern matching to give names to the element inside
-a given pair, which we can then return by name. 
+of the box." We'll need two eliminators: one that when given a pair,
+*(a, b)*, returns the *first* element, *a*; and one that returns 
+the second element, *b*. We take just the same approach as before,
+using pattern matching to give names to the element inside a given 
+pair. We can then return the right one. 
 -/
 
 def first {α β : Type} : Prod α β → α 
@@ -278,6 +297,18 @@ def first {α β : Type} : Prod α β → α
 
 def second {α β : Type} : Prod α β → β 
 | (pair _ b) => b
+
+/-!
+Study, compare, and contrast the function types here
+as well as the implementations. These rules say, first,
+if we have both an *a* and a *b*, then we can get an 
+*a*; and, second, if we have both an *a* and a *b*, we 
+can get a *b*. They're really simple, but they're also 
+now stated in a mathematically precise and general way.
+This is mathematics as much as it is programming. It's
+abstract mathematics that also actually computes. Here
+are a few examples of computing with these definitions. 
+-/
 
 #eval first a_pair_string_nat     -- "Love"
 #eval second a_pair_string_nat    -- 4
@@ -326,7 +357,7 @@ def pair2 := (17, false)
 
 -- Be sure you understand these function types
 #check (@Prod.fst)
-#check (@Prod.fst)
+#check (@Prod.snd)
 
 #eval Prod.fst pair1    -- expect "Hello"
 #eval Prod.snd pair1    -- expect 5
@@ -350,8 +381,9 @@ how to use the concept with Lean's build-in definitions.
 Here are the key ideas:
 - Sum will be polymorphic with two type arguments
 - It will have two constructors 
-  - The first (inl) takes *(a : α)* to construct a value
-  - The second (inr) take *(b : β)* to construct a value 
+  - The first (inl) takes *(a : α)* to construct a value with an α value
+  - The second (inr) take *(b : β)* to construct a value with a β value
+- To use a value of a sum type we have to be able to handle *either case*
 -/
 namespace cs2120
 
@@ -367,13 +399,13 @@ def a_sum1 : Sum Nat Bool := Sum.inl 1
 def b_sum1 : Sum Nat Bool := Sum.inr true
 
 /-
-These definitions assigns to *a_sum1* a 
-Sum object that capable of holding a Nat OR
+These definitions assign (1) to *a_sum1* a 
+Sum object capable of holding a Nat OR
 a Bool, and that contains the Nat value, 1;
-and to *b_sum1*, the same type of object but
-now holding the Bool value, true.
+and (2) to *b_sum1*, the same type of object 
+but now holding the Bool value, true.
 
-By contrast, the follwing definition assigns
+By contrast, the following definition assigns
 to a_sum2 an object capable of holding a Nat
 or a String, and holding the Nat value, 1. 
 The value, 1, is the same as in the earlier
@@ -478,6 +510,12 @@ def elim_sum {α β γ : Type} : (Sum α β) → (α → γ) → (β → γ) →
 
 #eval elim_sum a_sum1 nat_to_string bool_to_string
 #eval elim_sum b_sum1 nat_to_string bool_to_string
+
+/-!
+Lean's suport for Sum types.
+
+Coming Soon.
+-/
 
 /-!
 Understanding what it takes, and how, to deal with objects of
