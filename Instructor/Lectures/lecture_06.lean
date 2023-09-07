@@ -512,12 +512,14 @@ def elim_sum {α β γ : Type} : (Sum α β) → (α → γ) → (β → γ) →
 #eval elim_sum b_sum1 nat_to_string bool_to_string
 
 /-!
-Lean's suport for Sum types.
+### Lean's Polymorphic Sum Type
 
 Coming Soon.
 -/
 
 /-!
+### Wrap-Up on Sum Types
+
 Understanding what it takes, and how, to deal with objects of
 sum types is another big achievement in this class. It will make
 you a better programmer, and it's deeply related to logic, and
