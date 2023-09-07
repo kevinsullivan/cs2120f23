@@ -160,6 +160,8 @@ right, the following test cases should pass.
 def glue_funs' : (Nat → Bool) → (String → Nat) → String → Bool
 | g, f, s => g (f s)
 
+def glue_funs2 (g : Nat → Bool) (f : String → Nat) (s : String) : Bool := g (f s)
+
 #eval glue_funs' isEven String.length "Hello"  -- false
 #eval glue_funs' isEven String.length "Hello!" -- true
 
