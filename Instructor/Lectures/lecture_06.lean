@@ -5,7 +5,61 @@ In this class so far, we've used a few data types that
 Lean provides for us, namely Bool, Nat, and String. We
 will often want to reason about or compute with values
 of other types. How do we define new data types in Lean?
-This chapter will teach you how.
+This chapter will teach you how to define new types and
+how to define functions that take arguments and return
+results of your own data types.
+
+This chapter will cover three broad classes of data 
+types. They are called *enumerated* types, *product*
+types and *sum* types. 
+
+### Enumerated Types
+An enumerated type has a (typically small) number of 
+*constant* values. By constant we mean that the values 
+of a type are produced by what we call *constructors* 
+that *don't take any arguments*. 
+
+The *Bool* type is an example. Its constructors are 
+called *true* and *false*. They take no arguments, and
+so are, in fact, the two (and the only) values of the
+*Bool* type.
+
+### Product Types
+Whereas the Bool type has two constant constructors, a 
+product type has just one constructor, but one that
+takes two arguments. You can think of the values of a 
+product type as representing an *ordered pair* of 
+values, such as *(0, true)*, for example. 
+
+Here you'll learn how to define a *polymorphic*
+product type that lets you specify (or that Lean infers
+as) arbitrary types, α and β, for the *first* and *second* 
+value in any such pair. 
+
+Crucially you will also learn how you can define your
+functions that *use* such ordered pair values. To use
+a pair value, you will generally need to *get* at the
+individual (first and second) values *inside* a pair.
+Given a pair, *p = (f,s)*, we'll define two elimination
+functions, *fst* and *snd*, where *fst p* returns *f*
+and *snd p* returns *s*.
+
+### Sum Types
+
+Now whereas a product type contains *both* a value of
+some type, α, *and* a value of some type β, a sum type
+contains *either* a value of some type, α, *or* a value
+of some type, β. Such a type has two constructors, each
+taking a single argument. We'll use asd constructor names
+*inl* and *inr*, where *inl* takes an argument of type α
+and *inr* takes an argument of type β. 
+
+Note that the *Bool* type has two constructors, either
+of which is of type *Bool*. Similarly, if *(a : α)*, 
+then *(inl a)* will be an object of a sum type; and if
+*(b : β)* then ... Quiz! How would you form a value of
+a sum type with *inl* and *inr* as constructors, using 
+β? 
 -/
 
 /-!
@@ -349,6 +403,10 @@ and *snd*; and (3) there is a notation for the type,
 *Prod α β*, namely *α × β*. 
 -/
 
+-- The name of the single Prod constructor is mk
+def pair0 := Prod.mk true 10
+
+-- It's better to use standard "outfix" notation
 def pair1 := ("Hello",5)
 def pair2 := (17, false)
 
@@ -363,6 +421,12 @@ def pair2 := (17, false)
 #eval Prod.snd pair1    -- expect 5
 #eval Prod.fst pair2    -- expect 17
 #eval Prod.snd pair2    -- expect false
+
+-- There's also notations for "projection"
+#eval pair1.1           -- expect "Hello"
+#eval pair1.2           -- expect 5
+#eval pair2.1           -- expect 17
+#eval pair2.2           -- expect false
 
 /-!
 An object of an ordered pair of type α × β contains
@@ -512,12 +576,8 @@ def elim_sum {α β γ : Type} : (Sum α β) → (α → γ) → (β → γ) →
 #eval elim_sum b_sum1 nat_to_string bool_to_string
 
 /-!
-Lean's suport for Sum types.
+### Sum Types in Everyday Programming
 
-Coming Soon.
--/
-
-/-!
 Understanding what it takes, and how, to deal with objects of
 sum types is another big achievement in this class. It will make
 you a better programmer, and it's deeply related to logic, and
@@ -526,18 +586,65 @@ in particular to reasoning from proofs of OR propositions.
 Take programming. First, classes in Java and Python are basically
 product types: an object of a given type has values for *all* of 
 the fields defined by it class. These languages simply don't have 
-sum types. You can fake them, but it's complicated. On the other
-hand, industrial imperative languages such as Rust and Swift, as 
+sum types. You can fake them, but it's complicated. Think about
+it. How would you define a Java class whose objects have either
+a cat field or a dog field? You can't.
+
+On the other hand, industrial languages such as Rust and Swift, as 
 well as functional languages such as Haskell and OCaml, do support 
 sum types directly. You now have the basic pattern for programming
 with sum-type values: you have to have a way to handle each case.
-
-Finally, take logic. Suppose you have evidence that it is raining 
-OR the sprinkler is running. Suppose you also know that IF it is
-raining, then the ground is wet, and you know that if the sprinkler 
-is running, the ground is wet. What can you conclude. In this little
-story, what propositions correspond to α, β, and γ, and to the two
-conversion functions? 
 -/
 
 end cs2120
+
+/-!
+### The Sum Type in Lean
+
+Given any two types, α and β, you can form the type, *Sum α β*,
+with notation *α ⊕ β*. You create values of this type using the
+*Sum.inl* and *Sum.inr* constructors. Note that if all you give
+to, say, *inl*, is a value of type α, Lean won't be able to infer
+the missing type β. You will have to give an explicit sum type
+to the value you're defining.
+-/
+
+def s := Sum.inl 1 -- don't know how to synthesize implicit argument
+def s1 : Sum Nat Bool := Sum.inl 1
+def s2 : Sum Nat Bool := Sum.inr true
+#check s1
+#check s2
+
+def which : Sum Nat Bool → String
+| (Sum.inl _) => "Left"
+| (Sum.inr _) => "Right"
+
+#eval which s1
+#eval which s2
+
+/-! 
+## Wrap-up
+
+It's worth taking stock of the key ideas you've now learned
+in this class, which we have formalized in the higher-order
+logic of the Lean Prover.
+-/
+
+#check {α β γ : Type} → (β → γ) → (α → β) → (α → γ)
+#check {α β : Type} → (a : α) → (b : β) → Prod α β 
+#check {α β : Type} → (Prod α β) → α 
+#check {α β : Type} → (Prod α β) → β
+#check {α β : Type} → α → Sum α β 
+#check {α β : Type} → β → Sum α β 
+#check {α β γ : Type} → Sum α β → (α → γ) → (β → γ) → _ -- Quiz!
+
+#check Function.comp
+#check Prod.mk
+#check Prod.fst
+#check Prod.snd
+#check Sum.inl
+#check Sum.inr
+-- Lean does not have a built-in version of the elimination rule for Sum types
+
+
+
