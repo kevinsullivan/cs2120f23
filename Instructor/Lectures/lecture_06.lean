@@ -1,5 +1,5 @@
 /-!
-# Data Types
+# Data Types: Enumerated and Product Types
 
 In this class so far, we've used a few data types that
 Lean provides for us, namely Bool, Nat, and String. We
@@ -8,6 +8,8 @@ of other types. How do we define new data types in Lean?
 This chapter will teach you how to define new types and
 how to define functions that take arguments and return
 results of your own data types.
+
+## Chapter Overview
 
 This chapter will cover three broad classes of data 
 types. They are called *enumerated* types, *product*
@@ -43,23 +45,6 @@ individual (first and second) values *inside* a pair.
 Given a pair, *p = (f,s)*, we'll define two elimination
 functions, *fst* and *snd*, where *fst p* returns *f*
 and *snd p* returns *s*.
-
-### Sum Types
-
-Now whereas a product type contains *both* a value of
-some type, α, *and* a value of some type β, a sum type
-contains *either* a value of some type, α, *or* a value
-of some type, β. Such a type has two constructors, each
-taking a single argument. We'll use asd constructor names
-*inl* and *inr*, where *inl* takes an argument of type α
-and *inr* takes an argument of type β. 
-
-Note that the *Bool* type has two constructors, either
-of which is of type *Bool*. Similarly, if *(a : α)*, 
-then *(inl a)* will be an object of a sum type; and if
-*(b : β)* then ... Quiz! How would you form a value of
-a sum type with *inl* and *inr* as constructors, using 
-β? 
 -/
 
 /-!
@@ -146,7 +131,10 @@ def play : Object → Object → Result
 | rock, paper => loses
 | rock, rock => ties
 
+#reduce play scissors rock
+
 end RPS
+
 
 /-!
 ## Polymorphic Types
@@ -182,37 +170,54 @@ inductive Box (α : Type) : Type
 
 /-!
 Let's explain it.
-- *inductive* is a keyword as explained above
+- *inductive* is a keyword, as explained above
 - Box is the name of our now polymorphic data type
 - α is a type argument: the type of object that can fit a given Box
 - Given (a : α), (Box a) is a type: a type of Box that can fit α's
 - put is the sole constructor, taking an argument (a : α)
+- a value of type *Box α* is simply an application term, *(put a)* 
 Let's see how to use this definition to put some things in boxes
 -/
 
 /-!
 ### Constructor
 
-Here are example using the *put a* constructor to put some
-values in some Boxes. In the first example, note that the
-*type* of boxed_nat is not *Box* but *Box Nat*. *Box* is what
-we can call a polymorphic *type builder*. Given a type, α, 
-*Box α* is a type: a type of Box cabable of holding a value
-of type α.  
+Let's look at how to construct terms of type Box α, 
+where α is a type, such as Nat or String.
 -/
 
-def boxed_nat : Box Nat := Box.put 1  -- put 1 in a (Box Nat)
-open Box                              -- relief from writing Box...
-def boxed_bool := put true            -- put true in a (Box Bool)
-def boxed_string := put "Hello!"      -- "Hello" in a (Box String)
+open Box  -- so we can write put instead of Box.put
+
+-- If α is a type, then Box α is a type
+#check Box Nat
+
+-- A put application term is a value of this type
+#check (put 1)    -- this term is a value of type Box Nat
+#reduce (put 1)   -- constructors don't compute/do anything
+
+-- We can assign values of our type to to variables
+def box_containing_zero : Box Nat := put 0
+
+-- Box is a type builder, taking arguments of different types
+def box_containing_hello : Box String := put "Hello"
+
+-- Lean can usually infer the type of a constructor term
+def box_containing_hello' := put "Hello"
+
+-- What is the type of Box? It takes a type and yields a type
+#check (Box)    -- Type → Type (study and understand this)
+
+-- A constructor of a polyorphic type is itself polymorphic
+#check (@Box.put)   -- {α : Type} → α → Box α. Understand it!
+
 
 /-!
 It's important to understand that (put 1) is a term of 
 type Box Nat, (put true) is a term of type Box Bool, and
 (put "Hello!") is a term of type Box String. Constructors
 are like functions in that you can form application terms,
-but these terms don't compute anything. They simply *are*
-values of their given types. 
+but these terms don't compute anything. Rather, constructor
+application terms *are* the values of any given type. 
 
 It's also important to understand that the constructors of
 a polymorphic type are themselves polymorphic. They implicitly
@@ -221,9 +226,9 @@ both an *implicit* type argument, α, and an *explicit* value
 of that type. In this sense, they behave like the polymorphic
 functions we've already seen. Go back and review the work we
 did on a polymorphic identity function to remind yourself of
-the details. You can see the truth of what we're saying here
-by using #check, with an @ sign to make implicit arguments
-explicit.
+the details. Then double check your understanding of the type
+of the put constructor. Note that it takes a type argument,
+but implicitly, and inferred from the following arguments.
 -/
 
 #check (@put)     -- @put : {α : Type} → α → Box α
@@ -236,16 +241,20 @@ get it back out. To do this, we need to *eliminate* the box
 to get at what's inside. The way we eliminate an object to
 get at what's inside it is by pattern matching! We define
 a (polymorphic) function, let's call it *get*, that takes
-an object of type *(Box α)* for some type, α, and that
-uses pattern matching to (a) determine which constructor 
-was used to construct the box, (2) give a name to the value
-that was provided to that constructor when the Box was 
-built. Then we just return that now named thing inside
-the box. 
+an object of type *(Box α)* for some type, α. 
+
+There is only one possible form for such a value. It must
+be a term, *(put a)*, where *a* is the argument provided
+when the term/value was constructed. So what we're going to do
+is to use pattern matching to (a) determine which constructor 
+was used to construct the box (in this example there's only
+one) (2) give a name to the value that was provided to the 
+constructor when the term was constructed. Then we return 
+that now named value from "inside" the box. 
 -/
 
 def get {α : Type} : Box α → α 
-| (put o) => o
+| put o => o
 
 /-!
 Let's analyze that. The function name is get. It's
@@ -255,20 +264,22 @@ derives and returns a value of type α. The way it
 does this is by pattern matching on the argument
 of type *Box α*. There's only one way that such an
 argument can exist: it *must* have been constructed
-by the *put* constructor applied to *some* object of
-type α. By pattern matching we give that object the
-name, o. That's the key! Now we have a handle on
-the object inside the box, and all that's left to
-do is to return it. Study this example deeply and
-be sure you fully understand what's going on. Here
-are examples to show it in operation. Remind yourself
-of the definitions of boxed_nat, etc., from above,
-as needed to see that the results are as expected.  
+by the *put* constructor applied to *some* object, 
+*a*, of type α. That is, the value must look like
+*put a*. By pattern matching we give the value, *a* 
+the name, *o*. That's the key! Now we have a name
+for the object, *a*, inside the box, all that's left
+is to return it. Study this example deeply and be 
+sure you fully understand what's going on. 
+
+Here are examples to show it in operation. Remind 
+yourself of the definitions of boxed_nat, etc., from 
+above, as needed to see that the results are as expected.  
 -/
 
-#eval get boxed_nat     -- expect 1
-#eval get boxed_bool    -- expect true
-#eval get boxed_string  -- expect "Hello!"
+#eval get (put 1)         -- o matches with 11
+#eval get (put true)      -- o matches with true
+#eval get (put "Hello!")  -- o matches with "Hello!"
 
 /-!
 ## The (Polymorphic) Product Type
@@ -368,19 +379,12 @@ are a few examples of computing with these definitions.
 #eval second a_pair_string_nat    -- 4
 #eval first a_pair_nat_bool       -- 5
 #eval second a_pair_nat_bool      -- false
+#eval first (pair 2 "Hi")         -- 2
+#eval second (pair 2 "Hi")        -- "Hi"
 
 /-!
 Challenge: What is the type of Prod? Think hard
 about it before answering? Hint: It's not Type.
--/
-
-#check (@Prod)
-
-/-!
-That right. Prod is essentially a function that
-takes two type arguments and returns a Type. We
-call it a polymorphic type, or better yet, a type
-builder. 
 -/
 
 end cs2120
@@ -405,8 +409,9 @@ and *snd*; and (3) there is a notation for the type,
 
 -- The name of the single Prod constructor is mk
 def pair0 := Prod.mk true 10
+#check pair0  -- Bool × Nat
 
--- It's better to use standard "outfix" notation
+-- Use standard notation instead of Prod.mk
 def pair1 := ("Hello",5)
 def pair2 := (17, false)
 
@@ -414,15 +419,19 @@ def pair2 := (17, false)
 #check pair2      -- Type is Nat × Bool
 
 -- Be sure you understand these function types
+-- The u_1 and u_2 generalize to Type, Type 1, ...
 #check (@Prod.fst)
 #check (@Prod.snd)
 
+-- How to eliminate to get the first or second element
 #eval Prod.fst pair1    -- expect "Hello"
 #eval Prod.snd pair1    -- expect 5
 #eval Prod.fst pair2    -- expect 17
 #eval Prod.snd pair2    -- expect false
 
--- There's also notations for "projection"
+-- We call these "projection" functions
+
+-- Lean provides notations for "projection"
 #eval pair1.1           -- expect "Hello"
 #eval pair1.2           -- expect 5
 #eval pair2.1           -- expect 17
@@ -435,216 +444,4 @@ you see a way to define a new polymorphic type that
 contains either a value *(a : α)* OR a *(b : β)?*. The
 word OR here means exclusive or.
 -/
-
-/-!
-## Sum Types
-
-We can call such a type a *sum* type. We will again 
-give a slightly simplified definition and then explain
-how to use the concept with Lean's build-in definitions.
-Here are the key ideas:
-- Sum will be polymorphic with two type arguments
-- It will have two constructors 
-  - The first (inl) takes *(a : α)* to construct a value with an α value
-  - The second (inr) take *(b : β)* to construct a value with a β value
-- To use a value of a sum type we have to be able to handle *either case*
--/
-namespace cs2120
-
-inductive Sum (α β : Type) : Type
-| inl (a : α)
-| inr (b : β)
-
-/-!
-### Constructors
--/
-
-def a_sum1 : Sum Nat Bool := Sum.inl 1
-def b_sum1 : Sum Nat Bool := Sum.inr true
-
-/-
-These definitions assign (1) to *a_sum1* a 
-Sum object capable of holding a Nat OR
-a Bool, and that contains the Nat value, 1;
-and (2) to *b_sum1*, the same type of object 
-but now holding the Bool value, true.
-
-By contrast, the following definition assigns
-to a_sum2 an object capable of holding a Nat
-or a String, and holding the Nat value, 1. 
-The value, 1, is the same as in the earlier
-example, but it's held in a different type
-of object: one of type Sum Nat String rather
-than of type Sum Nat Bool. 
--/
-
-def a_sum2 : Sum Nat String := Sum.inl 1
-
-/-!
-### Eliminator
-
-A value of type Prod α β always contains both
-an α AND a β value, so given an object of this
-type we can always return an α value and we can
-always return a β value. The *fst* and *snd*
-functions serve these purposes.
-
-By contrast, if all we're given an arbitrary
-value of type *Sum α β*, while we can be assured 
-that it contains a value of type α OR a value of 
-type β, but we can't be assured that we'll always
-have a value of type α to return or a value of
-type β. So we aren't able to define elimination
-functions like those for *Prod α β*. 
-
-To make good use of an arbitrary value of type *Sum 
-α β* we need to have a little more machinery lying
-around. In particular, suppose we have two functions,
-one to convert any value of type α into, a String
-(or more generally into any type γ), and that we 
-also have a funtion to convert any value of type
-β into a String (or more generally a value of that
-same type γ). The key is is that when given any
-value of type Sum α β, we can return a String (or
-more generally a value of some type γ) *in either
-case*.  
-
-Here's a concrete example. 
--/
-
-def elim_sum1 : Sum Nat Bool → String
-| (Sum.inl _) => "It's a Nat" 
-| (Sum.inr _) => "It's a Bool"
-
-/-!
-We can make this elimination function more
-general by passing in and using two functions,
-one that converts any Nat to a String and one
-that converts and Bool to a string. Here's what
-that looks like. 
--/
-
-def elim_sum2 : 
-  (Sum Nat Bool) → 
-  (Nat → String) → 
-  (Bool → String) → 
-  String
-| (Sum.inl n), n2s, _ => n2s n
-| (Sum.inr b), _, b2s => b2s b
-
-/-!
-Let's analyze that. It takes arguments as expected,
-including Nat-to-String and Bool-to-String conversion
-functions. It then uses pattern matching to match the
-two possible forms of the given (Sum Nat Bool) value.
-If it was constructed using inl with a Nat, then it
-applies the Nat to String converter to the Nat to get
-the String to return. 
-
-Let's see it in action. We'll define two very simple
-functions to convert Nats and Bools to strings: each
-will take an argument and just return the same string
-we used in the example above.
--/
-
-def nat_to_string (n : Nat) := "It's a Nat" -- argument unused
-def bool_to_string (b : Bool) := "It's a Bool" 
-
-/-!
-Now we can apply the elimination function we defined.
--/
-
-#eval elim_sum2 a_sum1 nat_to_string bool_to_string
-#eval elim_sum2 b_sum1 nat_to_string bool_to_string
-
-/-!
-We're now in a position to define a general-purpose
-elimination function for Sum type values. Given three
-arbitrary types, α, β, and γ, it will take a value,
-*s*, of type (Sum α β), a function *α2γ : α → γ*, and
-a function, *β2γ : β → γ*, and will return a value of
-type γ.  The function doesn't can't know ahead of time
-whether a given *s* will contain an *α* or a *β* value,
-but it can handle *either case*. 
--/
-
-def elim_sum {α β γ : Type} : (Sum α β) → (α → γ) → (β → γ) → γ
-| (Sum.inl a), α2γ, _ => α2γ a  
-| (Sum.inr b), _, β2γ => β2γ b 
-
-#eval elim_sum a_sum1 nat_to_string bool_to_string
-#eval elim_sum b_sum1 nat_to_string bool_to_string
-
-/-!
-### Sum Types in Everyday Programming
-
-Understanding what it takes, and how, to deal with objects of
-sum types is another big achievement in this class. It will make
-you a better programmer, and it's deeply related to logic, and
-in particular to reasoning from proofs of OR propositions. 
-
-Take programming. First, classes in Java and Python are basically
-product types: an object of a given type has values for *all* of 
-the fields defined by it class. These languages simply don't have 
-sum types. You can fake them, but it's complicated. Think about
-it. How would you define a Java class whose objects have either
-a cat field or a dog field? You can't.
-
-On the other hand, industrial languages such as Rust and Swift, as 
-well as functional languages such as Haskell and OCaml, do support 
-sum types directly. You now have the basic pattern for programming
-with sum-type values: you have to have a way to handle each case.
--/
-
-end cs2120
-
-/-!
-### The Sum Type in Lean
-
-Given any two types, α and β, you can form the type, *Sum α β*,
-with notation *α ⊕ β*. You create values of this type using the
-*Sum.inl* and *Sum.inr* constructors. Note that if all you give
-to, say, *inl*, is a value of type α, Lean won't be able to infer
-the missing type β. You will have to give an explicit sum type
-to the value you're defining.
--/
-
-def s := Sum.inl 1 -- don't know how to synthesize implicit argument
-def s1 : Sum Nat Bool := Sum.inl 1
-def s2 : Sum Nat Bool := Sum.inr true
-#check s1
-#check s2
-
-def which : Sum Nat Bool → String
-| (Sum.inl _) => "Left"
-| (Sum.inr _) => "Right"
-
-#eval which s1
-#eval which s2
-
-/-! 
-## Wrap-up
-
-It's worth taking stock of the key ideas you've now learned
-in this class, which we have formalized in the higher-order
-logic of the Lean Prover.
--/
-
-#check {α β γ : Type} → (β → γ) → (α → β) → (α → γ)
-#check {α β : Type} → (a : α) → (b : β) → Prod α β 
-#check {α β : Type} → (Prod α β) → α 
-#check {α β : Type} → (Prod α β) → β
-#check {α β : Type} → α → Sum α β 
-#check {α β : Type} → β → Sum α β 
-#check {α β γ : Type} → Sum α β → (α → γ) → (β → γ) → _ -- Quiz!
-
-#check Function.comp
-#check Prod.mk
-#check Prod.fst
-#check Prod.snd
-#check Sum.inl
-#check Sum.inr
--- Lean does not have a built-in version of the elimination rule for Sum types
-
-
 
