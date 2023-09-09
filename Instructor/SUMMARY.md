@@ -6,5 +6,6 @@
 - [Lecture 05](./Lectures/lecture_05.lean.md)
 - [Lecture 06](./Lectures/lecture_06.lean.md)
 - [Lecture 07](./Lectures/lecture_07.lean.md)
-- [Homework #1](./Homework/hw1.lean.md)
+- [Homework #2](./Homework/hw2.lean.md)
+- [Homework #3](./Homework/hw3.lean.md)
 - [Lean Resources](./Resources/README.md)
