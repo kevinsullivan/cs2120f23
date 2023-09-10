@@ -206,38 +206,281 @@ def which : Sum Nat Bool → String
 #eval which s1
 #eval which s2
 
-/-! 
-## Wrap-up
-
-It's worth taking stock of the key ideas you've now learned
-in this class, which we have formalized in the higher-order
-logic of the Lean Prover.
--/
-
-#check {α β γ : Type} → (β → γ) → (α → β) → (α → γ)
-#check {α β : Type} → (a : α) → (b : β) → α × β 
-#check {α β : Type} → α × β → α   -- α × β is Prod α β 
-#check {α β : Type} → α × β  → β
-#check {α β : Type} → α → α ⊕ β   -- α ⊕ β is Sum α β 
-#check {α β : Type} → β → α ⊕ β 
-#check {α β γ : Type} → α ⊕ β → (α → γ) → (β → γ) → γ
-
-#check Function.comp
-#check Prod.mk
-#check Prod.fst
-#check Prod.snd
-#check Sum.inl
-#check Sum.inr
--- Lean does not have a built-in version of the elimination rule for Sum types
-
 /-!
 ## Unit Type
 
-Coming soon.
+The type, Bool, defines a set of two possible values.
+A variable of this type carries one bit of information,
+and thus distinguishes between two possibiities.
+
+What about a type with just one value? We can certainly
+define such a type, and we'll call it the Unit type.
 -/
+
+namespace cs2120
+
+/-!
+We'll present an only slightly simplified version of
+Lean's Unit type here. This will be all you'll need
+to use the built-in type.
+
+The type definition is exactly what you'd expect. Unit
+is a type with one constant (parameterless) constructor,
+*unit*. Thus *unit* is the only value of the Unit type.
+-/
+
+inductive Unit : Type
+| unit
+
+open Unit 
+
+/-!
+The Lean libraries define *()* as a notation for *unit*.
+We can do the same with our own types, by the way.
+-/
+
+notation "()" => unit
+
+#check ()
+
+
+/-!
+So how much information does a value of this type carry?
+Imagine a function that takes some parameter and returns 
+a value of this type. Here's one. It takes a Nat value 
+and returns a Unit value.
+-/
+
+def useless (n : Nat) : Unit := ()
+#reduce useless 0
+
+/-!
+How much do you learn about *n* from the return value of
+this operation? How much information does it give you?
+The answer is, nothing at all. You can of course also
+pass a value of the Unit type to a function, but it gives
+the function no useful additional information and so you
+might just as well leave it out. 
+-/
+
+def silly : Unit → Nat
+| () => 5
+
+/-!
+This silly function can't use the value of its argument
+to decide even between two possible return values, so it
+only has one possible course of action, here it returns
+5. In pratice you'd never write code like this because 
+it's unnecessarily complex and without harm simplifies 
+to just dropping the argument and "returning" the 5.
+-/
+def silly' := 5
+
+/-!
+Now you might think that Unit is a type you've never 
+seen before, but it practice it's omnipresent in code
+written in such languages as C, C++, Java, etc. It's 
+the type of value returned by a function that "doesn't
+return anything useful." You know it as *void*.
+
+``` java public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+```
+
+Here, the *main* method returns *void*. The function
+really doesn't return nothing, it returns a value but
+one that's useless, and so can be ignored (a compiler
+can thus optimize it away in compiled code). 
+
+What you see in this example is that this type is used
+in cases where a procedure does something useful that
+does *not* include returning a useful result. Here the
+useful action is printing a message on the console! We
+call such actions *side effects*.
+
+Lean4, like other useful functional languages such as
+Haskell, is capable of expressing operations that have
+side effects, such as sending output to the console.
+Here's *Hello World* in Lean4. 
+-/
+
+end cs2120
+
+def main : IO Unit := 
+  IO.println "Hello, World!"
+
+-- Lean can run this code for us using #eval
+#eval main
+
+/-!
+The procedure name is main. It "returns" a result
+of (built-in) type, IO Unit. IO is a polymorphic
+*monadic* type. This code basically says "run the
+side-effecting println routine in an isolated monad
+that returns Unit (*nothing*) when it's done." 
+  
+You can actually write this LEAN code in a file,
+e.g., HelloWorld.lean, and compile it like a C++ 
+or Java program, then run it, just as you would 
+a compiled Java program.
+
+So now you understand the Unit type in Lean. It's a
+data type with just one value. It communicates no
+information, and is useful mainly as a return value
+of an operation that computes nothing but rather is
+useful for its *side effects,* here input/output. 
+
+-- Here's Lean's version
+-/
+
+#check Unit.unit
+
 
 /-!
 ## Empty Type
 
-Coming soon.
+Just as there's a type, Unit, with just one value, we can
+define a type, we'll call it *empty*, with no values at all.
+It sounds useless. We won't find it useful in programming
+but it plays a vital role in constructive logic. For now
+we'll see what we can learn by programming with it. 
 -/
+
+namespace cs2120
+
+inductive Empty
+
+/-!
+That it: no constructors, no values. The Empty type. 
+-/
+
+inductive empty
+
+/-!
+What kinds of functions can we write with arguments or
+return values of the Empty type? Let's look at three
+possibilities: 
+
+- A function that takes Nat and returns Empty
+- A function that takes Empty and returns Nat
+- A function that takes Empty and returns Empty
+-/
+
+def nat2empty : Nat → Empty 
+| n => _      
+
+/-!
+There's no way to construct a value of type Empty,
+because there are no such values, so we can't finish
+this definition. There are values of type Nat, so we
+can call this function, but it cannot finish because
+there's no way to write a return result term of type
+Empty.  
+
+If you try to call it using #reduce, it'll tell you 
+that the function is defined using "sorry", which is 
+to say that the definition is incomplete. (Yes, the
+error message is confusing. Sorry about that.)
+-/
+
+#reduce nat2empty 5 -- sorry (doesn't properly reduce)
+
+/-!
+Now let's write a function that takes an argument of
+type Empty and returns a result of some other type: we
+might as well just use Nat as an example. 
+-/
+
+def empty2nat : Empty → Nat 
+| e => nomatch e
+
+/-!
+There's something very odd about this function. It
+type basically says, "if you give me (e : Empty) I 
+can give you a Nat." Suppose, then you do give such
+an e. The implementation has to give an result (of 
+type Nat) *for each possible case for e*. How many 
+cases are there? Zero! So you don't have to give an
+answer at all! That's the meaning of *nomatch e*.
+You don't have to specify an actual natural number
+result for even one case. The implementation is of
+the specified type nonetheless. Weird but true and 
+it really makes sense if you think hard about it. 
+-/
+
+-- You can never call it, so it doesn't matter!
+def x := (empty2nat _)    -- can't give a value 
+
+/-!
+As another example, we can even define a function
+defined to return a value of type Empty provided 
+it gets on as an argment.
+-/
+
+def empty2empty : Empty → Empty 
+| e => nomatch e
+
+def x' := (empty2empty _) -- we can never call it 
+
+/-!
+Indeed, there's nothing special about Nat or Empty
+as return types in these examples. We can write a
+function defined to return a value of any type, given 
+a value of the Empty type as an argument. Again, the 
+reason is that such a function to to return a value 
+for each possible constructor/form of e, but there 
+are no constructors/forms, so there are no cases to
+consider. We can thus define a generalize polymorphic
+function defined to return a value of any arbitrary
+type, α, if it's given an argument of the Empty type.
+-/
+
+def empty2anytype : {α : Type} → Empty → α
+| _, e => nomatch e
+
+end cs2120
+
+/-! 
+## Summary So Far
+
+It's worth taking stock of the key ideas you've now learned
+in this class, which we have formalized in the higher-order
+logic of the Lean Prover. We started with the notion of basic
+types, such as Empty, Unit, Bool, Nat, and String. Next we 
+saw that if we're given any two types, α and β, we can form
+the function type α → β. Furthermore, we saw that there are
+not always implementations of such types. For example, even
+though Nat → Empty is a perfectly fine function type, there
+are no implementations of this type (as you can never write
+code to return a value of a type that has no values). 
+
+As it turns out, the function types for which we have been
+able to construct implementations are very special types, 
+indeed, as we will see going forward. 
+-/
+
+-- Product constructionr and elimination
+#check {α β : Type} → (a : α) → (b : β) → α × β 
+#check {α β : Type} → α × β → α   -- α × β is Prod α β 
+#check {α β : Type} → α × β  → β
+
+-- Sum construction and elimination
+#check {α β : Type} → α → α ⊕ β   -- α ⊕ β is Sum α β 
+#check {α β : Type} → β → α ⊕ β 
+#check {α β γ : Type} → α ⊕ β → (α → γ) → (β → γ) → γ
+
+
+-- Unit construction
+#check Unit.unit
+-- There is no useful way to use a value of this type
+
+-- There is no constructor for Empty
+-- Empty elimination
+#check {α : Type} → Empty → α
+
+-- Function composition
+#check {α β γ : Type} → (β → γ) → (α → β) → (α → γ)
+
