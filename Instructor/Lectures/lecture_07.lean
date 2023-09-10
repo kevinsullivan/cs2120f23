@@ -46,7 +46,7 @@ inductive Sum (α β : Type) : Type
 def a_sum1 : Sum Nat Bool := Sum.inl 1
 def b_sum1 : Sum Nat Bool := Sum.inr true
 
-/-
+/-!
 These definitions assign (1) to *a_sum1* a 
 Sum object capable of holding a Nat OR
 a Bool, and that contains the Nat value, 1;
