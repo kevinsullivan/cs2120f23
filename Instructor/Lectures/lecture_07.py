@@ -6,14 +6,17 @@ print(squar(5))
 square = lambda x : x**2
 print(square(5))  # Expect: 25
 
-# A function that returns f composed with itself
+# You can write function expression inline!
+print((lambda x : x**2)(6))
+
+# Functions are passable values in Python, too
+# Here's our apply2 function in Python
 def apply2(f) :
-# Read this as "a function that takes x and returns f(f(x))"
+# "A function that takes x and returns f(f(x))"
     return lambda x : f(f(x))
 
 # A function that cubes its argument twice (grows fast!)
-cube2 = apply2(lambda x: x**3)
-print(cube2(2))
+print(apply2(lambda x: x**3)(2))
 
 # The composition function in Python! 
 def compose(g,f) :

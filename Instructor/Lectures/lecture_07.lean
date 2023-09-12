@@ -21,6 +21,94 @@ call these the *unit* and *empty* types.
 -/
 
 /-!
+## Brief Review
+
+Last time we saw defined polymorphic types that we 
+called Box α and Prod α β, where α and β are type
+parameters. Here are their types.  
+-/
+
+namespace cs2120
+
+inductive Box (α : Type) : Type
+| put (a : α)
+
+/-! 
+Here we've renamed the constructor from pair to 
+mk to be consistent with Lean's built-in definition
+of the Prod type builder.
+-/
+inductive Prod (α : Type) (β : Type)
+| mk (a : α) (b : β)  
+
+/-!
+Let's focus on the Box α type. It has one constructor,
+*put (a : α)*. This constructor takes an implicit type
+argument, α, because *Box* is polymorphic, as well as 
+an explicit argument *value* of type α. We can see the
+full type of *put* using *@*.
+-/
+
+#check (@Box.put)
+def jack_in_a_box := @Box.put String "Jack!"
+
+/-!
+Leaving implicit arguments enabled, we can leave out 
+the explicit type argument.
+-/ 
+def jack_in_a_box' := Box.put "Jack!"
+
+/-!
+It's important to understand that the constructor, 
+put, doesn't compute anything: it just "wraps" its
+arguments into a term, here, *Box.put "Jack!"*. You
+can visualize this as a box, with the label Box.put,
+and the contents "Jack!". The term *Box.put "Jack!"*
+is a value of type Box String.
+-/
+
+/-!
+Finally, we saw that we can get the (string) value
+from inside a term by *eliminating* the surrounding
+structure, giving a name to the string it contains,
+and returning the string value by that name. The key
+idea is that this is done by pattern matching.
+
+Take the term, *Box.put "Jack!", as an example, if 
+we *match* this term with the pattern, "Box.put s",
+then, (1) it matches, (2) the name *s* is bound to
+the string, "Jack!", and we can return that string 
+by returning *s*. We'll write a *get* function to 
+do this, and we might as well make it polymorphic.
+-/
+
+def get {α : Type}: Box α → α 
+| (Box.put s) => s 
+
+#eval get (Box.put "Jack!")
+
+/-!
+The *Prod* type builder is analogous except it puts
+two values, of possibly two different types,into a
+box, and so we need two "elimination functions" to 
+get those values, called *fst* and *snd* in Lean. In
+Lean the constructor is called Prod.mk, but it's best
+to use ordered pair notation for that. 
+-/
+
+end cs2120
+
+#check (Prod Nat Bool)  -- a type
+#check (Prod.mk 3 true) -- a value (term)
+#check (3, true)        -- outfix notation
+
+-- aka *projection functions*
+#eval Prod.fst (3, true)
+#eval Prod.snd (3, true)
+#eval (3, true).1       -- postfix notation
+#eval (3, true).2       -- postfix notation
+
+/-!
 ## Sum Types
 
 We can call such a type a *sum* type. We will again 
@@ -447,25 +535,152 @@ end cs2120
 ## Summary So Far
 
 It's worth taking stock of the key ideas you've now learned
-in this class, which we have formalized in the higher-order
-logic of the Lean Prover. We started with the notion of basic
-types, such as Empty, Unit, Bool, Nat, and String. Next we 
-saw that if we're given any two types, α and β, we can form
-the function type α → β. Furthermore, we saw that there are
-not always implementations of such types. For example, even
-though Nat → Empty is a perfectly fine function type, there
-are no implementations of this type (as you can never write
-code to return a value of a type that has no values). 
+in this class. We started with the notions of elementary types,
+such as Bool, Nat, and String, and of *values* of such types.
+Now we've seen that if we're given any two types, α and β, we 
+can always form new types, in several ways. In particular, we 
+can form *function* types, *α → β*; *product*  types, *α × β*; 
+and *sum* types, *α ⊕ β*. 
 
-As it turns out, the function types for which we have been
-able to construct implementations are very special types, 
-indeed, as we will see going forward. 
+### Function types
+Given any two type, α and β, we can form the function type, 
+*α → β*. The → operator can be understood as taking two types 
+and returning a new type, *α → β*. Here's a function showing
+the idea: it takes types *α* and *β* and returns a new type, 
+namely the function type, *α → β*.  
 -/
 
--- Product constructionr and elimination
+-- This is a function that returns a *type*
+def function_type (α β : Type) : Type := α → β 
+
+#reduce (function_type Nat Bool)
+#check (function_type Nat Bool)
+
+/-!
+
+A *value* of a function type is a function 
+*implementation* that defines a procedure that, 
+*if* it's given (applied to) a value of type *α*, 
+then it constructs and returns a value of type 
+*β*. 
+-/
+
+def negate : Bool → Bool
+| false => true
+| true => false
+
+/-! 
+Here's the same function with a little bit of
+new syntax. The syntax above is shorthand for
+this notation. The new element here is a match
+statement.
+-/
+
+-- Learn this new syntax please (match expression)
+def negate' : Bool → Bool :=  -- type
+  fun x : Bool =>             -- assume given Bool x
+    match x with              -- case analysis on x
+    | true => false           -- result in case true
+    | false => true           -- result in case false
+
+
+-- A *fun* term expresses a function *implementation*
+#check (fun x : Bool =>                
+    match x with
+    | true => false
+    | false => true)
+
+-- Sometimes *fun* is written as Greek lambda *λ*
+#check (λ x : Bool =>                
+    match x with
+    | true => false
+    | false => true)
+
+/-!
+So does any of this matter to you if you're a data
+scientist or ML engineering programming everything
+in Python? Let's take a little diversion over into
+Python to see. Can you express anonymous function
+values values in Python, too? Open lecture_07.py.
+-/
+
+/-!
+Ok, so now we're back in Lean, in which every function
+is strongly and statically typed. Given any two types,
+α and β, we can construct the *type, α → β*; and then 
+to construct a *value* of type α → β, one must produce a 
+procedure that, *if* it's given any *value* of type *α,* 
+*then* returns some value of type *β*. 
+
+This is exactly the meaning of a function type, *α → β.* 
+Note that it's a conditional. It starts with a hypothesis:
+an assumption. A value of a function type *assumes* it's
+given a value of the specified type, and then having made
+that assumption, it needs to construct and return a value
+of the specified type. It's for exactly this reason that 
+we can even define a function that takes an argument of 
+a type that has no arguments, and that returns a result
+of a type that has no values. To wit:
+-/
+
+def empty2empty : Empty → Empty := λ e => e
+
+/-!
+This example shows that function types are similar 
+to logical implication statements, of the form *if a
+then b*. A value of a function type (an implementation)
+proves the truth of the implication, *if* you can give
+me a  value of the argument type, *then* I can return
+you a value of the result type, *even if you'll never
+be able to provide an argument in the first place.* 
+
+Exercise: Which rule (case) for determining the truth 
+of an implication in propositional (Boolean) logic is
+most analogous to the function type, *Empty → Empty?* 
+Is such a statement true? In a sense, the existence of
+a function *implementation* shows the "truth" of such
+an expression! If you can define an a implementation of
+this type, that would *prove* that *Empty → Empty*.  
+
+Exercise: Give a function type involving the Empty type
+that can't be proved. What is the corresponding rule for
+evaluating implications in Boolean/propositional logic?
+-/
+
+/-!
+### Product types
+-/
+
+/-!
+Given any types, α and β, we can form the product
+type, *Prod α β*, written as *α × β* in conventional
+mathematical notation. 
+-/ 
+
 #check {α β : Type} → (a : α) → (b : β) → α × β 
+
+/-!
+Given a value *a : α*, and a value, *b : β*, we can
+form a value, *(a, b)* of type *α × β*, shorthand for
+*Prod.mk a b*. This constructor application term, as
+is, represents the ordered pair, *(a, b)*. It's best
+to use this conventional mathematical notation.
+-/
+
+#check ("Hello", 5)   -- value of type String × Nat
+
+/-!
+To *use* a value of this type you apply one of the
+two elimination functions. One "projects" the first
+element of a pair, and one the second element. These
+functions are thus also called *projection* functions
+in ordinary mathematical discourse. 
+-/
+
 #check {α β : Type} → α × β → α   -- α × β is Prod α β 
 #check {α β : Type} → α × β  → β
+
+
 
 -- Sum construction and elimination
 #check {α β : Type} → α → α ⊕ β   -- α ⊕ β is Sum α β 
