@@ -6,9 +6,11 @@ some type, α, *and* a value of some type β, a sum type
 contains *either* a value of some type, α, *or* a value
 of some type, β. A sum type thus has two constructors, 
 each taking a single argument, one taking an α value,
-the other taking a β value. We'll use asd constructor 
-names *inl* and *inr*, where *inl* takes an argument 
-of type α and *inr* takes an argument of type β. So, 
+the other taking a β value. 
+
+We'll use as constructor names *inl* and *inr*, where 
+*inl* takes an argument of type α and *inr* takes an 
+` 12q3argument of type β. So, 
 if *(a : α)*, then *inl a* will be an object of a 
 sum type; and if *(b : β)* then *inr b* will also 
 be a value of a sum type. 
@@ -32,6 +34,10 @@ namespace cs2120
 
 inductive Box (α : Type) : Type
 | put (a : α)
+
+#check (@Box.put)
+#check (@Box.put Nat 8)
+#check (Box.put 8)
 
 /-! 
 Here we've renamed the constructor from pair to 
@@ -133,6 +139,9 @@ inductive Sum (α β : Type) : Type
 
 def a_sum1 : Sum Nat Bool := Sum.inl 1
 def b_sum1 : Sum Nat Bool := Sum.inr true
+
+def a_sum1' := @Sum.inl Nat String 1
+def b_sum1' : Sum Nat Bool := Sum.inr true
 
 /-!
 These definitions assign (1) to *a_sum1* a 
@@ -281,421 +290,33 @@ the missing type β. You will have to give an explicit sum type
 to the value you're defining.
 -/
 
-def s := Sum.inl 1 -- don't know how to synthesize implicit argument
-def s1 : Sum Nat Bool := Sum.inl 1
-def s2 : Sum Nat Bool := Sum.inr true
+def s := Sum.inl 1 -- can infer α = Nat but can't infer β
+def s1 : Sum Nat Bool := Sum.inl 1      -- specify α and β 
+def s2 : Sum Nat Bool := Sum.inr true   -- same thing here
+def s3 := @Sum.inl Nat Bool 1 -- give α and β to constructor 
 #check s1
 #check s2
+#check s3
 
-def which : Sum Nat Bool → String
+/-!
+Here's 
+-/
+
+/-!
+Example of an elimination function that takes a 
+value of any sum type and returns "Left" if it
+was constructed using the inl constructor, and
+that returns "Right" if it was constructed using
+the inr constructor. As those are the only two
+possibilities, this function will work for any
+value of type *Sum α β* where *α* and *β* are 
+arbitrary (any) types.   
+-/
+def which { α β : Type } : Sum α β → String
 | (Sum.inl _) => "Left"
 | (Sum.inr _) => "Right"
 
-#eval which s1
-#eval which s2
-
-/-!
-## Unit Type
-
-The type, Bool, defines a set of two possible values.
-A variable of this type carries one bit of information,
-and thus distinguishes between two possibiities.
-
-What about a type with just one value? We can certainly
-define such a type, and we'll call it the Unit type.
--/
-
-namespace cs2120
-
-/-!
-We'll present an only slightly simplified version of
-Lean's Unit type here. This will be all you'll need
-to use the built-in type.
-
-The type definition is exactly what you'd expect. Unit
-is a type with one constant (parameterless) constructor,
-*unit*. Thus *unit* is the only value of the Unit type.
--/
-
-inductive Unit : Type
-| unit
-
-open Unit 
-
-/-!
-The Lean libraries define *()* as a notation for *unit*.
-We can do the same with our own types, by the way.
--/
-
-notation "()" => unit
-
-#check ()
-
-
-/-!
-So how much information does a value of this type carry?
-Imagine a function that takes some parameter and returns 
-a value of this type. Here's one. It takes a Nat value 
-and returns a Unit value.
--/
-
-def useless (n : Nat) : Unit := ()
-#reduce useless 0
-
-/-!
-How much do you learn about *n* from the return value of
-this operation? How much information does it give you?
-The answer is, nothing at all. You can of course also
-pass a value of the Unit type to a function, but it gives
-the function no useful additional information and so you
-might just as well leave it out. 
--/
-
-def silly : Unit → Nat
-| () => 5
-
-/-!
-This silly function can't use the value of its argument
-to decide even between two possible return values, so it
-only has one possible course of action, here it returns
-5. In pratice you'd never write code like this because 
-it's unnecessarily complex and without harm simplifies 
-to just dropping the argument and "returning" the 5.
--/
-def silly' := 5
-
-/-!
-Now you might think that Unit is a type you've never 
-seen before, but it practice it's omnipresent in code
-written in such languages as C, C++, Java, etc. It's 
-the type of value returned by a function that "doesn't
-return anything useful." You know it as *void*.
-
-``` java public class HelloWorld {
-    public static void main(String[] args) {
-        System.out.println("Hello, World!");
-    }
-}
-```
-
-Here, the *main* method returns *void*. The function
-really doesn't return nothing, it returns a value but
-one that's useless, and so can be ignored (a compiler
-can thus optimize it away in compiled code). 
-
-What you see in this example is that this type is used
-in cases where a procedure does something useful that
-does *not* include returning a useful result. Here the
-useful action is printing a message on the console! We
-call such actions *side effects*.
-
-Lean4, like other useful functional languages such as
-Haskell, is capable of expressing operations that have
-side effects, such as sending output to the console.
-Here's *Hello World* in Lean4. 
--/
-
-end cs2120
-
-def main : IO Unit := 
-  IO.println "Hello, World!"
-
--- Lean can run this code for us using #eval
-#eval main
-
-/-!
-The procedure name is main. It "returns" a result
-of (built-in) type, IO Unit. IO is a polymorphic
-*monadic* type. This code basically says "run the
-side-effecting println routine in an isolated monad
-that returns Unit (*nothing*) when it's done." 
-  
-You can actually write this LEAN code in a file,
-e.g., HelloWorld.lean, and compile it like a C++ 
-or Java program, then run it, just as you would 
-a compiled Java program.
-
-So now you understand the Unit type in Lean. It's a
-data type with just one value. It communicates no
-information, and is useful mainly as a return value
-of an operation that computes nothing but rather is
-useful for its *side effects,* here input/output. 
-
--- Here's Lean's version
--/
-
-#check Unit.unit
-
-
-/-!
-## Empty Type
-
-Just as there's a type, Unit, with just one value, we can
-define a type, we'll call it *empty*, with no values at all.
-It sounds useless. We won't find it useful in programming
-but it plays a vital role in constructive logic. For now
-we'll see what we can learn by programming with it. 
--/
-
-namespace cs2120
-
-inductive Empty
-
-/-!
-That it: no constructors, no values. The Empty type. 
--/
-
-inductive empty
-
-/-!
-What kinds of functions can we write with arguments or
-return values of the Empty type? Let's look at three
-possibilities: 
-
-- A function that takes Nat and returns Empty
-- A function that takes Empty and returns Nat
-- A function that takes Empty and returns Empty
--/
-
-def nat2empty : Nat → Empty 
-| n => _      
-
-/-!
-There's no way to construct a value of type Empty,
-because there are no such values, so we can't finish
-this definition. There are values of type Nat, so we
-can call this function, but it cannot finish because
-there's no way to write a return result term of type
-Empty.  
-
-If you try to call it using #reduce, it'll tell you 
-that the function is defined using "sorry", which is 
-to say that the definition is incomplete. (Yes, the
-error message is confusing. Sorry about that.)
--/
-
-#reduce nat2empty 5 -- sorry (doesn't properly reduce)
-
-/-!
-Now let's write a function that takes an argument of
-type Empty and returns a result of some other type: we
-might as well just use Nat as an example. 
--/
-
-def empty2nat : Empty → Nat 
-| e => nomatch e
-
-/-!
-There's something very odd about this function. It
-type basically says, "if you give me (e : Empty) I 
-can give you a Nat." Suppose, then you do give such
-an e. The implementation has to give an result (of 
-type Nat) *for each possible case for e*. How many 
-cases are there? Zero! So you don't have to give an
-answer at all! That's the meaning of *nomatch e*.
-You don't have to specify an actual natural number
-result for even one case. The implementation is of
-the specified type nonetheless. Weird but true and 
-it really makes sense if you think hard about it. 
--/
-
--- You can never call it, so it doesn't matter!
-def x := (empty2nat _)    -- can't give a value 
-
-/-!
-As another example, we can even define a function
-defined to return a value of type Empty provided 
-it gets on as an argment.
--/
-
-def empty2empty : Empty → Empty 
-| e => nomatch e
-
-def x' := (empty2empty _) -- we can never call it 
-
-/-!
-Indeed, there's nothing special about Nat or Empty
-as return types in these examples. We can write a
-function defined to return a value of any type, given 
-a value of the Empty type as an argument. Again, the 
-reason is that such a function to to return a value 
-for each possible constructor/form of e, but there 
-are no constructors/forms, so there are no cases to
-consider. We can thus define a generalize polymorphic
-function defined to return a value of any arbitrary
-type, α, if it's given an argument of the Empty type.
--/
-
-def empty2anytype : {α : Type} → Empty → α
-| _, e => nomatch e
-
-end cs2120
-
-/-! 
-## Summary So Far
-
-It's worth taking stock of the key ideas you've now learned
-in this class. We started with the notions of elementary types,
-such as Bool, Nat, and String, and of *values* of such types.
-Now we've seen that if we're given any two types, α and β, we 
-can always form new types, in several ways. In particular, we 
-can form *function* types, *α → β*; *product*  types, *α × β*; 
-and *sum* types, *α ⊕ β*. 
-
-### Function types
-Given any two type, α and β, we can form the function type, 
-*α → β*. The → operator can be understood as taking two types 
-and returning a new type, *α → β*. Here's a function showing
-the idea: it takes types *α* and *β* and returns a new type, 
-namely the function type, *α → β*.  
--/
-
--- This is a function that returns a *type*
-def function_type (α β : Type) : Type := α → β 
-
-#reduce (function_type Nat Bool)
-#check (function_type Nat Bool)
-
-/-!
-
-A *value* of a function type is a function 
-*implementation* that defines a procedure that, 
-*if* it's given (applied to) a value of type *α*, 
-then it constructs and returns a value of type 
-*β*. 
--/
-
-def negate : Bool → Bool
-| false => true
-| true => false
-
-/-! 
-Here's the same function with a little bit of
-new syntax. The syntax above is shorthand for
-this notation. The new element here is a match
-statement.
--/
-
--- Learn this new syntax please (match expression)
-def negate' : Bool → Bool :=  -- type
-  fun x : Bool =>             -- assume given Bool x
-    match x with              -- case analysis on x
-    | true => false           -- result in case true
-    | false => true           -- result in case false
-
-
--- A *fun* term expresses a function *implementation*
-#check (fun x : Bool =>                
-    match x with
-    | true => false
-    | false => true)
-
--- Sometimes *fun* is written as Greek lambda *λ*
-#check (λ x : Bool =>                
-    match x with
-    | true => false
-    | false => true)
-
-/-!
-So does any of this matter to you if you're a data
-scientist or ML engineering programming everything
-in Python? Let's take a little diversion over into
-Python to see. Can you express anonymous function
-values values in Python, too? Open lecture_07.py.
--/
-
-/-!
-Ok, so now we're back in Lean, in which every function
-is strongly and statically typed. Given any two types,
-α and β, we can construct the *type, α → β*; and then 
-to construct a *value* of type α → β, one must produce a 
-procedure that, *if* it's given any *value* of type *α,* 
-*then* returns some value of type *β*. 
-
-This is exactly the meaning of a function type, *α → β.* 
-Note that it's a conditional. It starts with a hypothesis:
-an assumption. A value of a function type *assumes* it's
-given a value of the specified type, and then having made
-that assumption, it needs to construct and return a value
-of the specified type. It's for exactly this reason that 
-we can even define a function that takes an argument of 
-a type that has no arguments, and that returns a result
-of a type that has no values. To wit:
--/
-
-def empty2empty : Empty → Empty := λ e => e
-
-/-!
-This example shows that function types are similar 
-to logical implication statements, of the form *if a
-then b*. A value of a function type (an implementation)
-proves the truth of the implication, *if* you can give
-me a  value of the argument type, *then* I can return
-you a value of the result type, *even if you'll never
-be able to provide an argument in the first place.* 
-
-Exercise: Which rule (case) for determining the truth 
-of an implication in propositional (Boolean) logic is
-most analogous to the function type, *Empty → Empty?* 
-Is such a statement true? In a sense, the existence of
-a function *implementation* shows the "truth" of such
-an expression! If you can define an a implementation of
-this type, that would *prove* that *Empty → Empty*.  
-
-Exercise: Give a function type involving the Empty type
-that can't be proved. What is the corresponding rule for
-evaluating implications in Boolean/propositional logic?
--/
-
-/-!
-### Product types
--/
-
-/-!
-Given any types, α and β, we can form the product
-type, *Prod α β*, written as *α × β* in conventional
-mathematical notation. 
--/ 
-
-#check {α β : Type} → (a : α) → (b : β) → α × β 
-
-/-!
-Given a value *a : α*, and a value, *b : β*, we can
-form a value, *(a, b)* of type *α × β*, shorthand for
-*Prod.mk a b*. This constructor application term, as
-is, represents the ordered pair, *(a, b)*. It's best
-to use this conventional mathematical notation.
--/
-
-#check ("Hello", 5)   -- value of type String × Nat
-
-/-!
-To *use* a value of this type you apply one of the
-two elimination functions. One "projects" the first
-element of a pair, and one the second element. These
-functions are thus also called *projection* functions
-in ordinary mathematical discourse. 
--/
-
-#check {α β : Type} → α × β → α   -- α × β is Prod α β 
-#check {α β : Type} → α × β  → β
-
-
-
--- Sum construction and elimination
-#check {α β : Type} → α → α ⊕ β   -- α ⊕ β is Sum α β 
-#check {α β : Type} → β → α ⊕ β 
-#check {α β γ : Type} → α ⊕ β → (α → γ) → (β → γ) → γ
-
-
--- Unit construction
-#check Unit.unit
--- There is no useful way to use a value of this type
-
--- There is no constructor for Empty
--- Empty elimination
-#check {α : Type} → Empty → α
-
--- Function composition
-#check {α β γ : Type} → (β → γ) → (α → β) → (α → γ)
+#eval which s1  -- expect "Left"
+#eval which s2  -- expect "Right"
+#eval which s3  -- expect "Left"
 
