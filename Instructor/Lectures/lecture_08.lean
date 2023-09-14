@@ -134,20 +134,27 @@ def main : IO Unit :=
 /-!
 The procedure name is main. It "returns" a result
 of (built-in) type, IO Unit. IO is a polymorphic
-*monadic* type. This code basically says "run the
-side-effecting println routine in an isolated monad
-that returns Unit (*nothing*) when it's done." 
-  
-You can actually write this LEAN code in a file,
-e.g., HelloWorld.lean, and compile it like a C++ 
-or Java program, then run it, just as you would 
-a compiled Java program.
+*monad* type that (a) runs a computation that, in
+general, isn't purely functional (such as sending
+output to the terminal), and (b) returns a result
+of some type. In this example, that type is *Unit*. 
 
+You can actually write this LEAN code in a file,
+e.g., HelloWorld.lean, and compile and run it just
+like a Java or C++ program. Try it in the terminal.
+
+```sh
+lean --run lecture_08_hello.lean
+```
+-/
+
+
+/-!
 So now you understand the Unit type in Lean. It's a
 data type with just one value. It communicates no
 information, and is useful mainly as a return value
-of an operation that computes nothing but rather is
-useful for its *side effects,* here input/output. 
+of an operation that computes nothing of interest but 
+is instead useful for its *side effects.*  
 
 -- Here's Lean's version of the *unit* value of the
 *Unit* type. 
@@ -173,15 +180,23 @@ namespace cs2120
 inductive Empty
 
 /-!
-That it: no constructors, no values. The Empty type. 
+That it: no constructors, no values. Voila, the Empty type. 
 
-So what kinds of functions can we write with arguments
-or return values of the Empty type? Let's look at three
-possibilities: 
+In other words, there are no *introduction* rules for this
+type. There is no way to construct a value of this type. On
+the other hand, the elimination rule is deeply interesting and
+important. To understand that, let's look whether and if so 
+how we can implement functions of three different function
+types involving the *Empty* type as either an input or an output
+or both. 
 
 - A function that takes Nat and returns Empty
 - A function that takes Empty and returns Nat
 - A function that takes Empty and returns Empty
+-/
+
+/-!
+### Nat → Empty
 -/
 
 def nat2empty : Nat → Empty 
@@ -206,13 +221,35 @@ error message is confusing. Sorry about that.)
 #reduce nat2empty 5 -- sorry (doesn't properly reduce)
 
 /-!
+### Empty → Nat
+
 Next let's write a function that takes an argument of
 type Empty and returns a result of some other type: we
-might as well just use Nat as an example. 
+will again just use Nat as an example. 
+
+The absolute essential idea needed to understand what
+we're about to say is that *when a function is given a
+value of some type as an argument, it has to provide a
+result for each possible way in which that input could
+have been constructed. If you're given a Bool value, you
+have to provide an output value for *true* and and output
+value for *false*. If you're given a Unit value, you have
+to provide an output value for the single possibility,
+*Unit.unit.* For how many cases do you need to produce
+an output value for the empty type? The answer is: ____.
+You have to see how to fill in this blank. Then you'll
+understand the new construct introduced in the following
+code. 
 -/
 
 def empty2nat : Empty → Nat 
 | e => nomatch e
+
+-- Just another way to write the same code
+def empty2nat' (e : Empty) : Nat := 
+  nomatch e 
+
+
 
 /-!
 There's something very odd about this function. It
@@ -221,18 +258,18 @@ can give you a Nat." Suppose, then you do give such
 an e. The implementation has to give an result (of 
 type Nat) *for each possible case for e*. How many 
 cases are there? Zero! So you don't have to give an
-answer at all! That's the meaning of *nomatch e*.
-You don't have to specify an actual natural number
-result for even one case. The implementation is of
-the specified type nonetheless. Weird but true and 
-it really makes sense if you think hard about it. 
+answer at all! 
+
+That's the meaning of *nomatch e*. You don't have to 
+specify an actual natural number return value for even
+a single case.  
 -/
 
 -- You can never call it, so it doesn't matter!
 def x := (empty2nat _)    -- can't give a value 
 
 /-!
-As another example, we can even define a function
+As another example, we can define a function
 defined to return a value of type Empty provided 
 it gets on as an argment.
 -/
@@ -241,6 +278,14 @@ def empty2empty : Empty → Empty
 | e => nomatch e
 
 def x' := (empty2empty _) -- we can never call it 
+
+/-!
+Indeed, given *any* type whatsoever, call it α, we 
+can define a function of type *Empty → α*. This is 
+a function that looks like it can return a result 
+of any possible type. As an in-class exercise, write
+it! 
+-/
 
 /-!
 Indeed, there's nothing special about Nat or Empty
@@ -261,7 +306,7 @@ def empty2anytype : {α : Type} → Empty → α
 end cs2120
 
 /-! 
-## Summary So Far
+## Summary 
 
 It's worth taking stock of the key ideas you've now learned
 in this class. 
@@ -372,7 +417,7 @@ other words how do you *use* a function? You *apply* it to an argument!
 #eval (negate true)
 
 /-!
-### What You'll Need to Know By Heart
+## Wrap-Up: Understand the Following
 
 Understand the following types and their introduction 
 and elimination operations. You should understand exactly
