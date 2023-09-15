@@ -177,7 +177,7 @@ of this type (a type with no values at all).
 
 namespace cs2120
 
-inductive Empty
+inductive Empty : Type
 
 /-!
 That it: no constructors, no values. Voila, the Empty type. 
@@ -248,8 +248,6 @@ def empty2nat : Empty → Nat
 -- Just another way to write the same code
 def empty2nat' (e : Empty) : Nat := 
   nomatch e 
-
-
 
 /-!
 There's something very odd about this function. It

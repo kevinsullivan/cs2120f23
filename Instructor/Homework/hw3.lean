@@ -1,13 +1,11 @@
 /-!
 # Homework #3
 
-Near final DRAFT. 
-
-## Overview and Rules
-
 The purpose of this homework is to strengthen your
 understanding of function composition and of enumerated
 and product data types. 
+
+## Overview and Rules
 
 The collaboration rule for this homework is that
 you may *not* collaborate. You can ask friends and

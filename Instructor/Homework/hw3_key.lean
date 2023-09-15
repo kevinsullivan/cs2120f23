@@ -30,12 +30,13 @@ a result.
 
 -- Answer below
 
+def funkom : {α β γ : Type} → (β → γ) → (α → β) → (α → γ)
+| α, β, γ, g, f => fun (a : α) => (g (f a))
+
 /-!
 We'll implement a function of this type using what
 we call top-down type-guided structured programming.
 -/
-
-
 
 /-!
 Here's the procedure we followed when going over the HW.
@@ -64,6 +65,9 @@ Define a function of the following polymorphic type:
 
 -- Answer below
 
+def mkop : {α β : Type} → (a : α) → (b : β) → α × β
+| α, β, a, b => (a,b) -- Prod.mk a b
+
 /-!
 We recommend the same top-down, type-guided structured
 programming approach. Some people would simply call it
@@ -80,6 +84,9 @@ Define a function of the following polymorphic type:
 
 -- Answer below
 
+def op_left : {α β : Type} → α × β → α
+| α, β, p => Prod.fst p
+
 -- Hint: Use top-down structured programming!
 
 
@@ -94,6 +101,8 @@ Define a function of the following polymorphic type:
 
 -- Hint: Use top-down structured programming
 
+def op_right {α β : Type} : α × β → β 
+| p => match p with | (_, b) => b
 
 
 /-! 
@@ -104,11 +113,30 @@ are the names of the seven days of the week: *sunday,
 monday,* etc. 
 -/
 
+inductive Day : Type
+|sunday
+|monday
+|tuesday
+|wednesday
+|thursday
+|friday
+|saturday
+
+open Day
+
+#check sunday
+
 /-!
 Some days are work days and some days are play
 days. Define a data type, *kind*, with two values,
 *work* and *play*.
 -/
+
+inductive kind : Type
+| work
+| play
+
+open kind
 
 /-!
 Now define a function, *day2kind*, that takes a *day*
@@ -118,10 +146,23 @@ through friday) are *work* days and weekend days are
 *play* days.
 -/
 
+def day2kind : Day → kind 
+| sunday => play
+| saturday => play
+| _ => work
+
+#reduce day2kind thursday
+
 /-!
 Next, define a data type, *reward*, with two values,
 *money* and *health*.
 -/
+
+inductive reward : Type
+| money
+| health
+
+open reward
 
 /-!
 Now define a function, *kind2reward*, from *kind* to 
@@ -129,11 +170,20 @@ Now define a function, *kind2reward*, from *kind* to
 is *health*.
 -/
 
+def kind2reward : kind → reward
+| work => money
+| play => health
+
 /-!
 Finally, use your *funkom* function to produce a new
 function that takes a day and returns the corresponding
 reward. Call it *day2reward*.
 -/
+
+def day2reward := funkom kind2reward day2kind 
+
+#reduce day2reward tuesday
+#reduce day2reward saturday
 
 /-!
 Include test cases using #reduce to show that the reward
@@ -152,6 +202,9 @@ Consider the outputs of the following #check commands.
 #check Nat × (Nat × Nat)
 #check (Nat × Nat) × Nat
 
+#check (1,(2,3))
+#check ((1,2),3)
+
 /-!
 Is × left associative or right associative? Briefly explain
 how you reached your answer.
@@ -165,6 +218,9 @@ Define a function, *triple*, of the following type:
 
 -- Here:
 
+def triple : { α β γ : Type } → α → β → γ → (α × β × γ)
+| α, β, γ, a, b , y => (a,(b,y)) -- Prod.mk a (Prod.mk b y)
+
 -- Hints: (1) put in parens for clarity; (2) use TDSP.
 
 /-!
@@ -175,7 +231,10 @@ an argument and that returns, respectively, its first,
 second, or third elements.
 -/
 
--- Here:
+-- Here
+
+def second { α β γ : Type } :  α × β × γ → β
+| (_,b,_) => b
 
 -- Ok, this one takes a small leap of imagination
 
