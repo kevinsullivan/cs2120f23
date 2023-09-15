@@ -136,7 +136,7 @@ fun s =>
 
 /-!
 Can you always convert a term of type *β ⊗ α* into 
-one of type *α × β*? Prove it by writing a function 
+one of type *α ⊕ β*? Prove it by writing a function 
 that does it. Call is sum_comm_reverse.
 -/
 
@@ -189,7 +189,7 @@ If you have bread and (cheese or jam) do you have
 (bread and cheese) or (bread and jam)? We think so.
 Before you move on, think about it!
 
-Define *wowser : α × (β ⊕ γ) → (α × β) ⊕ (α × γ).* 
+Define *prod_dist_sum : α × (β ⊕ γ) → (α × β) ⊕ (α × γ).* 
 In other words, if you have a value that includes (1) a 
 value of type *α* and (2) either a value of type *β* or 
 a value of type *γ*, then you can derive a value that is 
