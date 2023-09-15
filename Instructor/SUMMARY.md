@@ -9,4 +9,5 @@
 - [Lecture 08](./Lectures/lecture_08.lean.md)
 - [Homework #2](./Homework/hw2.lean.md)
 - [Homework #3](./Homework/hw3.lean.md)
+- [Homework #4](./Homework/hw4.lean.md)
 - [Lean Resources](./Resources/README.md)
