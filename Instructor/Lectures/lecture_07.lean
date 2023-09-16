@@ -6,9 +6,11 @@ some type, α, *and* a value of some type β, a sum type
 contains *either* a value of some type, α, *or* a value
 of some type, β. A sum type thus has two constructors, 
 each taking a single argument, one taking an α value,
-the other taking a β value. We'll use asd constructor 
-names *inl* and *inr*, where *inl* takes an argument 
-of type α and *inr* takes an argument of type β. So, 
+the other taking a β value. 
+
+We'll use as constructor names *inl* and *inr*, where 
+*inl* takes an argument of type α and *inr* takes an 
+` 12q3argument of type β. So, 
 if *(a : α)*, then *inl a* will be an object of a 
 sum type; and if *(b : β)* then *inr b* will also 
 be a value of a sum type. 
@@ -19,6 +21,98 @@ with a single constant constructor, and one with no
 constuctors, and thus no values, at all. We will 
 call these the *unit* and *empty* types. 
 -/
+
+/-!
+## Brief Review
+
+Last time we saw defined polymorphic types that we 
+called Box α and Prod α β, where α and β are type
+parameters. Here are their types.  
+-/
+
+namespace cs2120
+
+inductive Box (α : Type) : Type
+| put (a : α)
+
+#check (@Box.put)
+#check (@Box.put Nat 8)
+#check (Box.put 8)
+
+/-! 
+Here we've renamed the constructor from pair to 
+mk to be consistent with Lean's built-in definition
+of the Prod type builder.
+-/
+inductive Prod (α : Type) (β : Type)
+| mk (a : α) (b : β)  
+
+/-!
+Let's focus on the Box α type. It has one constructor,
+*put (a : α)*. This constructor takes an implicit type
+argument, α, because *Box* is polymorphic, as well as 
+an explicit argument *value* of type α. We can see the
+full type of *put* using *@*.
+-/
+
+#check (@Box.put)
+def jack_in_a_box := @Box.put String "Jack!"
+
+/-!
+Leaving implicit arguments enabled, we can leave out 
+the explicit type argument.
+-/ 
+def jack_in_a_box' := Box.put "Jack!"
+
+/-!
+It's important to understand that the constructor, 
+put, doesn't compute anything: it just "wraps" its
+arguments into a term, here, *Box.put "Jack!"*. You
+can visualize this as a box, with the label Box.put,
+and the contents "Jack!". The term *Box.put "Jack!"*
+is a value of type Box String.
+-/
+
+/-!
+Finally, we saw that we can get the (string) value
+from inside a term by *eliminating* the surrounding
+structure, giving a name to the string it contains,
+and returning the string value by that name. The key
+idea is that this is done by pattern matching.
+
+Take the term, *Box.put "Jack!", as an example, if 
+we *match* this term with the pattern, "Box.put s",
+then, (1) it matches, (2) the name *s* is bound to
+the string, "Jack!", and we can return that string 
+by returning *s*. We'll write a *get* function to 
+do this, and we might as well make it polymorphic.
+-/
+
+def get {α : Type}: Box α → α 
+| (Box.put s) => s 
+
+#eval get (Box.put "Jack!")
+
+/-!
+The *Prod* type builder is analogous except it puts
+two values, of possibly two different types,into a
+box, and so we need two "elimination functions" to 
+get those values, called *fst* and *snd* in Lean. In
+Lean the constructor is called Prod.mk, but it's best
+to use ordered pair notation for that. 
+-/
+
+end cs2120
+
+#check (Prod Nat Bool)  -- a type
+#check (Prod.mk 3 true) -- a value (term)
+#check (3, true)        -- outfix notation
+
+-- aka *projection functions*
+#eval Prod.fst (3, true)
+#eval Prod.snd (3, true)
+#eval (3, true).1       -- postfix notation
+#eval (3, true).2       -- postfix notation
 
 /-!
 ## Sum Types
@@ -46,7 +140,10 @@ inductive Sum (α β : Type) : Type
 def a_sum1 : Sum Nat Bool := Sum.inl 1
 def b_sum1 : Sum Nat Bool := Sum.inr true
 
-/-
+def a_sum1' := @Sum.inl Nat String 1
+def b_sum1' : Sum Nat Bool := Sum.inr true
+
+/-!
 These definitions assign (1) to *a_sum1* a 
 Sum object capable of holding a Nat OR
 a Bool, and that contains the Nat value, 1;
@@ -193,51 +290,33 @@ the missing type β. You will have to give an explicit sum type
 to the value you're defining.
 -/
 
-def s := Sum.inl 1 -- don't know how to synthesize implicit argument
-def s1 : Sum Nat Bool := Sum.inl 1
-def s2 : Sum Nat Bool := Sum.inr true
+def s := Sum.inl 1 -- can infer α = Nat but can't infer β
+def s1 : Sum Nat Bool := Sum.inl 1      -- specify α and β 
+def s2 : Sum Nat Bool := Sum.inr true   -- same thing here
+def s3 := @Sum.inl Nat Bool 1 -- give α and β to constructor 
 #check s1
 #check s2
+#check s3
 
-def which : Sum Nat Bool → String
+/-!
+Here's 
+-/
+
+/-!
+Example of an elimination function that takes a 
+value of any sum type and returns "Left" if it
+was constructed using the inl constructor, and
+that returns "Right" if it was constructed using
+the inr constructor. As those are the only two
+possibilities, this function will work for any
+value of type *Sum α β* where *α* and *β* are 
+arbitrary (any) types.   
+-/
+def which { α β : Type } : Sum α β → String
 | (Sum.inl _) => "Left"
 | (Sum.inr _) => "Right"
 
-#eval which s1
-#eval which s2
+#eval which s1  -- expect "Left"
+#eval which s2  -- expect "Right"
+#eval which s3  -- expect "Left"
 
-/-! 
-## Wrap-up
-
-It's worth taking stock of the key ideas you've now learned
-in this class, which we have formalized in the higher-order
-logic of the Lean Prover.
--/
-
-#check {α β γ : Type} → (β → γ) → (α → β) → (α → γ)
-#check {α β : Type} → (a : α) → (b : β) → α × β 
-#check {α β : Type} → α × β → α   -- α × β is Prod α β 
-#check {α β : Type} → α × β  → β
-#check {α β : Type} → α → α ⊕ β   -- α ⊕ β is Sum α β 
-#check {α β : Type} → β → α ⊕ β 
-#check {α β γ : Type} → α ⊕ β → (α → γ) → (β → γ) → γ
-
-#check Function.comp
-#check Prod.mk
-#check Prod.fst
-#check Prod.snd
-#check Sum.inl
-#check Sum.inr
--- Lean does not have a built-in version of the elimination rule for Sum types
-
-/-!
-## Unit Type
-
-Coming soon.
--/
-
-/-!
-## Empty Type
-
-Coming soon.
--/
