@@ -1,3 +1,5 @@
+# Credit https://stackoverflow.com/questions/16258553/how-can-i-define-algebraic-data-types-in-python
+
 from dataclasses import dataclass
 
 @dataclass
