@@ -3,35 +3,47 @@
 from dataclasses import dataclass
 
 @dataclass
-class Point:
-    x: float
-    y: float
+class Alpha:
+    a: float
+
 
 @dataclass
-class Circle:
-    x: float
-    y: float
-    r: float
+class Beta:
+    b: int
 
 @dataclass
-class Rectangle:
-    x: float
-    y: float
-    w: float
-    h: float
+class Gamma:
+    c: bool
 
-Shape = Point | Circle | Rectangle
+Either = Alpha | Beta
 
-def print_shape(shape: Shape):
-    match shape:
-        case Point(x, y):
-            print(f"Point {x} {y}")
-        case Circle(x, y, r):
-            print(f"Circle {x} {y} {r}")
-        case Rectangle(x, y, w, h):
-            print(f"Rectangle {x} {y} {w} {h}")
+def sum_elim (one_of : Either, a2c, b2c) : 
+    match one_of :
+        case Alpha(a): 
+            return a2c(a)
+        case Beta(b): 
+            return b2c(b)
 
-print_shape(Point(1, 2))
-print_shape(Circle(3, 5, 7))
-print_shape(Rectangle(11, 13, 17, 19))
-print_shape(4)  # mypy type error
+# demo:
+
+#  Boolean-returning predicate on float values (f >= 5.0)
+def fge5(f) : return (f >=5.0)
+
+# Boolean-returning predicate on int values (i < 5)
+def ilt5(i) : return (i < 5)
+
+def bool2goodbad(b):
+    if (b):
+        return ("good")
+    else:
+        return("bad")
+  
+f5 = Alpha(5.0)
+f4 = Alpha(4.0)
+i1 = Beta(4)
+i2 = Beta(5)
+
+print(bool2goodbad(sum_elim(f5, fge5, ilt5)))  # expect good
+print(bool2goodbad(sum_elim(f4, fge5, ilt5)))  # expect bad
+print(bool2goodbad(sum_elim(i1, fge5, ilt5)))  # expect good
+print(bool2goodbad(sum_elim(i2, fge5, ilt5)))  # expect bad
