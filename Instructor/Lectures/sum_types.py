@@ -1,5 +1,3 @@
-# Credit https://stackoverflow.com/questions/16258553/how-can-i-define-algebraic-data-types-in-python
-
 from dataclasses import dataclass
 
 @dataclass
@@ -24,26 +22,29 @@ def sum_elim (one_of : Either, a2c, b2c) :
         case Beta(b): 
             return b2c(b)
 
-# demo:
+# Boolean satisfied value to string ("sat," "unsat")
 
-#  Boolean-returning predicate on float values (f >= 5.0)
+def bool2sat(b):
+    if (b):
+        return ("sat")
+    else:
+        return("unsat")
+  
+# DEMO
+
+# Boolean-returning predicate on float f: (f >= 5.0)
 def fge5(f) : return (f >=5.0)
 
-# Boolean-returning predicate on int values (i < 5)
+# Boolean-returning predicate on int i: (i < 5)
 def ilt5(i) : return (i < 5)
 
-def bool2goodbad(b):
-    if (b):
-        return ("good")
-    else:
-        return("bad")
-  
-f5 = Alpha(5.0)
-f4 = Alpha(4.0)
-i1 = Beta(4)
-i2 = Beta(5)
+# The f variables are Alpha/float, the i variables are Beta/int
+six_oh_ge_five_oh = Alpha(6.0)
+four_oh_ge_five_oh = Alpha(4.0)
+four_lt_five = Beta(4)
+five_lt_five = Beta(5)
 
-print(bool2goodbad(sum_elim(f5, fge5, ilt5)))  # expect good
-print(bool2goodbad(sum_elim(f4, fge5, ilt5)))  # expect bad
-print(bool2goodbad(sum_elim(i1, fge5, ilt5)))  # expect good
-print(bool2goodbad(sum_elim(i2, fge5, ilt5)))  # expect bad
+print(sum_elim(six_oh_ge_five_oh,  fge5, ilt5))  # expect good
+print(sum_elim(four_oh_ge_five_oh, fge5, ilt5))  # expect bad
+print(sum_elim(four_lt_five,       fge5, ilt5))  # expect good
+print(sum_elim(five_lt_five,       fge5, ilt5))  # expect bad
