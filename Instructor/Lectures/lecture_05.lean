@@ -294,14 +294,42 @@ to write the function that this compose function is to return.
 /-!
 ## Extra, extra!
 Did you know that Java and Python support lambda expressions?
-Challenge: Write the compose function in Python and then use it to
-replicate some of the concrete examples in this chapter. You will 
-be a far better programmer for having done this. 
+In this section, we'll show you, and present implementations of
+our apply2 and compose functions in Python. You will now see how 
+to program with higher-order functions in Python. You will also
+know what we mean when we say that you can expect to be able to 
+do so in many other capable languages, as well. You can run the
+following code in the VSCode container for this class.
 
-Lambda expressions, or *lambdas* as you'll hear them called, 
-are used all over the place, especially in graphical user interface
-code. For example, you can store a *lambda* (a function!) as a data
-member inside a button object, so that when the user presses the 
-button, that function is run to carry out a given task. Hint: Use
-a generative AI to explore these ideas in Python.
+```Python
+# Here's an ordinary definition of a squaring function
+def square(x) : return(x**2)
+print(square(5))                # expect 25
+
+# Here's square defined with a Python lambda expression
+square = lambda x : x**2
+print(square(5))                # Expect: 25
+
+# Here we apply an unnamed lambda to 6; expect 36 
+print((lambda x : x**2)(6))
+
+# Here's apply2 in Python, where f is a function argument
+def apply2(f) :
+    return lambda x : f(f(x))
+
+# Here we use apply2 to apply a cubing function twice to 2
+print(apply2(lambda x: x**3)(2))  # Expect (2^3)^3 = 512
+
+# Here is a general compose in Python; g and f are functions 
+def compose(g,f) :
+    return (lambda a : g(f(a)))
+
+# Here's an example of its use; understand this code
+cube_after_square = compose((lambda x : x**3),(lambda x : x**2))
+print(square_after_cube(3))         # Expect (3^2)^3 = 729
+```
+The programming and reasoning principles you learn in 
+Discrete Math and Theory will prove exceptionally valuable 
+to you no matter what languages you are ultimately asked 
+to use for everyday programming. 
 -/

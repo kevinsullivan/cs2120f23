@@ -1,5 +1,5 @@
 /-!
-# Data Types: Sum, Unit, and Empty Types
+# Data Types: Sum Types
 
 Whereas a product type contains *both* a value of
 some type, α, *and* a value of some type β, a sum type
@@ -256,27 +256,6 @@ def elim_sum {α β γ : Type} : (Sum α β) → (α → γ) → (β → γ) →
 #eval elim_sum a_sum1 nat_to_string bool_to_string
 #eval elim_sum b_sum1 nat_to_string bool_to_string
 
-/-!
-### Sum Types in Everyday Programming
-
-Understanding what it takes, and how, to deal with objects of
-sum types is another big achievement in this class. It will make
-you a better programmer, and it's deeply related to logic, and
-in particular to reasoning from proofs of OR propositions. 
-
-Take programming. First, classes in Java and Python are basically
-product types: an object of a given type has values for *all* of 
-the fields defined by it class. These languages simply don't have 
-sum types. You can fake them, but it's complicated. Think about
-it. How would you define a Java class whose objects have either
-a cat field or a dog field? You can't.
-
-On the other hand, industrial languages such as Rust and Swift, as 
-well as functional languages such as Haskell and OCaml, do support 
-sum types directly. You now have the basic pattern for programming
-with sum-type values: you have to have a way to handle each case.
--/
-
 end cs2120
 
 /-!
@@ -299,18 +278,14 @@ def s3 := @Sum.inl Nat Bool 1 -- give α and β to constructor
 #check s3
 
 /-!
-Here's 
--/
-
-/-!
-Example of an elimination function that takes a 
-value of any sum type and returns "Left" if it
-was constructed using the inl constructor, and
-that returns "Right" if it was constructed using
-the inr constructor. As those are the only two
-possibilities, this function will work for any
-value of type *Sum α β* where *α* and *β* are 
-arbitrary (any) types.   
+Here's an Example of a sum-eliminating function 
+that takes a value of any sum type and returns 
+the String "Left" if it was constructed using the
+inl constructor, and that returns "Right" if it 
+was constructed using the inr constructor. As 
+those are the only possibilities, this function 
+will work for any value of type *Sum α β* where 
+*α* and *β* are arbitrary (any) types.   
 -/
 def which { α β : Type } : Sum α β → String
 | (Sum.inl _) => "Left"
@@ -319,4 +294,75 @@ def which { α β : Type } : Sum α β → String
 #eval which s1  -- expect "Left"
 #eval which s2  -- expect "Right"
 #eval which s3  -- expect "Left"
+
+
+/-!
+### Sum Types in Everyday Programming
+
+Understanding what it takes, and how, to deal with objects of
+sum types is another big achievement in this class. It will make
+you a better programmer, and it's also deeply related to logic. 
+
+Take programming. First, try to see that classes in Java and Python 
+are basically product types: an object of a given type has values 
+for *all* of the fields defined by it class. On the other hand,
+these don't support sum types natively. C++ does but it's approach
+is complex and not very well received among programmers. 
+
+On the other hand, industrial languages such as Rust and Swift, as 
+well as functional languages such as Haskell and OCaml, do support 
+sum types directly. You now have the basic pattern for programming
+with sum-type values: you have to have a way to handle each case.
+
+## Simulating Sum Types in Python
+To show you that these ideas are worth understanding, here's some 
+code that uses a Python library to program with limited sum types,
+including a definition of a general purpose sum elimination function
+straight from the lesson of this chapter.
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Alpha:
+    a: float
+
+
+@dataclass
+class Beta:
+    b: int
+
+@dataclass
+class Gamma:
+    c: bool
+
+Either = Alpha | Beta
+
+def sum_elim (one_of : Either, a2c, b2c) : 
+    match one_of :
+        case Alpha(a): 
+            return a2c(a)
+        case Beta(b): 
+            return b2c(b)
+
+# DEMO
+
+## functions to "handle either case"
+# f : float -> bool: (f >= 5.0)
+# i : int -> bool:(i < 5)
+def fge5(f) : return (f >=5.0)
+def ilt5(i) : return (i < 5)
+
+# Create four objects of our Alpha | Beta sum type
+six_oh_ge_five_oh = Alpha(6.0)
+four_oh_ge_five_oh = Alpha(4.0)
+four_lt_five = Beta(4)
+five_lt_five = Beta(5)
+
+print(sum_elim(six_oh_ge_five_oh,  fge5, ilt5))  # expect True
+print(sum_elim(four_oh_ge_five_oh, fge5, ilt5))  # expect False
+print(sum_elim(four_lt_five,       fge5, ilt5))  # expect True
+print(sum_elim(five_lt_five,       fge5, ilt5))  # expect False
+```
+-/
 

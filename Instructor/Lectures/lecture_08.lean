@@ -4,35 +4,29 @@ of the answer key for Homework #3. That took upwards
 of 40 minutes, then we only had enough time to cover
 the Unit type.  
 
-# The Unit and Empty Types
+# Data Types: The Unit Type
 
 In this lecture we explore the simplest of all
 data types. Whereas the *Bool* type has two values,
 the *Unit* type has only one--defined by the single 
 constant constructor, *unit*. The Empty type has no 
 values, and no constructors, at all. It is said to
-be an *uninhabited* type. The *Unit* type is likely
-familiar to you as the *void* return type in Java.
-The *Empty* type doesn't play very much of a role 
-in programming, but it plays a vital role in the
-logic you'll learn about going forward. So let's
-dig in.
+be an *uninhabited* type. This chapter presents the
+Unit type and its related constructors and patterns
+of usage.  
 
-## Unit Type
+To best understand the Unit type, start with the
+familiar type, Bool. It has a set of two possible 
+values, namely *true* and *false*. A variable of 
+this type carries one of these two values, and thus 
+carries one *bit* of information, just enough to 
+distinguish between two possible worlds.
 
-The type, Bool, defines a set of two possible 
-values, namely *true* and *false*. The Bool type
-definition represents them as the two constant
-(argument-free) constructors, *true* and *false*. 
-A variable of this type carries one of these two
-values, and thus carries one *bit* of information,
-capable of distinguishing between two possibiities.
-
-So what about a type with just one value? We can 
-certainly define such a type. We'll call it the 
-*Unit* type. We'll present an only slightly simplified 
+So what about a type with just one value? Indeed
+we can define such a type, and it's usually called
+the *Unit* type. We'll present a slightly simplified 
 version of Lean's *Unit* type here. This will be all 
-you'll need to use the built-in type.
+you'll need to use the built-in Unit type for now.
 
 The type definition is just what you'd expect. *Unit*
 is a type with one constant (parameterless) constructor,
@@ -168,3 +162,34 @@ is instead useful for its *side effects.*
 #check Unit.unit
 
 
+/-!
+## The Unit Type in Python
+
+Python has a Unit type, called NoneType, with a single value, None.
+This value is returned by functions that don't have explicit return
+values, and can be used explicitly to reflect the absence of a value. 
+
+```python
+# This file introduces the NoneType type and its single value, None
+
+# None is a (and is the only) value of class NoneType
+print(type(None))               # expect NoneType
+
+# Functions without explicit returns implicitly return None
+def return_nothing (x : str) :
+    print(x)                    # no return statement here
+print(return_nothing("Hi!"))    # expect "Hi!" then None
+
+# You can use None to represent an error value
+# For example, here's a natural number predecessor function
+# that returns None to signal error if its argument is <= 0
+def nat_pred (n : int) :
+    if (n <= 0) :
+        return None
+    else :
+        return (n - 1)
+print(nat_pred(2))              # expect 1
+print(nat_pred(1))              # expect 0
+print(nat_pred(0))              # expect None (undefined)
+```
+-/
