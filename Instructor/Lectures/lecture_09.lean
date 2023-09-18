@@ -20,7 +20,7 @@ Here's how the type is defined in Lean.
 inductive Empty : Type
 
 /-!
-That it: no constructors, no values. Voila, the Empty type. 
+That's it: no constructors, no values. Voila, the Empty type. 
 -/
 
 /-!
