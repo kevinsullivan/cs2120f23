@@ -1,4 +1,6 @@
 /-! 
+INCOMPLETE AND UNDER CONSTRUCTION
+
 # Inductive Type Definitions
 
 You've seen that we use the keyword, *inductive*, 
