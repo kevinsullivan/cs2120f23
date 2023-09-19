@@ -57,5 +57,14 @@ match d with
 #eval depth d3
 
 /-!
-Let's see how the term, depth d3
+Let's see how the term, depth d3, get's evaluated
+
+- depth d3                  (d3 is shell d2), so ..
+- 1 + depth d2              (d2 is shell d1), so ,,
+- 1 + (1 + (depth d1))      (d1 is shell d0)
+- 1 + (1 + (1 + depth d0))  (d0 is solid)
+- 1 + (1 + (1 + 0))         1 + (1 + (1 + depth d0))
+- 1 + (1 + 1)               1 + (1 + depth d1)
+- 1 + 2                     1 + depth d2
+- 3                         depth d3
 -/
