@@ -50,7 +50,9 @@ of type β × α. Call your function prod_comm.
 -/
 
 def prod_comm { α β : Type } : α × β → β × α
-| _ => _
+| (a,b) => (b,a)
+
+-- #eval prod_comm (4, true)
 
 /-!
 Is the transformation from *α × β* to *β × α*
@@ -62,6 +64,10 @@ of the appropriate type. Call it prod_com_reverse.
 -/
 
 -- Here:
+def prod_com_reverse {α β : Type} : β × α → α × β
+| (a,b) => (b,a)
+
+--#check prod_com_reverse
 
 /-! 
 ## #3: Associativity of Prod
@@ -88,7 +94,9 @@ ordered pair notation to match the input value.
 -- Here 
 
 def prod_assoc { α β γ : Type} :  α × (β × γ) → (α × β) × γ
-| _ => _
+| (a,(b,c)) => ((a,b),c)
+
+--#check prod_assoc (5,(true, "hello"))
 
 /-!
 Prove that the conversion works in the reverse direction
@@ -97,6 +105,10 @@ a function, *prod_assoc_reverse* accordingly.
 -/
 
 -- Here:
+def prod_assoc_reverse { α β γ : Type} : (α × β) × γ → α × (β × γ)
+| ((a,b),c)  => (a,(b,c))
+
+--#check prod_assoc_reverse (prod_assoc (5,(true, "hello")))
 
 /-!
 ## #4. Is Sum Commutative?
@@ -131,8 +143,21 @@ of definition.
 def sum_comm { α β : Type} : α ⊕ β → β ⊕ α :=
 fun s => 
   match s with
-  | _ => _
-  | _ => _
+  | (Sum.inl a) => (Sum.inr a) 
+  | (Sum.inr b) => (Sum.inl b)
+
+
+/-  Alternate version (shorter)
+
+def sum_comm' { α β : Type} : α ⊕ β → β ⊕ α
+  | (Sum.inl a) => (Sum.inr a) 
+  | (Sum.inr b) => (Sum.inl b)
+
+-/
+
+
+
+-- #check sum_comm (@Sum.inl Nat Bool 1)
 
 /-!
 Can you always convert a term of type *β ⊗ α* into 
@@ -142,6 +167,13 @@ that does it. Call is sum_comm_reverse.
 
 -- Here:
 
+def sum_comm_reverse { α β : Type} :β ⊕ α → α ⊕ β :=
+fun s => 
+  match s with
+  | (Sum.inl b) => (Sum.inr b) 
+  | (Sum.inr a) => (Sum.inl a)
+
+-- #eval sum_comm_reverse (sum_comm (@Sum.inl Nat Bool 1))
 
 /-!
 ## #5: Is Sum Associative? 
@@ -169,9 +201,12 @@ in both matching and to define return result values.
 -/
 
 def sum_assoc { α β γ : Type} : α ⊕ (β ⊕ γ) → (α ⊕ β) ⊕ γ
-| (Sum.inl a) => (Sum.inl _)
-| (Sum.inr (Sum.inl b)) => _
-| _ => _
+| (Sum.inl a) => (Sum.inl (Sum.inl a))
+| (Sum.inr (Sum.inl b)) => (Sum.inl (Sum.inr b))
+| (Sum.inr (Sum.inr c)) => (Sum.inr c)
+
+
+-- #check sum_assoc (@Sum.inr Nat (Bool ⊕ String) (@Sum.inr Bool String "hello"))
 
 /-!
 Does this conversion also work in reverse? Prove it
@@ -181,6 +216,12 @@ a value of the first sum type as a result.
 -/
 
 -- Here:
+def sum_assoc_reverse { α β γ : Type} : (α ⊕ β) ⊕ γ → α ⊕ (β ⊕ γ)
+| (Sum.inr c) => (Sum.inr (Sum.inr c))
+| (Sum.inl (Sum.inl a)) => (Sum.inl a)
+| (Sum.inl (Sum.inr b)) => (Sum.inr (Sum.inl b))
+
+-- #check sum_assoc_reverse (sum_assoc (@Sum.inl Nat (Bool ⊕ String) 1))
 
 /-!
 ## #6. Products Distribute Over Sums
@@ -197,9 +238,11 @@ either an *α* value and a *β* value, or an *α* value and
 a *γ* value. 
  -/
 
- def prod_dist_sum {α β γ : Type} : _
- | _ => _
- | _ => _
+ def prod_dist_sum {α β γ : Type} : α × (β ⊕ γ) → (α × β) ⊕ (α × γ)
+ | (a, Sum.inr c) => (Sum.inr (a, c))
+ | (a, Sum.inl b) => (Sum.inl (a, b))
+
+-- #eval prod_dist_sum ("hello", (@Sum.inl Nat Bool 1))
 
 /-!
 Does the preceding principle work in reverse? In other 
@@ -212,7 +255,13 @@ any value of type *(α × β) ⊕ (α × γ)* into one of type
 -/
 
 -- Here:
- 
+
+def prod_dist_sum_reverse {α β γ : Type} : (α × β) ⊕ (α × γ) → α × (β ⊕ γ)
+ | Sum.inr (a,c) => (a, Sum.inr c)
+ | Sum.inl (a,b) => (a, Sum.inl b)
+
+-- #eval prod_dist_sum_reverse (prod_dist_sum ("hello", (@Sum.inr Nat Bool true)))
+
 /-!
 In the forward (first) direction we can say that products
 distribute over sums, just as, say, *4 * (2 + 3)* is the
@@ -235,6 +284,10 @@ type *wet*.
 
 -- Here
 
+def its_wet {rain sprinkler wet : Type} : rain ⊕ sprinkler → (rain → wet) → (sprinkler → wet) → wet
+| (Sum.inl r), r2w, _ => r2w r
+| (Sum.inr s), _, s2w => s2w s
+
 /-!
 Now rewrite your function using the type names,
 *α, γ,* and *β* instead of *rain, sprinkler* and
@@ -242,6 +295,22 @@ Now rewrite your function using the type names,
 -/
 
 -- Here:
+
+def sum_elim {α γ β : Type} : α ⊕ β → (α → γ) → (β → γ) → γ
+| (Sum.inl a), a2c, _ => a2c a
+| (Sum.inr b), _, b2c => b2c b
+
+/-
+
+def nat2bool: Nat → Bool
+| _ => true
+
+def string2bool: String → Bool
+| _ => false
+
+#eval sum_elim (@Sum.inr Nat String "hello") nat2bool string2bool
+
+-/
 
 /-!
 You should now better understand how to program 
