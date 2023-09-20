@@ -135,7 +135,7 @@ fun s =>
   | _ => _
 
 /-!
-Can you always convert a term of type *β ⊗ α* into 
+Can you always convert a term of type *β ⊕ α* into 
 one of type *α ⊕ β*? Prove it by writing a function 
 that does it. Call is sum_comm_reverse.
 -/

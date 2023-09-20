@@ -25,7 +25,7 @@ Welcome to UVa CS2120 Fall 2022. Here are the instructions for setting up your l
   - Select the green Code button, then HTTPS, then copy the provided URL. This is the GitHub URL of your newly forked copy of the respository.
 - Start up your new environment:
   - Start a *new* VSCode window.
-  - Using the "extensions" tool (four squares with one out of place on the left), search for and install the *Remote Containers* extension.
+  - Using the "extensions" tool (four squares with one out of place on the left), search for and install the *Remote Development* extension.
   - Use CTRL/CMD-SHIFT-P to bring up the VSCode command palatte.
   - Search for and select *Clone Repository in Container Volume*
   - Paste in the GitHub URL that you copied above into the input box.
