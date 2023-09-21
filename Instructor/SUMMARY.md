@@ -12,4 +12,5 @@
 - [Homework #2](./Homework/hw2.lean.md)
 - [Homework #3](./Homework/hw3.lean.md)
 - [Homework #4](./Homework/hw4.lean.md)
+- [Homework #5 Part 1](./Homework/hw5.lean.md)
 - [Lean Resources](./Resources/README.md)

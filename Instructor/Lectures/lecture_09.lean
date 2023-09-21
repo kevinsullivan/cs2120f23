@@ -85,6 +85,9 @@ def empty_to_empty'' : Empty → Empty
 
 def empty_to_empty' (e : Empty) := e -- return type inferred
 
+def empty_to_empty (e : Empty) : Empty := nomatch e
+
+
 /-!
 This definition is subtle. Clearly it *is* possible to 
 define a function that promises to return a value of
