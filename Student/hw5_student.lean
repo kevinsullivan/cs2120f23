@@ -102,8 +102,10 @@ Hint: You might want to use an explicit match expression
 in writing your solution.
 -/
 def demorgan3 {α β : Type} : ((α → Empty) × (β → Empty)) → ((α ⊕ β) → Empty)  
-| (a2e,b2e) => (fun asumb => (a2e (asumb)))
-
+| (a2e,b2e) => fun asumb =>
+  match asumb with
+  | (Sum.inl a) => a2e a
+  | (Sum.inr b) => b2e b
 
 /-!
 ## PART 2
