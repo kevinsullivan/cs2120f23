@@ -1,6 +1,4 @@
 /-! 
-INCOMPLETE AND UNDER CONSTRUCTION
-
 # Data Types: Recursive Types
 
 You've seen that we use the keyword, *inductive*, 
@@ -88,17 +86,17 @@ of such a type have a recursive structure.
 
 Define a function, *inner : Doll → Doll.* When applied to any 
 doll, *d*, if *d* is the *solid* doll then *inner* must return 
-*solid*, otherwise, if *d* is a nested doll, it must return the 
-one-smaller doll just inside of *d*. Then verify using #reduce
-that the function returns the correct answer when applied to
-*d3*.
+*solid*, otherwise, if *d* is a nested doll, then it must be 
+of the form (shell d') for some doll, d', and in this case the
+function should return d' 
 -/
 
 def inner: Doll → Doll
-| _ => _
-| _ => _
+| solid => solid
+| (shell d') => d'
 
 #reduce inner d3    -- expect (shell (shell solid))
+#reduce inner solid 
 
 /-!
 You would be correct to call *inner* an elimination rule for the
@@ -297,6 +295,11 @@ in place of *Nat.succ n'*. This is one of the few little
 Lean notational details that you just have to remember.
 -/
 
+def n0 := Nat.zero
+def n1 := Nat.succ n0
+def n2 := Nat.succ n1
+def n3 := Nat.succ n2
+
 def is_zero'' : Nat → Bool  -- this works but is verbose
 | Nat.zero => true
 | (Nat.succ n') => false 
@@ -319,6 +322,10 @@ of n, in contradistinction to the *successor* of n (n + 1).
 Hint: Look at how you wrote *inner* for the *Doll* type. 
 -/
 
+def pred : Nat → Nat 
+| 0 => 0
+| (Nat.succ n') => n'
+
 -- Answer here
 
 -- test cases
@@ -328,11 +335,15 @@ Hint: Look at how you wrote *inner* for the *Doll* type.
 /-!
 #2: Write a function, *mk_doll : Nat → Doll*, that takes
 any natural number argument, *n*, and that returns a doll 
-n shells deep. Then verify using #reduce that (mk_doll 3)
+n shells deep. The verify using #reduce that (mk_doll 3)
 returns the same doll as *d3*. 
 -/
 
 -- Answer here
+
+def mk_doll : Nat → Doll
+| 0 => solid
+| n' + 1 => shell (mk_doll n')
 
 -- test cases
 #check mk_doll 3
@@ -345,20 +356,45 @@ takes any two natural numbers and that returns Boolean
 many cases do you need to consider?
 -/
 
+def nat_eq : Nat → Nat → Bool
+| 0, 0 => true
+| 0, n' + 1 => false
+| n' + 1, 0 => false
+| (n' + 1), (m' + 1) => nat_eq n' m'
+
+#eval nat_eq 6 5
+
 /-!
 #3: Write a function, *nat_eq : Nat → Nat → Bool*, that
 takes any two natural numbers and that returns Boolean 
 *true* if the first value is less than or equal to the 
-second, and false otherwise. 
+second, and false otherwise. Hint: The key to solving
+this problem is to figure out the relevant cases, match 
+on them, and then return the right result *in each case*.
 -/
 
+-- Here
+
 /-!
-Write a function nat_add : Nat → Nat → Nat, that takes
-two Nat values and returns the Nat value representing
-their sum. Hint: Case analysis on the second argument.
+
+#4: Write a function nat_add : Nat → Nat → Nat, that 
+takes two Nat values and returns the Nat representing
+their sum. Method: You could do case analysis on either
+argument, but, to be consistent with Lean's definitions,
+do case analysis on the second (Nat) argument, returning
+the right result in either case. 
+
+The challenge is to rewrite the inductive case to one
+employing structural recursion. Remember, you assume
+you have (1) a successor constructor, *succ*, and (2)
+a recursive solution for the sum in the case where the 
+second argument to the recursive function application
+is structurally smaller than that argument to nat_add.  
  -/
 
-#check Nat.add
+def add : Nat → Nat → Nat
+| m, 0 => m
+| m, (Nat.succ n') => _
 
 /-!
 ## The List α Data Type
@@ -429,3 +465,4 @@ Exercise. Write a function polymorphic in one type,
 the result of appending the second list after the first.
 Hint: try case analysis on the first list argument.   
 -/
+
