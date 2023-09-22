@@ -5,7 +5,7 @@ Sometimes one needs to express a function as a lambda
 expression, with an an ordered pair (p : α x β) as an 
 argument. To use p, one will often have to destructure
 it: to *analyze* it as *(a, b)*. With names for the two
-parts of (the term representing) the ordered pain, you 
+parts of (the term representing) the ordered pair, you 
 can define such functions as *fst*  (just return a), 
 *snd* (just return b), and *swap* (return (b, a)). 
 -/
