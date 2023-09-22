@@ -243,8 +243,8 @@ test cases to show that it appears to be working.
  -/
 
 def mul : Nat → Nat → Nat
-| m, 0 => m
-| m, (Nat.succ n') => add (_) (_)
+| m, 0 => 0
+| m, (Nat.succ n') => add (m) (mul m n')
 
 /-!
 ### Sum Binary Nat Function Over Range 0 to n 
