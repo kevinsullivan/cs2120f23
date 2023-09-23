@@ -120,12 +120,10 @@ notation e1 "∧" e2 => bin_exp binary_op.and e1 e2
 notation e1 "∨" e2 => bin_exp binary_op.or e1 e2 
 
 def e0 := {v₀}
-def e1 := {v₁}
-def e2 := ¬e0
-def e3 := ¬e1
-def e4 := s0 ∧ s3
-def e5 := s0 ∨ s3
-def e6 := s4 ∨ s5
+def e1 := ¬e0
+def e2 := e0 ∧ e1
+def e3 := e0 ∨ e1
+def e4 := (e2 ∧ e3) ∨ e0
 
 
 /-!
@@ -139,7 +137,7 @@ def Interp := var → Bool  -- interp is a type
 
 -- examples
 def all_true  : Interp := fun _ => true
-def all_false : Interp := fun _ => true
+def all_false : Interp := fun _ => false
 
 /-!
 #### Operators
@@ -159,3 +157,30 @@ def eval_expr : Expr → Interp → Bool
 | var_exp v, i => i v
 | un_exp op e, i => (eval_un_op op) (eval_expr e i)
 | bin_exp op e1 e2, i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
+
+/-!
+#### Demonstration
+-/
+
+#eval eval_expr e0 all_true
+#eval eval_expr e1 all_true
+#eval eval_expr e2 all_true
+#eval eval_expr e3 all_true
+#eval eval_expr e4 all_true
+
+#eval eval_expr e0 all_false
+#eval eval_expr e1 all_false
+#eval eval_expr e2 all_false
+#eval eval_expr e3 all_false
+#eval eval_expr e4 all_false
+
+/-!
+## Conclusion
+
+You have implemented the abstract syntax and 
+standard concrete syntax for, and the semantics 
+of, the formal language of propositional logic.
+You have also automated the semantic evaluation
+of variables, operators, and arbitrarily complex
+expressions in propositional logic. That's cool! 
+-/
