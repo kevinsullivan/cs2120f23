@@ -243,7 +243,7 @@ test cases to show that it appears to be working.
  -/
 
 def mul : Nat → Nat → Nat
-| m, 0 => m
+| m, 0 => 0
 | m, (Nat.succ n') => add (_) (_)
 
 /-!
