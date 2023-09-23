@@ -144,13 +144,13 @@ def ev (n : Nat) : Bool := n%2=0
 
 -- We need a function: String → Bool 
 #eval glue_funs ev len "Hello"    -- expect false
--- Remember applicatin is left associative
+-- Remember application is left associative
 #eval (glue_funs ev len) "Hello" -- expect false
 -- (glue_funs ev len) is the function we want!
 #check (glue_funs ev len)     -- String → Bool
 -- Applied to String it gives right Bool!
 #eval (glue_funs ev len) "Hello!" -- expect true
-
+ 
 -- We can even name this function then use it.
 def ev_string := glue_funs ev len
 #eval ev_string "Hi!"   -- expect false
