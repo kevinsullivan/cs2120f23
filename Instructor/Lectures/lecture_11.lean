@@ -1,6 +1,8 @@
 /-!
 ## Induction Principles
 
+VERY MUCH UNDER CONSTRUCTION. BEST TO IGNORE.
+
 In the last class, we saw what it meant for a 
 type to be inductively defined. In a nutshell,
 an inductive definition gives us constructors
