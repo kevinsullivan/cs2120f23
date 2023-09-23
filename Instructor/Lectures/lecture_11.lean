@@ -1,129 +1,161 @@
-/-!
-## Induction Principles
+/-
+# Propositional Logic
 
-VERY MUCH UNDER CONSTRUCTION. BEST TO IGNORE.
-
-In the last class, we saw what it meant for a 
-type to be inductively defined. In a nutshell,
-an inductive definition gives us constructors
-to create one or more base (non-nested) objects 
-along with constructors for creating new objects
-from smaller ones of the same type.
-
-We saw two examples. First, given a solid doll
-and a constructor, shell, for creating a larger
-doll from a smaller one, we can construct a doll
-of any depth. We start with solid and then apply
-*shell* as many times as needed to build a doll 
-of any size. Second, given *zero* and the *succ*
-contructor for building a next larger Nat from any
-smaller one, we can build a Nat of any magnitude.
-We again do it by starting with zero and applying
-*succ* as many times as needed.
-
-Is there a general principle here? Yes there is.
-To get at it, let's try to formalize the idea for
-the doll type. What we want to say is that given
-solid and a constructor function
+UNDER CONSTRUCTION
 -/
 
 
-
-inductive Doll : Type
-| solid
-| shell (d : Doll)
-
-open Doll
-
-def mk_doll : Nat → Doll 
-| 0 => solid
-| (n' + 1) => shell (mk_doll n')
-
-#reduce mk_doll 5   -- this function works to build a doll of *any* depth
-
--- Nat.induction {C : Nat → Prop} (n : Nat) (h₁ : C 0) (h₂ : ∀ (n : Nat), C n → C (n + 1)) : C n
-
-#check @Nat.rec
-
 /-!
-@Nat.rec : 
-  {motive : Nat → Sort u_1} → motive Nat.zero → ((n : Nat) → motive n → motive (Nat.succ n)) → (t : Nat) → motive t
--/
-
-def nat_ind : 
-  {motive : Nat → Sort u_1} → 
-   motive Nat.zero → 
-   ((n : Nat) → motive n → motive (Nat.succ n)) 
-   → (t : Nat) → motive t
-
-/-!
-
-## The Polymorphic List Data Type 
-
-A small extension to the types we've defined so far 
-will let us represent mathematical *lists* of objects
-as terms of an inductive type. Given any type of list
-elements, α, we can define a list of elements of that
-type as either the empty list (which we'll call *nil*)
-of as being constructed from two parts: an object of
-type α (we'll call it the *head* of the list) and a
-one-smaller *list* of objects of the same type. 
+## Informal Presentation of PL
 -/
 
 /-!
-### Constructors
+## Formalization of PL
 -/
-
-namespace cs2120
-
-inductive List (α : Type) : Type 
-| nil
-| cons (head : α) (tail : List α) 
-
-open List
-
-end cs2120
-
-def l0 := @List.nil Nat   -- [] : List Nat
-def l1 := List.cons 0 l0  -- [0, []]
-def l2 := List.cons 1 l1  -- [1, [0]]
-def l3 := List.cons 2 l2  -- [2, [1, [0, []]]]
 
 /-!
-Lean provides convenient notations.
-
-- [] is notation for the empty list
-- :: is infix notation for List.cons
-- [a1, a2, a3, ...] is for a1::a2::a3::...::nil
+### Syntax
 -/
 
-#eval ([] : List Nat)
-#eval 0::[]
-#eval 3::2::1::0::[]
-#eval [3,2,1,0]
 
 /-!
-
-### Elimination
-
-Elimination is just like with the Doll and Nat 
-types, by pattern matching, but now you have to
-account for the additional element of each non-nil
-term of type List α.
+#### Variables
+We will represent propositional variables
+as terms of a type called *var*. Each var
+object will carry a single natural number
+as a field value. Different variables will
+have different natural number indices. You
+can think of the terms of this type as *v₀,
+v₁, ...* ad infinitum. We'll use tick marks
+on this definition on the way to giving you
+a better way to write such type definitions.
 -/
+inductive var' : Type
+| mk (n : Nat)
 
-def len {α : Type} : List α → Nat
-| [] => 0
-| _::t => 1 + len t
-
-#reduce len []
-#reduce len [3,2,1,0]
-#reduce len (3::2::1::0::[] : List Nat) 
+def v₀' := var'.mk 0
+def v₁' := var'.mk 1
+def v₂' := var'.mk 2
+def v₃' := var'.mk 3
 
 /-!
-Exercise. Write a function polymorphic in one type,
-α, that takes two arguments of type List α and returns
-the result of appending the second list after the first.
-Hint: try case analysis on the first list argument.   
+Here's a new Lean syntactic feature. 
+When you define a datatype with just 
+a single constructor, you can use the
+*structure* keyword. You then think of
+the arguments as *fields*. 
+-/
+structure var : Type := 
+(n: Nat)
+
+/-!
+The default constructor name for a 
+structure type is *mk*. Here we 
+construct four propositional logic
+variables and give them nice names.
+There's nothing special about using
+subscripts in the names. It's just 
+a *mathy* thing to do, and makes it
+easier to write subsequent code/logic.
+-/
+def v₀ := var.mk 0
+def v₁ := var.mk 1
+def v₂ := var.mk 2
+def v₃ := var.mk 3
+
+/-!
+Using the *structure* feature allows
+you to use the field names as *getter*
+functions, rather than having to write 
+your own using pattern matching (as we
+did with the *fst* and *snd* functions
+for extracting the elements of a pair). 
+You can use either function application
+or dot notation. 
 -/
 
+#eval var.n v₂  -- application notation
+open var        -- not a good idea 
+#eval n v₂      -- but it works 
+#eval v₂.n      -- dot notation
+
+/-!
+#### Connectives (Operators)
+-/
+
+inductive unary_op : Type
+| not
+
+inductive binary_op : Type
+| and
+| or
+
+/-!
+### Expressions (Sentences) 
+-/
+
+inductive Expr : Type
+| var_exp (v : var)
+| un_exp (op : unary_op) (e : Expr)
+| bin_exp (op : binary_op) (e1 e2 : Expr)
+
+open Expr
+
+-- Examples
+def s0 := var_exp v₀
+def s1 := var_exp v₁
+def s2 := un_exp unary_op.not s0
+def s3 := un_exp unary_op.not s1
+def s4 := bin_exp binary_op.and s0 s3
+def s5 := bin_exp binary_op.or s0 s3
+def s6 := bin_exp binary_op.or s4 s5
+
+/-!
+#### Notations
+-/
+
+notation "{"v"}" => var_exp v
+notation "¬" e => un_exp unary_op.not e 
+notation e1 "∧" e2 => bin_exp binary_op.and e1 e2 
+notation e1 "∨" e2 => bin_exp binary_op.or e1 e2 
+
+def e0 := {v₀}
+def e1 := {v₁}
+def e2 := ¬e0
+def e3 := ¬e1
+def e4 := s0 ∧ s3
+def e5 := s0 ∨ s3
+def e6 := s4 ∨ s5
+
+
+/-!
+### Semantics
+-/
+
+/-!
+#### Variables
+-/
+def Interp := var → Bool  -- interp is a type
+
+-- examples
+def all_true  : Interp := fun _ => true
+def all_false : Interp := fun _ => true
+
+/-!
+#### Operators
+-/
+def eval_un_op : unary_op → (Bool → Bool)
+| unary_op.not => not
+
+def eval_bin_op : binary_op → (Bool → Bool → Bool)
+| binary_op.and => and
+| binary_op.or => or
+
+/-!
+#### Expressions
+-/
+
+def eval_expr : Expr → Interp → Bool 
+| var_exp v, i => i v
+| un_exp op e, i => (eval_un_op op) (eval_expr e i)
+| bin_exp op e1 e2, i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)

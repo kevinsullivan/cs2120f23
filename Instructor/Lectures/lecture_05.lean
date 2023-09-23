@@ -142,21 +142,29 @@ def len : String → Nat := String.length
 def ev (n : Nat) : Bool := n%2=0
 #check (ev)             -- Nat → Bool
 
--- We need a function: String → Bool 
+-- glue_funs composes ev and len into a String → Bool function! 
 #eval glue_funs ev len "Hello"    -- expect false
 -- Remember application is left associative
 #eval (glue_funs ev len) "Hello" -- expect false
 -- (glue_funs ev len) is the function we want!
 #check (glue_funs ev len)     -- String → Bool
--- Applied to String it gives right Bool!
+-- Applied to a String it gives back a Bool!
 #eval (glue_funs ev len) "Hello!" -- expect true
  
 -- We can even name this function then use it.
-def ev_string := glue_funs ev len
+def ev_string := (glue_funs ev len)
 #eval ev_string "Hi!"   -- expect false
 #eval ev_string "Hello" -- expect false
 #eval ev_string ""      -- expect true
 #eval ev_string "I Love Logic"  -- true
+
+/-!
+Wow. So glue_funs is in essence a function
+for *gluing together* two functions into a 
+new function, where the input of one is the
+output of the other, given a value to which
+the whole thing is applied.  
+-/
 
 
 /-!
