@@ -385,7 +385,7 @@ def nat_le : Nat → Nat → Bool
 #eval nat_le 1 0    -- expect false
 #eval nat_le 1 1    -- expect true
 #eval nat_le 2 1    -- expect false
-#eval nat_le 2 3    -- expect false
+#eval nat_le 2 3    -- expect true
 
 /-!
 
