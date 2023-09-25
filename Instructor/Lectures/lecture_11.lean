@@ -112,13 +112,27 @@ def s6 := bin_exp binary_op.or s4 s5
 
 /-!
 #### Notations
+
+Lean supports user-defined notations. The notation
+system is pretty sophisticated. In general, though,
+the idea is that you specify how you want to write
+a term using your own notation, along with how that
+notation should translate into ordinary Lean terms.
+See https://lean-lang.org/lean4/doc/notation.html
+for details.
+
+In what follows, we define ¬ as a prefix notation
+(that goes before its single argument) with the
+highest possible *precedence* or *binding power*.
+Thus, for example, ¬A∧B means (¬A)∧B.
 -/
 
+prefix:max "¬" => un_exp unary_op.not 
+infixr:35 " ∧ " => bin_exp binary_op.and  
+infixr:30 " ∨ " => bin_exp binary_op.or  
 notation "{"v"}" => var_exp v
-notation "¬" e => un_exp unary_op.not e 
-notation e1 "∧" e2 => bin_exp binary_op.and e1 e2 
-notation e1 "∨" e2 => bin_exp binary_op.or e1 e2 
 
+-- 
 def e0 := {v₀}
 def e1 := ¬e0
 def e2 := e0 ∧ e1
