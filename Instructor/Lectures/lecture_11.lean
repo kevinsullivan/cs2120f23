@@ -61,7 +61,7 @@ and that returns a meaning.
 -/
 
 /-!
-## Propositinal Logic
+## Propositinal Logic Informally
 
 Propositional logic is among the simplest of useful
 formal languages. You already know some version of
@@ -163,17 +163,114 @@ to answer a few questions:
 - What do the *connective* symbols mean?
 - How is the meaning of an expression computed from the meaning of its parts?
 
-Here are the answers. First, the meaning of each variable in an expression, just
-as with our arithmetic example, will 
+#### Atomic Propositional Variables
+
+First, we will assigning a true or false the meaning to 
+each atomic propositional variable in an expression by way
+of a valation. For example, if we only care about one such
+variable, say *a*, then there are two possible valuations:
+- { a ↦ true }
+- { a ↦ false }
+
+If two variables, *a* and *b* might appear in expressions,
+then there are *four* interpretations.
+- {a ↦ true, b ↦ true}
+- {a ↦ true, b ↦ false}
+- {a ↦ false, b ↦ true} 
+- {a ↦ false, b ↦ false}
+
+You should recognize these lists as the input sides of 
+truth tables, with the output column determined by the
+expression to be evaluated. Here's an example. See first
+that the input (left) side lists variables, while the right
+side lists values of expressions. Second, note that that
+there are two interpretations for the one input variable,
+*a*. 
+
+|variable |expression |
+| a       |   ¬{a}    |
+|---------|-----------|
+| true    |  false    |
+| false   |  true     |
+
+The output expression can be more complex, but the number
+of interpretations is determined only by the number of
+variables that have to be given values to determine the
+value of the output expression.
+
+
+|variable |   expression  |
+| a       |   {a} ∨ ¬{a}  |
+|---------|---------------|
+| true    |      true     |
+| false   |      true     |
+
+Finally here's an example of a list of all interpretations,
+and the corresponding values, for an expression employing
+two propositional variables, *a* and *b*. The row give the
+four possible interpretations of the two variables, on the 
+left, while the right column gives the values of the logical
+formula (expression) *under* each of these interpretations. 
+
+| a      | b      |  {a} ∨ {b}  |
+|--------|--------|-------------|
+| true   | true   |     true    |
+| true   | false  |     true    |
+| false  | true   |     true    |
+| false  | false  |     false   |
+
+The main conclusions at this point are as follows. First,
+a valuation assigns Boolean truth values to propositional
+*variables*. Second, a truth table lists each possible 
+valuation for a given set of variables. Third, the output 
+column of a truth table specifies a logical *expression* 
+and gives its truth value for each corresponding valuation.
+
+A final observation is that a single row of a truth table
+specifies a *function* from propositional variables to 
+to Boolean (truth) values. We could for example write the
+preceding truth table as follows:
+
+| a      | b      |  {a} ∨ {b}  |
+|--------|--------|-------------|
+|        i₃       |     true    |
+|        i₂       |     true    |
+|        i₁       |     true    |
+|        i₀       |     false   |
+
+Here the *i* (for *interpretation* values are functions 
+from variables to Bool. For example, *i₃(a) = true* and 
+*i₃(b) = true*, while *i₂(a) = true* but *i₂(b) = false.*  
+
+The values on the right (output) side of the truth table 
+are then obtained by first applying the correspond *i*
+functions to the *variables*, *a* and *b*, from which
+the atomic propositional expresssions *{a}* and *{b}*
+are constructed to obtain the meanings of these basic
+expressions. Then the meaning of ∨ is applied to these
+two values to obtain the final result. Here, as you'd
+expect, the meaning of ∨ in propositional logic is the
+Boolean *or* function.   
+
+You are now ready to use you acquired logic knowledge
+and skills formalizing concepts in Lean to define the
+formal language of propositional logic, both syntax 
+and semantics, within the logic of the Lean prover.
+Indeed, one of the main use cases for Lean is exactly
+to define *domain-specific languages* (DSLs). You're
+now going formally specify your first working DSL!    
 -/
 
 /-!
-### Formal Specific
+## Propositional Logic Formalized and Automated
 -/
 
 
 /-!
+### Syntax
+
 #### Variables
+
 We will represent propositional variables
 as terms of a type called *var*. Each var
 object will carry a single natural number
@@ -245,7 +342,7 @@ inductive binary_op : Type
 | or
 
 /-!
-### Expressions (Sentences) 
+#### Expressions (Sentences) 
 -/
 
 inductive Expr : Type
@@ -275,20 +372,32 @@ notation should translate into ordinary Lean terms.
 See https://lean-lang.org/lean4/doc/notation.html
 for details.
 
-In what follows, we define ¬ as a prefix notation
-(that goes before its single argument) with the
-highest possible *precedence* or *binding power*.
-Thus, for example, ¬A∧B means (¬A)∧B.
+In what follows, we define standard logical 
+notations for each of the standard connectives,
+or operators, of propositional logic. We start
+with one non-standard notation for *lifting*
+atomic propositional variables to *expressions*
+in the usual language of propositional logic. 
+
+After the first, each notation defines the 
+*fixity* of the corresponding operator, which
+is to say, where it's placed relative to its
+arguments; the associativity of the infix
+operators (all of them are "r" for "right")
+associative in this case; and the operator
+precedence, or binding strength, corresponding
+to the same idea in arithmetic, which states
+that * applies before +, for example. 
 -/
 
+notation "{"v"}" => var_exp v
 prefix:max "¬" => un_exp unary_op.not 
 infixr:35 " ∧ " => bin_exp binary_op.and  
 infixr:30 " ∨ " => bin_exp binary_op.or 
 infixr:25 " ⇒ " =>  bin_exp binary_op.imp
 infixr:20 " ⇔ " => bin_exp binary_op.iff 
-notation "{"v"}" => var_exp v
 
--- 
+--  Now we have a "concrete" syntax for our language!
 def e0 := {v₀}
 def e1 := ¬e0
 def e2 := e0 ∧ e1
@@ -301,7 +410,7 @@ def e4 := (e2 ∧ e3) ∨ e0
 -/
 
 /-!
-#### Variables
+#### Interpretations/Valuations
 -/
 def Interp := var → Bool  -- interp is a type
 
@@ -310,7 +419,33 @@ def all_true  : Interp := fun _ => true
 def all_false : Interp := fun _ => false
 
 /-!
+Exercise: Define the *i₂* interpretation from above
+as a function in Lean. It will help to give the name
+*a* to *v₀* and *b* to *v₁*, then define a valuation
+that gives each of these variables the specified value.
+It doesn't matter what values you give all the other
+variables. Just assign them a default value, such as
+*false*.
+-/
+
+/-!
 #### Operators
+
+The meanings of the operators in proposition logic
+are simply the corresponding Boolean functions. Some
+of them are unary, taking just one Boolean argument
+(e.g., *not*). Others are binary (and as *and*) and
+so take two arguments. You can in fact define all
+kinds of such functions. And _if_then_else operator
+would take three Boolean arguments, and return a
+result that uses the first to select on of the
+following two values as the result. 
+
+As above, we'll give *semantic* meanings to the 
+*syntactic* connectives by defining functions from
+the former to the *Boolean functions* that express
+their desired meanings. 
+
 -/
 def eval_un_op : unary_op → (Bool → Bool)
 | unary_op.not => not
@@ -321,6 +456,16 @@ def eval_bin_op : binary_op → (Bool → Bool → Bool)
 
 /-!
 #### Expressions
+
+And now for the coup de grace: We define a function that
+gives each and every expression in the language of 
+propositional logic a Boolean meaning. The function is
+recursive: derive meanings for subexpressions, if any,
+and then combine them using the right Boolean operators.
+Atomic expressions are evaluated by interpreting the
+variables they contain under an interpretation function
+given to the expression evaluation function as an
+argument.  
 -/
 
 def eval_expr : Expr → Interp → Bool 
