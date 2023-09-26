@@ -167,11 +167,9 @@ that does it. Call is sum_comm_reverse.
 
 -- Here:
 
-def sum_comm_reverse { α β : Type} :β ⊕ α → α ⊕ β :=
-fun s => 
-  match s with
-  | (Sum.inl b) => (Sum.inr b) 
-  | (Sum.inr a) => (Sum.inl a)
+def sum_comm_reverse { α β : Type} :β ⊕ α → α ⊕ β 
+| (Sum.inl b) => (Sum.inr b) 
+| (Sum.inr a) => (Sum.inl a)
 
 -- #eval sum_comm_reverse (sum_comm (@Sum.inl Nat Bool 1))
 
