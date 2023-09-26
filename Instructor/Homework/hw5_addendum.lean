@@ -17,7 +17,7 @@ can define such functions as *fst*  (just return a),
 This function takes a pair; doesn't analyze it; and in
 this simple example, just returns, it. Polymorphic
 functions, capable of handling objects of any type,
-often handle object without *inspecting* them.
+often handle object without ever *inspecting* them.
 -/
 #check fun {α β : Type} (p : α × β) => p 
 

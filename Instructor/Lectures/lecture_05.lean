@@ -118,7 +118,7 @@ as a polymorphic function that, given any three types,
 α, β, and γ, takes two functions, *g : β → γ* and *f :
 α → β* along with any argument *a : α* and that returns 
 *(g (f a))*, which we now understand to be *(g ∘ f) a*.
--/ 
+-/
 
 def glue_funs {α β γ : Type} :
   (β → γ) →   -- type of g
@@ -128,13 +128,54 @@ def glue_funs {α β γ : Type} :
 | g, f, a => g (f a)
 
 /-!
-Now, just as with *apply2*, if we leave off the third
-argument, *a*, to *glue_funs*, we will get back exactly 
-*(g ∘ f)*. That is, we'll get the function that, when 
-applied to some argument, *a,* will return *(g (f a)).* 
-What function does that? It's just *(g ∘ f)*.  
+Let's see an easy example. In this example,
+- α is String
+- β is Nat
+- γ is Bool
 -/
 
+-- We need a function f : String → Nat
+def len : String → Nat := String.length
+#check (len)           -- String → Nat
+
+-- We need a function of type Nat → Bool 
+def ev (n : Nat) : Bool := n%2=0
+#check (ev)             -- Nat → Bool
+
+-- glue_funs composes ev and len into a String → Bool function! 
+#eval glue_funs ev len "Hello"    -- expect false
+-- Remember application is left associative
+#eval (glue_funs ev len) "Hello" -- expect false
+-- (glue_funs ev len) is the function we want!
+#check (glue_funs ev len)     -- String → Bool
+-- Applied to a String it gives back a Bool!
+#eval (glue_funs ev len) "Hello!" -- expect true
+ 
+-- We can even name this function then use it.
+def ev_string := (glue_funs ev len)
+#eval ev_string "Hi!"   -- expect false
+#eval ev_string "Hello" -- expect false
+#eval ev_string ""      -- expect true
+#eval ev_string "I Love Logic"  -- true
+
+/-!
+Wow. So glue_funs is in essence a function
+for *gluing together* two functions into a 
+new function, where the input of one is the
+output of the other, given a value to which
+the whole thing is applied.  
+-/
+
+
+/-!
+Recall that just as with *apply2*, leaving off the third
+argument, *a*, to *glue_funs*, we will return exactly the
+function, *(g ∘ f)*. That is, we'll get the function that, 
+when applied to an argument, *(a : α),* return *(g (f a)).* 
+What function does that? It's just *(g ∘ f)*. Pronounce 
+this function as *g after f*. The idea is that it applies
+*g* after (to the result of) applying *f* to *a*.  
+-/
 #eval glue_funs square double 4   -- expect 64
 
 -- Apply glue_funs to first two arguments
