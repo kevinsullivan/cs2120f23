@@ -1,20 +1,174 @@
 /-
 # Propositional Logic
 
-UNDER CONSTRUCTION
+UNDER CONSTRUCTION (REALLY)
+
+We've now built enough machinery and intuition for basic
+logic that not only we can introduce it informally, in the
+manner you'd find in almost any textbook, but we can also
+formalize it in Lean. Doing so has several major benefits,
+including making the ideas precise and concise, while also
+enabling *automated logical reasoning*. In this chapter
+we'll do exactly that.
 -/
 
 
 /-!
-## Informal Presentation of PL
+## Formal Languages: Syntax and Semantics
+
+Propositional logic is an example of a formal language
+with a syntax and a semantics. A formal language is an
+artificial (as opposed to natural) language that has a
+mathematical definition. The *syntax* of such a language
+specifies its set of well formed expressions (sometimes
+called well formed formulae, or *wffs*). The semantics
+provides a way to assign a *meaning* to each and every 
+*wff*.
+
+The language of arithmetic is a formal language. Its
+*wffs* include the following:
+- *1 + 113
+- 10 = 11* 
+- "x * y = 1"
+
+On the other hand, the following strings of symbols
+are not in the set of expressions defined by the syntax 
+of arithmetic.
+- *+ x +* 
+- 1 >== 2
+- Hello
+
+The semantics of the language of arithmetic in turn
+give us a way to assign meanings to the well formed
+expressions. 
+- In the first example, we interpret *+* as arithmetic addition, and the overall arithmetic expression then *means* 113. 
+- In the second case, we interpret *=* as the equality relation, giving us a Boolean expression, the meaning of which in this case is *false*. 
+- The third expression means either true or false depending on the meanings of the arithmetic variables, *x* and *y*. 
+
+The third case is the most interesting because it
+shows that the semantics of arithmentic is not just
+a simple function from wwfs to meanings. We need an
+additional piece of information in this case, which
+we can call a *valuation*, or *interpretation*, of 
+the variables. The meaning of *x * y = 1* is *true*
+under the valuation *{x = 2, y = 1/2}*, for example,
+but is false under the valuation *{x = 2, y = 1}.*
+
+Speaking informally, the semantics of arithmetic is
+thus a function that takes an expression and also a
+valuation of the variables that might appear in it 
+and that returns a meaning.
 -/
 
 /-!
-## Formalization of PL
+## Propositinal Logic
+
+Propositional logic is among the simplest of useful
+formal languages. You already know some version of
+it from having learned how to read and write Boolean
+expresions when Programming in Python, Java, or any
+other ordinary programming language.
+
+### Atomic Propositions
+
+Propositional logic starts with the notion of an
+*atomic proposition*. An atomic proposition, *P*, 
+is a declarative statement that cannot be broken 
+into smaller propositions, and for which it makes 
+sense to ask *Is it true or not that P?*. Here are 
+some examples of atomic propositions:
+- It's raining
+- The ground is wet
+- x * y = 1
+
+Because atomic propositions don't break up into smaller
+elements, and to make it easier to read and write 
+expressions, it's the usual practice to use variables,
+sometimes called propositional letters, to stand for 
+longer propositions. For example, we could define the 
+following shorthands.
+- a = "it's raining"
+- b = "the ground is wet"
+- c = "x * y = 1"
+
+Here are some examples of propositions that are 
+not atomic. Be sure you see that they are made up
+of smaller propositions.
+- If it's raining then the ground is wet
+- a implies b (using propositional letters)
+- x * y = 1 or x * y ≠ 1 (x and y are not propositional letters in this context, but refer to numbers)
+
+Finally, here are some correct expressions
+in English that are not propositions at all:
+- Is Mary home?
+- Get out!
+- Please pass the jelly.
+
+None of these expressions pass the simple "Is it true" test for being a proposition:
+- Is it true or not that "Is Mary home?"          -- makes no sense
+- Is it true or not that "Get out!"               -- makes no sense
+- Is it true or not that "Please pass the jelly." -- makes no sense
+
+### Inductively Defined Syntax
+
+The syntax of propositional logic defines the set
+of well formed formula (*expressions*), inductively. 
+In other words, we can build larger expressions from
+smaller ones. Here are the rules.
+
+- If *a* is an atomic formula then *{a}* is an expression
+- If *b* and *c* are expressions, then so are the following:
+  - ¬b        -- not b
+  - b ∧ c     -- b and c
+  - b ∨ c     -- b or c
+  - b ⇒ c     -- b implies c; if b then c
+  - b ↔ c     -- b if and only if c; b and c are equivalent
+
+That's it! Here then are some valid expressions in
+propositional logic:
+- {a}           -- it's raining
+- {b}           -- the ground is wet
+- ¬a            -- it's not raining
+- a ⇒ b         -- if it's raining then the ground is wet
+- a ∨ b         -- it's raining or the ground is wet
+- (a ∧ b) ∨ ¬a  -- (raining and wet) or (not raining) 
+
+Note: Most informal (English/natural language) 
+definitions of propositional logic don't distinguish 
+between atomic formula (represented by a propositional
+variables, such as *a* and *b*) and *expressions* that
+incorporate them ({a} and {b} in our notation). Rather, 
+it's common just to say that if *a* is an atomic 
+formula then it's also an expression. 
+
+We distinguish *a* as an atomic variable from from *{a},* 
+an (atomic) *expression*. This separation of variables
+from single-variable *expressions* will enable us to 
+define valuations as functions, from *variables* only
+(not from all expressions) to (true/false) values. 
+
+We'll then define the meaning of any *expression* as 
+a separate function: that take *any* expression along
+with a valuation of any variables it might contain and
+that then returns its true or false meaning. Our formal 
+specification will clarify this distinction. 
+
+### Semantics
+
+From here on out, we'll write atomic propositions using
+single-letter variables such as *a, b*, and *c*. Now to
+assign a meaning any possible *expression* we will have
+to answer a few questions:
+- What does each variables mean?
+- What do the *connective* symbols mean?
+- How is the meaning of an expression computed from the meaning of its parts?
+
+Here are the answers. First, the meaning of each variable in an expression, just
+as with our arithmetic example, will 
 -/
 
 /-!
-### Syntax
+### Formal Specific
 -/
 
 
@@ -129,7 +283,9 @@ Thus, for example, ¬A∧B means (¬A)∧B.
 
 prefix:max "¬" => un_exp unary_op.not 
 infixr:35 " ∧ " => bin_exp binary_op.and  
-infixr:30 " ∨ " => bin_exp binary_op.or  
+infixr:30 " ∨ " => bin_exp binary_op.or 
+infixr:25 " ⇒ " =>  bin_exp binary_op.imp
+infixr:20 " ⇔ " => bin_exp binary_op.iff 
 notation "{"v"}" => var_exp v
 
 -- 
