@@ -1,7 +1,5 @@
-/-
+/-!
 # Propositional Logic
-
-UNDER CONSTRUCTION (REALLY)
 
 We've now built enough machinery and intuition for basic
 logic that not only we can introduce it informally, in the
@@ -128,6 +126,9 @@ That's it! Here then are some valid expressions in
 propositional logic:
 - {a}           -- it's raining
 - {b}           -- the ground is wet
+
+
+-- Now assume that a and b are any expressions
 - ¬a            -- it's not raining
 - a ⇒ b         -- if it's raining then the ground is wet
 - a ∨ b         -- it's raining or the ground is wet
@@ -469,9 +470,9 @@ argument.
 -/
 
 def eval_expr : Expr → Interp → Bool 
-| var_exp v, i => i v
-| un_exp op e, i => (eval_un_op op) (eval_expr e i)
-| bin_exp op e1 e2, i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
+| (var_exp v), i => i v
+| (un_exp op e), i => (eval_un_op op) (eval_expr e i)
+| (bin_exp op e1 e2), i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
 
 /-!
 #### Demonstration
