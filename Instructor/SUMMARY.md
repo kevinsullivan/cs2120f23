@@ -14,5 +14,6 @@
 - [Homework #3](./Homework/hw3.lean.md)
 - [Homework #4](./Homework/hw4.lean.md)
 - [Homework #5](./Homework/hw5.lean.md)
+- [Homework #6](./Homework/hw6.lean.md)
 - [Homework #5 Addendum on Negation](./Homework/hw5_addendum.lean.md)
 - [Lean Resources](./Resources/README.md)

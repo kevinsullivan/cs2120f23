@@ -140,7 +140,7 @@ def map_not : List Bool → List Bool
 /-! 
 ### #5 List the First n Natural Numbers
 
-Define a function called *dountodnw* that takes a 
+Define a function called *countdown* that takes a 
 natural number argument, *n*, and that returns a list 
 of all the natural numbers from *n* to *0*, inclusive. 
 -/
