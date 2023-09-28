@@ -188,7 +188,6 @@ side lists values of expressions. Second, note that that
 there are two interpretations for the one input variable,
 *a*. 
 
-|variable |expression |
 | a       |   ¬{a}    |
 |---------|-----------|
 | true    |  false    |
@@ -199,8 +198,6 @@ of interpretations is determined only by the number of
 variables that have to be given values to determine the
 value of the output expression.
 
-
-|variable |   expression  |
 | a       |   {a} ∨ ¬{a}  |
 |---------|---------------|
 | true    |      true     |
@@ -491,12 +488,11 @@ def eval_expr : Expr → Interp → Bool
 #eval eval_expr e4 all_false
 
 /-!
-## Conclusion
-
-You have implemented the abstract syntax and 
+You have now implemented the abstract syntax and 
 standard concrete syntax for, and the semantics 
 of, the formal language of propositional logic.
 You have also automated the semantic evaluation
 of variables, operators, and arbitrarily complex
 expressions in propositional logic. That's cool! 
 -/
+
