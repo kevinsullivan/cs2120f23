@@ -41,7 +41,7 @@ infixr:25 " ⇒ " =>  Expr.bin_exp binary_op.imp
 infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff 
 
 /-!
-Semantics
+### Semantics
 -/
 
 def eval_un_op : unary_op → (Bool → Bool)
@@ -176,31 +176,56 @@ letters to represent (natural language) propositions,
 and moreover, we'll often do so without referring to
 any particular natural language translations. That is,
 we'll study logic *in the abstract*. 
+-/
 
-EXERCISE: Refer to each of the problems in HW5, Part 1. 
+/-!
+## EXERCISE: 
+
+Refer to each of the problems in HW5, Part 1. 
 For each one, express the proposition that each function
 type represents using our formal notation for propositional
 logic. We'll take you through this exercise in steps. 
 -/
 
 /-!
+### Propositional Variables
+
 First, define *b, c,* *j,* and *a* as propositional variables
 (of type *var*). We'll use *b* for *bread* or *beta*,* *c* for 
 *cheese,* *j* for *jam,* and *a* for α*. 
 -/
 
--- Define B, C, J and A as corresponding atomic propositions (Expr) 
 
--- Now redefine the function names in HW5 in propositional logic (Expr)
+/-!
+### Atomic Propositions
 
--- Next go back and extend our formalism to support the implies connective
+Define B, C, J and A as corresponding atomic propositions (Expr) 
+-/
 
--- Now evaluate each of these expressions under the all_true and all_false interpretations
+/-!
+### Compound Propositions
 
--- Next define an interpretation other than these two and evaluate the propositions again
+Now redefine the function names in HW5 in propositional logic (Expr)
+-/
 
--- What did we show in HW5? How does that compare with what you're seeing here?
+/-!
+### Implement Syntax and Semantics for Implies and Biimplication
+Next go back and extend our formalism to support the implies connective.
+Do the same for biimplication while you're at it.
+-/
 
--- Study 
+/-!
+### Evaluate Propositions in Various Worlds
 
+Now evaluate each of these expressions under the all_true and all_false
+interpretations.
+-/
+
+
+/-!
+### Evaluate the Expressions Under Some Other Interpretation
+
+Define an interpretation other than these two and evaluate the propositions 
+under this new interpretation.
+-/
 
