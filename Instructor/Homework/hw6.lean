@@ -190,7 +190,6 @@ just that one element.
 
 #eval pure' "Hi"       -- expect ["Hi"]
 
-
 /-!
 ### Challenge: List Reverse
 

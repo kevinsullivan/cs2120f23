@@ -23,6 +23,7 @@ inductive unary_op : Type
 inductive binary_op : Type
 | and
 | or
+| imp
 
 inductive Expr : Type
 | var_exp (v : var)
@@ -47,9 +48,16 @@ infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff
 def eval_un_op : unary_op → (Bool → Bool)
 | unary_op.not => not
 
+
+def implies : Bool → Bool → Bool
+| true, false => false
+| _, _ => true
+
+
 def eval_bin_op : binary_op → (Bool → Bool → Bool)
 | binary_op.and => and
 | binary_op.or => or
+| binary_op.imp => implies
 
 def Interp := var → Bool  
 
@@ -179,7 +187,7 @@ we'll study logic *in the abstract*.
 -/
 
 /-!
-## EXERCISE: 
+## HOMEWORK: 
 
 Refer to each of the problems in HW5, Part 1. 
 For each one, express the proposition that each function
@@ -188,44 +196,80 @@ logic. We'll take you through this exercise in steps.
 -/
 
 /-!
-### Propositional Variables
+### #1. Propositional Variables
 
 First, define *b, c,* *j,* and *a* as propositional variables
 (of type *var*). We'll use *b* for *bread* or *beta*,* *c* for 
 *cheese,* *j* for *jam,* and *a* for α*. 
 -/
 
+def b := var.mk 0
+def j := var.mk 1
+def c := var.mk 2
+def a := var.mk 3
+
+-- get the index out of the c structure
+#eval c.n
 
 /-!
-### Atomic Propositions
+### #2. Atomic Propositions
 
-Define B, C, J and A as corresponding atomic propositions (Expr) 
+Define B, C, J and A as corresponding atomic propositions,
+of type *Expr*. 
 -/
 
-/-!
-### Compound Propositions
+def B := {b}     
+def C := {c}
+def J := {j}
+def A := {a}
 
-Now redefine the function names in HW5 in propositional logic (Expr)
+/-!
+### #3. Compound Propositions
+
+Now define the variables, e0 through e3, as expressions
+in propositional logic using the concrete syntax we've 
+defined.
 -/
 
+-- #1. ((no jam) ⊕ (no cheese)) → (no (jam × cheese)) 
+def e0 := (¬J ∨ ¬C) ⇒ ¬(J ∧ C)
+
+-- YOU DO THE REST
+
+
 /-!
-### Implement Syntax and Semantics for Implies and Biimplication
+### #4. Implement Syntax and Semantics for Implies and Biimplication
 Next go back and extend our formalism to support the implies connective.
-Do the same for biimplication while you're at it.
+Do the same for biimplication while you're at it. This is already done 
+for *implies*. Your job is to do the same for bi-implicationm, which
+Lean does not implement natively. 
 -/
 
 /-!
-### Evaluate Propositions in Various Worlds
+### #5. Evaluate Propositions in Various Worlds
 
 Now evaluate each of these expressions under the all_true and all_false
-interpretations.
+interpretations. These are just two of the possible interpretations so
+we won't have complete proofs of validity, but at least we expect them
+to evaluate to true under both the all_true and all_false interpretations.
 -/
+
+#eval eval_expr e0 (λ _ => false) -- expect true
+#eval eval_expr e0 (λ _ => true)  -- expect true
+
+-- You do the rest
+
 
 
 /-!
-### Evaluate the Expressions Under Some Other Interpretation
+### #6. Evaluate the Expressions Under Some Other Interpretation
 
-Define an interpretation other than these two and evaluate the propositions 
-under this new interpretation.
+Other than these two, evaluate the propositions under your new
+interpretation, and confirm that they still evaluate to true.
+Your interpretation should assign various true and false values
+to *j, c, b,* and *a.* An interpretation has to give values to
+all (infinitely many) variables. You can do case analysis by
+pattern matching on a few specific variables (by index) then 
+use wildcard matching to handle all remaining cases.
 -/
 
