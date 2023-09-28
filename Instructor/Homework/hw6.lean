@@ -181,14 +181,14 @@ def concat {α : Type} : _
 /-!
 ### #7: Lift Element to List
 
-Write a function, *pure*, that takes a value, *a*, of any
+Write a function, *pure'*, that takes a value, *a*, of any
 type α, and that returns a value of type List α containing
 just that one element.
 -/
 
 -- Here
 
-#eval pure "Hi"       -- expect ["Hi"]
+#eval pure' "Hi"       -- expect ["Hi"]
 
 
 /-!
