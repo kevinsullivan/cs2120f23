@@ -7,7 +7,8 @@
 
 We begin by reproducing our formal specification
 of the syntax and semantics of propositional logic,
-without distracting implementation alternatives. 
+without distracting test cases, implementation 
+alternatives, or explanatory text. 
 -/
 
 /-!
@@ -65,8 +66,6 @@ def eval_expr : Expr → Interp → Bool
 | (Expr.var_exp v),        i => i v
 | (Expr.un_exp op e),      i => (eval_un_op op) (eval_expr e i)
 | (Expr.bin_exp op e1 e2), i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
-
-
 
 /-!
 ## Review and Practice
@@ -241,7 +240,7 @@ def e0 := (¬J ∨ ¬C) ⇒ ¬(J ∧ C)
 ### #4. Implement Syntax and Semantics for Implies and Biimplication
 Next go back and extend our formalism to support the implies connective.
 Do the same for biimplication while you're at it. This is already done 
-for *implies*. Your job is to do the same for bi-implicationm, which
+for *implies*. Your job is to do the same for bi-implication, which
 Lean does not implement natively. 
 -/
 
@@ -259,8 +258,6 @@ to evaluate to true under both the all_true and all_false interpretations.
 
 -- You do the rest
 
-
-
 /-!
 ### #6. Evaluate the Expressions Under Some Other Interpretation
 
@@ -272,4 +269,6 @@ all (infinitely many) variables. You can do case analysis by
 pattern matching on a few specific variables (by index) then 
 use wildcard matching to handle all remaining cases.
 -/
+
+-- Answer here
 
