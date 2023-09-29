@@ -80,7 +80,7 @@ proposition is true or false in some world.
 Here's an example of a proposition: "The red block 
 is on top of the blue block." It makes sense to ask,
 "Is it true that the red block is on top of the blue
-block?" However, to answer thisthe question, we also
+block?" However, to answer this question, we also
 have to specify a *world* in which we are to evaluate
 it truth or falsity.
 
@@ -88,7 +88,7 @@ For example, imagine two children, say Bob and Sally,
 each playing with blocks. We can ask "Is it true that
 the red block is on top of the blue block *in Sally's
 world?*" We can ask "Is it true that the red block is
-on top of the blue block in Bob's world?*" And we may
+on top of the blue block *in Bob's world?*" And we may
 well get different answers. We evaluate the truth of 
 a proposition in a specified world.
 
@@ -100,10 +100,14 @@ and formal methods for assessing the truth of a given
 proposition in a given world.
 
 Propositional logic is an especially simple logic.
-It provides a language of *atomic propositions* and
-of larger propositions formed by combining smaller
-ones using the not (¬), and (∧), or (∨), implies
-(⇒), and equivalence (↔) connectives.
+It provides a language of *atomic propositions*, a
+way of building larger propositions by combining 
+smaller ones (using the not (¬), and (∧), or (∨), 
+implies (⇒), and equivalence (↔) connectives, and 
+a recursive function for evaluating the truth of an
+expression given (a world) a function that assigns
+Boolean values to each propositional variable that
+might appear in the proposition. 
 
 ### Variables Represent Atomic Propositions
 
