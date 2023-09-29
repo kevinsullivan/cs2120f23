@@ -112,30 +112,30 @@ might appear in the proposition.
 ### Variables Represent Atomic Propositions
 
 In propositional logic, one represents an atomic 
-proposition as using a variable name. For example,
+proposition using a variable name. For example,
 one could represent the atomic proposition, *The 
 red block is on top of the blue block* using the
 variable, *red_block_on_blue_block*. Similarly,
 one could represent the atomic proposition, *The
-yellow block is on the red block" using the rather
-verbose variable *yellow_block_on_red_block*. 
+yellow block is on the red block* using the rather
+verbose variable, *yellow_block_on_red_block*. 
 
 ### Larger Propositions Are Built Using Connectives
 
 We could then write the larger proposition, *The red
-block is on the blue block *and* the yellow block
+block is on the blue block AND the yellow block
 is on the red block* as *red_block_on_blue_block
 ∧ yellow_block_on_red_block*. More generally, we
 can form larger propositions by applying logical
-*connectives* such as ¬, ∧, and ∨, each to the
-correct number of smaller propositions, ending
-at atomic propositions.  
+*connectives* such as ¬, ∧, and ∨, to (the right 
+number of) smaller propositions, bottoming out at 
+atomic propositions.  
 
 ### Abstracting to Short Variable Names
 
-However, using long and expressive variable names
-makes larger propositions hard to write and read. 
-The usual practice, then is to use single character 
+Using long and expressive variable names makes 
+larger propositions hard to write and read. The 
+usual practice, then is to use single character 
 variable names to represent atomic propositions. 
 
 Here for example we might just use *r* to represent 
@@ -144,10 +144,9 @@ the *yellow on red* proposition. Now we can write
 the concise, formal expression, *r ∧ y*, to stand
 for the proposition that *The red block is on the 
 blue block *and* the yellow block is on the red 
-block*. In practice one could provide a translation
-table linking short, formal propositional variable
-names to their intended meanings expressed in a
-natural language. 
+block*. In practice one could provide an informal 
+translation table linking short variable names to 
+their intended natural language meanings. 
 
 | variable |      intended meaning        |
 |----------|------------------------------|
@@ -158,13 +157,14 @@ natural language.
 
 The underlying purpose of a logic is to provide a
 way to express propositions in such a way that we
-can then reason about their truth or falsity without
-further reference to the real or imaginary worlds
-that their variables refer to. We translate natural
-thoughts into mathematical representations then use
-the mathematics to reason further, translating the
-final results back into natural world meanings only
-at the end of the process.
+can then reason about their truth or falsity using
+only the rules of logic, without further reference 
+to their intended informal meanings. We translate 
+natural thoughts into mathematical representations
+(logic) then use the mathematics to reason further, 
+and finally we can translate logical conclusions
+back into natural world meanings at the end of the 
+process.
 
 ### Validity and Unsatisfiability
 
@@ -173,11 +173,11 @@ interested in whether a given proposition in true
 or false *independent of the meanings of its parts*.
 For example, in propositional logic, the proposition,
 *r ∧ ¬r* cannot be true no matter what natural language
-proposition *r* means, as a proposition cannot be true 
+proposition *r* means: as a proposition cannot be true 
 and false. We call such a proposition *unsatisfiable.*
 
 Similarly, the proposition, *r ∨ ¬r* is always true
-in propositional logic, as a proposition can *only*
+in propositional logic: as a proposition can *only*
 be true or false, and in either case one of the two
 sub-expressions will be true, so the overall one will
 be true as well. We call such a proposition *valid*.
@@ -186,7 +186,18 @@ For numerous reasons, then, we'll usually use single
 letters to represent (natural language) propositions,
 and moreover, we'll often do so without referring to
 any particular natural language translations. That is,
-we'll study logic *in the abstract*. 
+we'll study logic *in the abstract*. When we show that
+an abstract proposition is valid, then we can plus in
+any informal meanings we want for the variables and we
+still still have logically correct statements.
+
+Consider, for example, the valid abstract proposition,
+*A ∧ B ⇒ A.* Now suppose *A* means "the cat is old" and
+B means "the dog is a puppy." Then the logical statement
+means *if the cat is old AND the dog is a puppy THEN the
+cat is old.* Valid propositions thus emerge as *general*
+principles for logically sound reasoning, no matter what
+the atomic propositional variables are defined to mean.
 -/
 
 /-!
@@ -275,4 +286,5 @@ use wildcard matching to handle all remaining cases.
 -/
 
 -- Answer here
+
 
