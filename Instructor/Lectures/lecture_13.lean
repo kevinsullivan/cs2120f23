@@ -1,9 +1,68 @@
 /-!
-### CHALLENGE PROBLEM
+
+UNDER CONSTRUCTION. THIS MATERIAL WILL EVOLVE.
+
+We repeat (and would ideally import) our specification of
+propositional logic, to set up for the new material in this
+chapter. We then present a function that when given the number,
+n, of variables (columns) in a truth table, returns a list of 
+all 2^n interpretation functions. By evaluating a given logical
+expression under each such interpretation we'll get the list of
+values in the output column of a truth table. This functionality
+will in turn make it trivial to define a validity checker, or a
+satisfiability, or unsatisfiability solver. (How?)
+
+We start again with a duplicative specification of propositional
+logic, without commentary or section structure.
 -/
 
 /-!
-### Challenge Problem
+## Propositional Logic Syntax and Semantics
+-/
+
+structure var : Type :=  (n: Nat)
+
+inductive unary_op : Type | not
+
+inductive binary_op : Type
+| and
+| or
+| imp
+
+inductive Expr : Type
+| var_exp (v : var)
+| un_exp (op : unary_op) (e : Expr)
+| bin_exp (op : binary_op) (e1 e2 : Expr)
+
+notation "{"v"}" => Expr.var_exp v
+prefix:max "¬" => Expr.un_exp unary_op.not 
+infixr:35 " ∧ " => Expr.bin_exp binary_op.and  
+infixr:30 " ∨ " => Expr.bin_exp binary_op.or 
+infixr:25 " ⇒ " =>  Expr.bin_exp binary_op.imp
+infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff 
+
+def eval_un_op : unary_op → (Bool → Bool)
+| unary_op.not => not
+
+def implies : Bool → Bool → Bool
+| true, false => false
+| _, _ => true
+
+def eval_bin_op : binary_op → (Bool → Bool → Bool)
+| binary_op.and => and
+| binary_op.or => or
+| binary_op.imp => implies
+
+def Interp := var → Bool  
+
+def eval_expr : Expr → Interp → Bool 
+| (Expr.var_exp v),        i => i v
+| (Expr.un_exp op e),      i => (eval_un_op op) (eval_expr e i)
+| (Expr.bin_exp op e1 e2), i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
+
+
+/-!
+### Truth Tables
 
 Define a function, mk_interps, that takes as an argument
 a natural number, n, specifying a number of propositional
@@ -161,20 +220,6 @@ to termination at a later point, under the guise of
 *well founded relations*. 
 -/
 
-/- Test Cases. 
-#eval right_bit 4   -- 4 = 100, expect 0
-#eval right_bit 3   -- 3 =  11, expect 1
-#eval shift_right 4 -- 4 = 100, expect 10 = 2
-#eval shift_right 5 -- 5 = 101, expect 10 = 2
-#eval nat_to_bin 6  -- expect [1,1,0] 
-#eval nat_to_bin 5  -- expect [1,0,1]
-#eval nat_to_bin 4  -- expect [1,0,0]
-#eval nat_to_bin 3  -- expect   [1,1]
-#eval nat_to_bin 2  -- expect   [1,0]
-#eval nat_to_bin 1  -- expect     [1]
-#eval nat_to_bin 0  -- expect     [0]
--/
-
 /-!
 As a next processing step, we need to fill each
 resulting list of bits with zeros on the left to
@@ -197,11 +242,6 @@ where zero_pad_helper : Nat → List Nat → List Nat
   | 0, l => l
   | v'+1, l => zero_pad_helper v' (0::l)
 
-
-#eval zero_pad 5 [1,1]        -- expect [0,0,0,1,1]
-#eval zero_pad 5 [1,0,1,1,0]  -- expect [1,0,1,1,0]
-
-
 /-!
 We can now write a function that will produce the
 required list of binary digits for the (input part
@@ -212,86 +252,106 @@ of the) n'th row of a truth table with v variables
 def mk_bit_row : (row: Nat) → (cols : Nat) → List Nat
 | r, c => zero_pad c (nat_to_bin r)
 
-#eval mk_bit_row 5 5  -- expect [0,0,1,0,1]
-
 /-!
 Next we need a function to convert a list of bits
-(Nats) to a list of Bools. We'll consider Nat zero
-to convert to mean false and any other Nat to true.
+(Nats) to a list of corresponding Bools. We will 
+convert Nat zero to false, and any other Nat to 
+true.
 -/
 
+-- Convert individual nat to bool
 def bit_to_bool : Nat → Bool
 | 0 => false
 | _ => true
 
-def bit_list_to_bool_list : List Nat → List Bool
-| [] => []
-| h::t => bit_to_bool h :: bit_list_to_bool_list t
-
-#eval bit_list_to_bool_list (mk_bit_row 5 4)  -- expect [f,t,f,t]
-
 /-!
-#### Convert List Nat to List Bool
-
-Next we want a function, let's call it nats_to_bools,
-that takes an argument of type List Nat and returns a
-result of type List Bool, where the resultin list is of
-the same length as the argument but with every 0 converted
-to false and every non-zero entry (particular 1) converted
-to true.
-
-Given an empty list of Nat we'll return an empty list of 
-Bool. Otherwise, if we have h at the head of a non-empty
-list and t as the rest (tail), we'll return a new list with
-false if the h is 0 and true otherwise as the head of the
-new list, and the recursively converted list of Bools as 
-the rest. 
+With this element conversion function we can now define 
+our list conversion function. Given an empty list of Nat 
+we'll return an empty list of Bool. Otherwise, we have a
+bit (Nat) at the head of a non-empty list and t as the rest.
+In this case we'll return a new list with *bit_to_bool h*,
+a Boolean, at the head and the conversion of the rest of 
+the list as its tail. 
 -/
 
-def nats_to_bools : List Nat → List Bool
+def bit_list_to_bool_list : List Nat → List Bool
 | [] => []
-| h::t => (if h=0 then false else true)::nats_to_bools t
+| h::t => (bit_to_bool h) :: (bit_list_to_bool_list t)
 
-#eval nats_to_bools (nat_to_bin 6)  -- expect [true, true, false]
+/-!
+Given row and columns return list of Bools
+-/
+
+def mk_row_bools : (row : Nat) → (cols : Nat) → List Bool
+| r, c => bit_list_to_bool_list (mk_bit_row r c)
 
 /-!
 #### List Bool to (var → Bool) Interpretation
 -/
 
-def mk_interp_helper : Interp  
-| _ => _
-
-def bit_to_bool : Nat → Bool
-| 0 => false
-| _ => true
-
 def override : Interp → var → Bool → Interp
-| i, n, b => (λ a => if (a.n == v.n) then b else i a)
+| i, v, b => (λ a => if (a.n == v.n) then b else i a)
 
-def doit_helper : Nat → Nat → Interp → Interp
-| 0,      nv, di => (λ v => _)
-| n' + 1, nv, di => (λ v => _)
+/-
+Give list of Bools, [b₀, ..., bₐ₋₁] return interpretations
+{ var₀ ↦ b₀, ..., varₐ₋₁ ↦ bₐ₋₁}. Do this by overriding
+the all_false interpretation (base case) with each of the
+varᵢ ↦ bᵢ tuples, starting from the head of the list and
+recursing on the tail until done. 
+-/
+def all_false : Interp := λ _ => false
 
--- given row index for n variables return list of Bool entries
-def doit : Nat → Nat → Interp
-| ri, nv => doit_helper ri nv all_false
+def bools_to_interp : List Bool → Interp
+  | l => bools_to_interp_helper l l.length 
+where bools_to_interp_helper : List Bool → Nat → Interp
+  | [], _ => all_false
+  | h::t, cols =>
+    let len := (h::t).length
+    override (bools_to_interp_helper t cols) (var.mk (cols - len)) h  
+
+/-!
+Given row index and number of columns/variables,
+return corresponding interpretation.
+-/
+def mk_interp_r_c : Nat → Nat → Interp
+| r, c => bools_to_interp (mk_row_bools r c)
+
+/-!
+Given number of vars, v, generate list of 2^v interpretations
+-/
+def mk_interps (vars : Nat) : List Interp := 
+  mk_interps_helper (2^vars) vars
+where mk_interps_helper : (rows : Nat) → (vars : Nat) → List Interp
+  | 0, v         => [mk_interp_r_c 0  v]
+  | (n' + 1), v  => (mk_interp_r_c n' v)::mk_interps_helper n' v
+
+/-!
+TESTS
+-/
+
+-- Test Cases. 
+#eval right_bit 4   -- 4 = 100, expect 0
+#eval right_bit 3   -- 3 =  11, expect 1
+#eval shift_right 4 -- 4 = 100, expect 10 = 2
+#eval shift_right 5 -- 5 = 101, expect 10 = 2
+#eval nat_to_bin 6  -- expect [1,1,0] 
+#eval nat_to_bin 5  -- expect [1,0,1]
+#eval nat_to_bin 4  -- expect [1,0,0]
+#eval nat_to_bin 3  -- expect   [1,1]
+#eval nat_to_bin 2  -- expect   [1,0]
+#eval nat_to_bin 1  -- expect     [1]
+#eval nat_to_bin 0  -- expect     [0]
+
+#eval zero_pad 5 [1,1]        -- expect [0,0,0,1,1]
+#eval zero_pad 5 [1,0,1,1,0]  -- expect [1,0,1,1,0]
+
+#eval mk_bit_row 5 5  -- expect [0,0,1,0,1]
+
+def row_5_vars_4 := bit_list_to_bool_list (mk_bit_row 5 4)  -- expect [f,t,f,t]
+def row_6_vars_3 := bit_list_to_bool_list (mk_bit_row 6 3)  -- expect [t,t,f]
 
 
--- Given #variables and row# (zero-indexed) return interpretation
-def mk_interp: Nat → Nat →  Interp
-| 
-
-def right_bit_bool : Nat → Bool := λ (n : Nat) => n % 2 = 0
-
-def mk_interp : Nat → Interp
-| 0,      i => λ v => if v.n = 0 then (right_bit_bool 0) else i 0
-| n' + 1, i => λ v => if v.n = (n' + 1) then (right_bit_bool (n' + 1)) else 
-
-def mk_interps_helper : Nat → List Interp
-| 0        => []
-| (n' + 1) => mk_interp n' :: mk_interps_helper n'
-
-
-def mk_interps (n : Nat) : List Interp := mk_interps_helper (2^n) 
-
+#eval (mk_interp_r_c 6 3) (var.mk 0)  -- expect true  (1)
+#eval (mk_interp_r_c 6 3) (var.mk 1)  -- expect true  (1)
+#eval (mk_interp_r_c 6 3) (var.mk 2)  -- expect false (0)
 
