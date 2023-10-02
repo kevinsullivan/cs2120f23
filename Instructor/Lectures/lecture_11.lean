@@ -1,7 +1,5 @@
-/-
+/-!
 # Propositional Logic
-
-UNDER CONSTRUCTION (REALLY)
 
 We've now built enough machinery and intuition for basic
 logic that not only we can introduce it informally, in the
@@ -128,6 +126,9 @@ That's it! Here then are some valid expressions in
 propositional logic:
 - {a}           -- it's raining
 - {b}           -- the ground is wet
+
+
+-- Now assume that a and b are any expressions
 - ¬a            -- it's not raining
 - a ⇒ b         -- if it's raining then the ground is wet
 - a ∨ b         -- it's raining or the ground is wet
@@ -187,7 +188,6 @@ side lists values of expressions. Second, note that that
 there are two interpretations for the one input variable,
 *a*. 
 
-|variable |expression |
 | a       |   ¬{a}    |
 |---------|-----------|
 | true    |  false    |
@@ -198,8 +198,6 @@ of interpretations is determined only by the number of
 variables that have to be given values to determine the
 value of the output expression.
 
-
-|variable |   expression  |
 | a       |   {a} ∨ ¬{a}  |
 |---------|---------------|
 | true    |      true     |
@@ -469,9 +467,9 @@ argument.
 -/
 
 def eval_expr : Expr → Interp → Bool 
-| var_exp v, i => i v
-| un_exp op e, i => (eval_un_op op) (eval_expr e i)
-| bin_exp op e1 e2, i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
+| (var_exp v), i => i v
+| (un_exp op e), i => (eval_un_op op) (eval_expr e i)
+| (bin_exp op e1 e2), i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
 
 /-!
 #### Demonstration
@@ -490,12 +488,11 @@ def eval_expr : Expr → Interp → Bool
 #eval eval_expr e4 all_false
 
 /-!
-## Conclusion
-
-You have implemented the abstract syntax and 
+You have now implemented the abstract syntax and 
 standard concrete syntax for, and the semantics 
 of, the formal language of propositional logic.
 You have also automated the semantic evaluation
 of variables, operators, and arbitrarily complex
 expressions in propositional logic. That's cool! 
 -/
+
