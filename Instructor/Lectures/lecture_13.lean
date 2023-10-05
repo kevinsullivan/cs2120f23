@@ -1,19 +1,140 @@
 /-!
 
-UNDER CONSTRUCTION. THIS MATERIAL WILL EVOLVE.
+# Propositional Logic: Satisfiability
 
-We repeat (and would ideally import) our specification of
-propositional logic, to set up for the new material in this
-chapter. We then present a function that, when given the number,
-n, of variables (columns) in a truth table, returns a list of 
-all 2^n interpretation functions. By evaluating a given logical
-expression under each such interpretation we'll get the list of
-values in the output column of a truth table. This functionality
-will in turn make it trivial to define a validity checker, or a
-satisfiability, or unsatisfiability solver. (How?)
+You will recall that we say that an expression (formula) in
+propositional logic is *valid* if it evaluates to true under
+all possible interpretations (Boolean values for the variables
+that appear in it). It is *satisfiable* if there is at least 
+one intepretation under which it is true. And *unsatisfiable*
+if there's not even on interpretation that makes the expression
+true.
 
-We start again with a duplicative specification of propositional
-logic, without commentary or section structure.
+We can understand these concepts clearly in terms of truth 
+tables. As we've seen, each of the *input* columns represents
+a variable that can appear in the expression being evaluated.
+Each row up to but no including the final column represents 
+one of the possible intepretations of the variables in the
+column (a function mapping those variables to Boolean values).
+The final column lists the values of the expression for each
+of the intepretations.
+
+As an example, consider the propositional logic expression, 
+*X*. Here's the truth table for it. There's one input column, 
+for the one variable. There are two interpretations (rows), 
+that we can write as *{X ↦ T}* and *{X ↦ F}*. Finally, the
+output column gives the truth value of the expression we're
+evaluating, *X*, under each interpretation.
+
+| X | X |
+|---|---|
+| T | T |
+| F | F |
+
+From such a truth table it's trivial to determine whether a
+formula is valid, satisfiable, or unsatisfiable. If all output
+values are true, the formula is valid. In is also said to be 
+a *tautology*. If at least one output is true, the formula 
+is *satisfiable*, and the interpretations that make it true 
+are said to be *models* of the formula, or *solutions*. And 
+if all the outputs are false, the expression is *unsatisfiable* 
+and so has no models/solutions. From the truth table here, we 
+can easily see that *X* is not valid, but it is satisfiable, 
+with *{X ↦ T}* as a model.
+
+Exercise: Is the propositional logic expression, *X ∧ ¬X*
+valid, satisfiable, or unsatisfiable? What are its models,
+if any? Then answer the same two questions for *X ∨ ¬X*. To
+derive your answers, fill in and analyze the truth tables
+for the two expressions. 
+
+| X | X ∧ ¬X |
+|---|--------|
+| T |   _    |
+| F |   _    |
+
+
+| X | X ∨ ¬X |
+|---|--------|
+| T |   _    |
+| F |   _    |
+
+
+In the rest of this chapter we'll see how we can perhaps
+automate the generation of truth tables for any expressions,
+and thus have what we need to automatically determine its 
+validity, satisfiability, or unsatisfiability, and models
+if any.
+
+The key element will be a function that, when given the number, 
+*v,* of variables (columns) in a truth table, computes a list of 
+all *2^v* interpretation functions. By evaluating the expression 
+under each interpretation we'll get the list of output values 
+in the truth table. We then just analyze that list to determine
+whether all, some, or none of the output values is true. The 
+models of the expression, if any, are the interpretations in
+the rows that have true output values. 
+
+The rest of this chapter is in several sections. First we 
+include our specification of the syntax and semantics of 
+propositional logic, without commentary. You can skip over
+this section unless you need to review the definitions. 
+
+Next, we define a function that when given the number of
+variables, *v*, in an expression, computes the input side
+of a truth table as a list of *2^v* rows, Each row is a 
+distinct list of *v* Boolean values, as would appear in 
+a paper-and-pencil truth table, and represents one of the
+*2^v* possible interpretations of the variables that might
+appear in the expression. The *i'th* entry in each row is
+the value assigned by that row/interpretation to the *i'th* 
+variable (column), with *i* ranging from *0* to *v-1*. 
+
+Here's an example of the input side of a truth table for
+an expression with two variables. Be sure you can explain
+precisely what function, from variables to Boolean values,
+each row represents. 
+
+|    | v₀ | v₁ |
+|----|----|----|
+| i₀ |  F |  F |
+| i₁ |  F |  T |
+| i₂ |  T |  F |
+| i₃ |  T |  T |
+
+We can write the interpretation functions, corresponding
+to the rows, as follows.
+
+- i₀ = {v₀ ↦ F, v₁ ↦ F}
+- i₁ = {v₀ ↦ F, v₁ ↦ T}
+- i₂ = {v₀ ↦ T, v₁ ↦ F}
+- i₃ = {v₀ ↦ T, v₁ ↦ T}
+
+Next, the trickiest part, we define a function that takes 
+as its input a row of Boolean values, *{b₀, ..., bᵥ₋₁}* and 
+that returns the corresponding interpretation *function*, of 
+type *Interp* (i.e., *var → Bool*). We can then use such a
+function as an argument to our semantic function, *eval_expr*
+to compute the truth value of a given expression under that
+particular interpretation.
+
+Each such interpretation functionbehaves as follows. For *i* 
+in the range of *0* to *v-1*, given the *i'th* variable, *vᵢ* 
+*(mk_var i)* as input, it returns *bᵢ*, the Boolean value
+in the *i'th* position in the row of Boolean values, as its
+output. Otherwise, for variables with *i* indices outside 
+the range of interest, it just returns a default value, here 
+*false*.
+
+Next, we define a function that takes a list of all *2^v*
+rows of a truth table, containing Boolean values, and convert
+it into a list of interpretation functions, of type *Interp*.
+
+Finally, from there, we can easily implement the functions that 
+we really want: take any propositional logic expression and tell 
+us if it's valid, satisfiable, or unsatisfiable.  We will also
+want to be able to get a list of models (interpretations) for
+any given expression. 
 -/
 
 /-!
@@ -53,43 +174,35 @@ def eval_expr : Expr → Interp → Bool
 
 
 /-!
-### Truth Tables
+## Generating Truth Table Rows
 
-Define a function, mk_interps, that takes as an argument
-a natural number, n, specifying a number of propositional
-variables, and that returns a list of 2^n interpretations 
-for the variables, *mk_var 0 ... mk_var n-1*. 
+Our first function will take as its input the number of
+variables (columns), *v*, for which the input side of a 
+truth table is to be generated. We will represent this
+value as list of *2^v* rows, each of which is a list list 
+of *v* Boolean values. Here, for example, is a table that
+represents the input side of a truth table with three 
+variables.
 
-#### Key Observations
+|   |  v₀  |  v₁  |  v₃  |
+|---|------|------|------|
+| 0 |  F   |  F   |  F   |
+| 1 |  F   |  F   |  T   |
+| 2 |  F   |  T   |  F   |
+| 3 |  F   |  T   |  T   |
+| 4 |  T   |  F   |  F   |
+| 5 |  T   |  F   |  T   |
+| 6 |  T   |  T   |  F   |
+| 7 |  T   |  T   |  T   |
 
-To make the idea clearer, what mk_interps does is to take
-a number of variables, which you can think of as labels on
-the columns of the input side of a truth table, and that
-then generates the contents of all of the rows. Each row
-in effect specifies a function from variables labeling the
-columns to the Boolean values in the row. With n variables
-we will have 2^n rows. Here, for example, is the input part
-of a truth table with three propositional variables.
+### Key Insight
 
-|  v₀  |  v₁  |  v₃  |
-|------|------|------|
-|  F   |  F   |  F   |
-|  F   |  F   |  T   |
-|  F   |  T   |  F   |
-|  F   |  T   |  T   |
-|  T   |  F   |  F   |
-|  T   |  F   |  T   |
-|  T   |  T   |  F   |
-|  T   |  T   |  T   |
-
-There's a great deal of structure here. Let's see what we
-get if we (2) add a column on the left with the natural 
-number *index* of each of the eight rows, ranging from 0 
-to 7, and (2) replace the true (T) and false (F) values 
-in the table with the binary digits (*bits*), 1 and 0.
+Let's see what pattern emerges if we replace each true
+and false value in this table with a corresponding binary
+digit (bit), *0* for *false* and *1* for *true*. 
 
 
-| row  |  v₀  |  v₁  |  v₃  |
+|      |  v₀  |  v₁  |  v₃  |
 |------|------|------|------|
 |  0   |  0   |  0   |  0   |
 |  1   |  0   |  0   |  1   |
@@ -105,23 +218,18 @@ the row index and the sequence of binary digits
 in each row? Think about it before reading on.
 The answer: each row of binary digits represents
 the corresponding row index in binary notation.
-
-More generally, each row of a truth table with 
-*v* variables (columns) represents one of the 
-*2^v* possible combinations of *v* bit values, 
-which is to say, a natural numbers from *0* to
-*2^v-1*. The upshot is that we can compute the
+In other words, the rows of a truth table really
+correspond directly to binary representations of
+corresponding row *indices*, ranging from *0* to
+*2^v - 1*. The upshot is that we can compute the
 *r'th* row of the input side of a truth table
 by doing nothing more than representing the row
-index as a binary numeral, padded with zeros on
-the left so that it's at least *v* digits wide. 
+*index* as a binary numeral, padded with zeros on
+the left so that it's at least *v* digits wide,
+and then replacing the binary digits with the
+corresponding Boolean truth values.  
 
-Furthermore, the association of the variables in
-the columns with the bits in any row represents
-one of the *2^v* possible *interpretations* of
-the variables in some expression of interest. 
-
-#### Algorithm Design
+### Algorithm Design
 
 These insights unlock an algorithm design strategy. 
 First, define a function that, when given a number
@@ -130,13 +238,14 @@ interpretation that associates the variables in the
 columns to the Boolean represented by the bit values 
 in the binary representation of *r*. 
 
-The top-level algorithm then simply takes a number 
-of variables, *v*, and returns a list of the *2^c* 
-interpretations for row indices from 0 to *2^v-1.*
+Once we have this function, it'll be straightforward
+to take a number, *v*, of variables, *v*, and return 
+a list of the *2^v* rows for the input side of a truth
+table. 
 -/
 
 /-!
-#### Row Index to List of Binary Digits
+### Row Index to List of Binary Digits
 
 We'll start by defining a function that converts a 
 given natural number into its binary representation 
@@ -203,7 +312,7 @@ now, that's what you need to know.
 #eval nat_to_bin 6  -- expect [1,1,0]
 
 /-!
-#### Left Padding with Zeros
+### Left Pad with Zeros
 
 We represent *F* (false) values in our truth tables
 as zeros. One remaining issue is that we have to make
@@ -255,6 +364,8 @@ def mk_bit_row : (row: Nat) → (cols : Nat) → List Nat
 #eval mk_bit_row 5 6  -- expect [0, 0, 0, 1, 0, 1]
 
 /-!
+### List of Bits to List of Bools
+
 Next we need a function to convert a list of bits
 (Nats) to a list of corresponding Bools. We will 
 convert Nat zero to false, and any other Nat to 
@@ -268,9 +379,12 @@ def bit_to_bool : Nat → Bool
 
 /-!
 With this element conversion function we can now define 
-our list conversion function. Given an empty list of Nat 
-we'll return an empty list of Bool. Otherwise, we have a
-bit (Nat) at the head of a non-empty list and t as the rest.
+our list conversion function. There are two cases. First,'
+given an empty list of Nat we return an empty list of Bool. 
+Second, we have a bit (Nat) at the head of a non-empty list,
+in which case we return a list with that Nat converted to a
+Bool at the head, and the conversion of t, the rest of the
+list of Nats, into a list of Bools recursively.
 -/
 
 def bit_list_to_bool_list : List Nat → List Bool
@@ -280,11 +394,14 @@ def bit_list_to_bool_list : List Nat → List Bool
 #eval bit_list_to_bool_list [0, 0, 0, 1, 0, 1]
 
 /-!
+### Make the *r'th* Row of a Truth Table with *v* Variables
+Now we can easily define a function that when given a truth
+table row number and the number of variables (columns)
 Given row and columns return list of Bools
 -/
 
-def mk_row_bools : (row : Nat) → (cols : Nat) → List Bool
-| r, c => bit_list_to_bool_list (mk_bit_row r c)
+def mk_row_bools : (row : Nat) → (vars : Nat) → List Bool
+| r, v => bit_list_to_bool_list (mk_bit_row r v)
 
 #eval mk_row_bools 5 6  -- expect [false, false, false, true, false, true]
 
