@@ -65,6 +65,61 @@ def apply_n {α : Type} : (α → α) → α → Nat → α
 #eval apply_n (λ n => n^2) 2 4    -- expect 65536
 
 
+/-!
+# A Short Introduction to Lists 
+
+The polymorphic data type, List α, is used to
+represent lists of values of any type, α. The 
+List type builder provides two constructors: 
+one to create and empty list of α values, and 
+one to construct a new non-empty list from a
+new element (head, of type α) and a one smaller
+list (tail, of type List α). Here's how the List
+type builder is defined (simplied just a tad).
+-/
+
+namespace cs2120
+
+inductive List (α : Type): Type
+| nil : List α
+| cons (h : α) (t : List α) : List α
+
+end cs2120
+
+/-!
+Lean defines three useful notations for creating
+and destructuring lists.
+
+- [] means List.nil
+- h::t means cons h t
+- [1, 2, 3] means the list, 1::[2,3]
+  - which means 1::2::[3]
+  - which means 1::2::3::[]
+  - which means cons 1 (cons 2 (cons 3 nil))
+-/
+
+#check ([] : List Nat)
+#check 1::[2,3]
+#check [1,2,3]
+
+/-!
+You can use these notations when pattern 
+matching to analyze arguments. Here we show
+how this work by defining a function that
+takes a list and returns *either* (using a
+sum type) *unit* to represent the case where
+there is no first element, or the value at
+the head of the list.
+-/
+
+def first_elt : List Nat → Unit ⊕ Nat
+| [] => Sum.inl Unit.unit
+| h::_ => Sum.inr h
+
+#reduce first_elt []    -- expect Sum.inl unit
+#reduce first_elt [1,2] -- expect 1 (left)
+
+
 /-! 
 ### #2: List length function
 
@@ -189,7 +244,6 @@ just that one element.
 -- Here
 
 #eval pure' "Hi"       -- expect ["Hi"]
-
 
 /-!
 ### Challenge: List Reverse
