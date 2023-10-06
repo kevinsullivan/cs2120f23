@@ -672,19 +672,19 @@ Write three functions
 
 Given any expression, *e*, in propositional logic, the first returns true
 if *e* is sastisfiable, otherwise false. The second returns true if *e* is
-unsatisfiable, otherwise false. The third returns true if *e* is valie, and
+unsatisfiable, otherwise false. The third returns true if *e* is valid, and
 otherwise returns false. You can write helper functions if/as needed. Write
 short comments to explain what each of your functions does. Write a few test
 cases to demonstrate your results.
 -/
 
-def valid : Expr → Bool
+def is_valid : Expr → Bool
 | e =>  _
 
-def sat : Expr → Bool
+def is_sat : Expr → Bool
 | e =>  _
 
-def unsat : Expr → Bool
+def is_unsat : Expr → Bool
 | e =>  _
 
 -- Test cases
