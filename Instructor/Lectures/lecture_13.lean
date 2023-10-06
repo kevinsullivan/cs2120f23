@@ -613,7 +613,7 @@ def highest_variable_index : Expr → Nat
 #eval highest_variable_index ({v₀} ∧ {v₂})
 
 /-!
-## Major Result: Expr → List Bool, For Each Possible Interpretation
+## Major Result: Expr → List Bool, One For Each Interpretation
 
 Here's a really important function. Given an expression in propositional
 logic (using our syntax) it returns the list of outputs values under each
