@@ -640,7 +640,7 @@ def Y := {v₁}
 def Z := {v₂}
 
 
-/-
+/-!
 Now we can produce lists of outputs under all interpretations of variables
 from index 0 to the highest index of any variable appearing in the given
 expression. Confirm that the results are expected by writing out the
@@ -678,14 +678,18 @@ short comments to explain what each of your functions does. Write a few test
 cases to demonstrate your results.
 -/
 
-def is_valid : Expr → Bool
-| e =>  _
+-- Here
 
-def is_sat : Expr → Bool
-| e =>  _
 
-def is_unsat : Expr → Bool
-| e =>  _
+-- A few tests
+#eval is_valid (X)                      -- expect false
+#eval is_sat (X)                        -- exect true
+#eval is_sat (X ∧ ¬X)                   -- expect false
+#eval is_unsat (X ∧ ¬X)                 -- expect true
+#eval is_valid (X ∨ ¬X)                 -- expect true
+#eval is_valid ((¬(X ∧ Y) ⇒ (¬X ∨ ¬Y))) -- expect true
+#eval is_valid (¬(X ∨ Y) ⇒ (¬X ∧ ¬Y))   -- expect true
+#eval is_valid ((X ∨ Y) ⇒ (X → ¬Y))     -- expect false
 
 -- Test cases
 
