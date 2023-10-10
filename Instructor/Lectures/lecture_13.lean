@@ -1,6 +1,6 @@
 /-!
 
-# Propositional Logic: Satisfiability
+# Propositional Logic: A Satisfiability Solver
 
 You will recall that we say that an expression (formula) in
 propositional logic is *valid* if it evaluates to true under
@@ -26,14 +26,14 @@ that we can write as *{X ↦ T}* and *{X ↦ F}*. Finally, the
 output column gives the truth value of the expression we're
 evaluating, *X*, under each interpretation.
 
-| X | X |
-|---|---|
-| T | T |
-| F | F |
+| v₀ | {v₀} |
+|----|------|
+|  T |   T  |
+|  F |   F  |
 
 From such a truth table it's trivial to determine whether a
 formula is valid, satisfiable, or unsatisfiable. If all output
-values are true, the formula is valid. In is also said to be 
+values are true, the formula is valid. It is also said to be 
 a *tautology*. If at least one output is true, the formula 
 is *satisfiable*, and the interpretations that make it true 
 are said to be *models* of the formula, or *solutions*. And 
@@ -44,21 +44,26 @@ with *{X ↦ T}* as a model.
 
 Exercise: Is the propositional logic expression, *X ∧ ¬X*
 valid, satisfiable, or unsatisfiable? What are its models,
-if any? Then answer the same two questions for *X ∨ ¬X*. To
+if any? 
+
+| v₀ | {v₀} ∧ ¬{v₀} |
+|----|--------------|
+|  T |         _    |
+|  F |         _    |
+
+Exercise: Answer the same two questions for *X ∨ ¬X*. To
 derive your answers, fill in and analyze the truth tables
 for the two expressions. 
 
-| X | X ∧ ¬X |
-|---|--------|
-| T |   _    |
-| F |   _    |
+
+| v₀ | {v₀} ∨ ¬{v₀} |
+|----|--------------|
+|  T |         _    |
+|  F |         _    |
 
 
-| X | X ∨ ¬X |
-|---|--------|
-| T |   _    |
-| F |   _    |
 
+## Chapter Plan
 
 In the rest of this chapter we'll see how we can perhaps
 automate the generation of truth tables for any expressions,
@@ -118,7 +123,7 @@ function as an argument to our semantic function, *eval_expr*
 to compute the truth value of a given expression under that
 particular interpretation.
 
-Each such interpretation functionbehaves as follows. For *i* 
+Each such interpretation function behaves as follows. For *i* 
 in the range of *0* to *v-1*, given the *i'th* variable, *vᵢ* 
 *(mk_var i)* as input, it returns *bᵢ*, the Boolean value
 in the *i'th* position in the row of Boolean values, as its
@@ -139,6 +144,14 @@ any given expression.
 
 /-!
 ## Propositional Logic Syntax and Semantics
+
+Here we just repeat our specification of the syntax and semantics
+of propositional logic. By know you are expected to understand the
+concrete syntax of propositional logic, as defined here, and also
+the purpose of the eval_expr semantic evaluator, that takes any
+expression in this syntax along with an interpretation and returns
+the truth value of the expression under the given interpretation of
+its atomic propositional variables. 
 -/
 
 structure var : Type :=  (n: Nat)
@@ -377,6 +390,9 @@ def bit_to_bool : Nat → Bool
 | 0 => false
 | _ => true
 
+#eval bit_to_bool 0   -- expect false
+#eval bit_to_bool 1   -- expect true
+
 /-!
 With this element conversion function we can now define 
 our list conversion function. There are two cases. First,'
@@ -391,6 +407,7 @@ def bit_list_to_bool_list : List Nat → List Bool
 | [] => []
 | h::t => (bit_to_bool h) :: (bit_list_to_bool_list t)
 
+-- expect [false, false, false, true, false, true]
 #eval bit_list_to_bool_list [0, 0, 0, 1, 0, 1]
 
 /-!
@@ -403,74 +420,277 @@ Given row and columns return list of Bools
 def mk_row_bools : (row : Nat) → (vars : Nat) → List Bool
 | r, v => bit_list_to_bool_list (mk_bit_row r v)
 
-#eval mk_row_bools 5 6  -- expect [false, false, false, true, false, true]
+ -- expect [false, false, false, true, false, true]
+#eval mk_row_bools 5 6 
 
 /-!
-#### List Bool to (var → Bool) Interpretation
+## List Bool → Interp
+
+We now devise an algorithm to convert a list of Booleans,
+[b₀, ..., bᵥ₋₁] into an interpretation. Denote *(mk_var i)*,
+the *i'th* variable, as *vᵢ*. The idea then is to convert
+the Boolean list into an interpretation function with the
+following behavior: *{ v₀ ↦ b₀, ..., vᵥ₋₁, vᵢ → false for 
+i ≥ v}*.
+
+So how do we turn a list of values into a function from 
+variables to Boolean values? In short, we start with some
+interpretation, given a variable and a value for it, we
+return a new function that's exactly the same as the given
+one *except* when the variable argument is the same as the
+variable for which we want to return a new value. In that
+case, the new function returns the new value when it is
+applied to the variable whose value is being overridden. 
+The top-level algorithm will then iteratively override the
+value of each variable according to the values in a given
+row of a truth table. 
+
+The hardest-to-understand function is *override*. Given an
+interpretation, a variable whose value is to be overridden,
+and a new value for that variable, we return a function that
+when given any variable does a case analysis: if the variable
+is *other than* the one being override, we just use the given
+interpretation to compute and return a result, otherwise the
+new function returns the specified new value.
 -/
 
 def override : Interp → var → Bool → Interp
-| i, v, b => (λ a => if (a.n == v.n) then b else i a)
+| old_interp, var, new_val => 
+  (λ v => if (v.n == var.n)     -- when applied to var
+          then new_val          -- return new value
+          else old_interp v)  -- else retur old value
 
-/-
-Give list of Bools, [b₀, ..., bₐ₋₁] return interpretations
-{ var₀ ↦ b₀, ..., varₐ₋₁ ↦ bₐ₋₁}. Do this by overriding
-the all_false interpretation (base case) with each of the
-varᵢ ↦ bᵢ tuples, starting from the head of the list and
-recursing on the tail until done. 
--/
+def v₀ := var.mk 0
+def v₁ := var.mk 1
+def v₂ := var.mk 2
+
+-- Demonstration
+
 def all_false : Interp := λ _ => false
 
-def bools_to_interp : List Bool → Interp
-  | l => bools_to_interp_helper l l.length 
-where bools_to_interp_helper : List Bool → Nat → Interp
-  | [], _ => all_false
-  | h::t, cols =>
-    let len := (h::t).length
-    override (bools_to_interp_helper t cols) (var.mk (cols - len)) h  
+#eval all_false v₀  -- expect false
+#eval all_false v₁  -- expect false
+#eval all_false v₂  -- expect false
+
+
+-- interp for [false, true, false], i.e., [0, 1, 0]
+def interp2 := override all_false v₁ true
+
+#eval interp2 v₀  -- expect false
+#eval interp2 v₁  -- expect true
+#eval interp2 v₂  -- expect false
+
+
+-- interp for [false, true, true], i.e., [0, 1, 1]
+def interp3 := override interp2 v₂ true
+
+#eval interp3 v₀  -- expect false
+#eval interp3 v₁  -- expect true
+#eval interp3 v₂  -- expect true
 
 /-!
-Given row index and number of columns/variables,
-return corresponding interpretation.
+To turn a list of Booleans into an interpretation,
+we thus start with some base interpretation, such as
+*all_false*, then iterate through the entries in the
+list, repeatedly overriding the most recently computed
+interpretation with the so-called *maplet, { vᵢ ↦ bᵢ }*. 
+The end result will be the interpretation { v₀ ↦ b₀, ..., 
+vᵥ₋₁ ↦ bᵥ₋₁, ...}, with all variables after *vᵥ₋₁* being 
+mapped to the value given by the starting interpretation
+(in practice, *all_false,* for us). 
+
+Note: We introduce a new Lean programming mechanism: the
+ability to define a function in terms of a "sub-routine"
+that is subsequently defined in a *where* block. It is 
+common to define functions this way when the top-level
+function is non-recursive and takes or computes some
+additional data that it then passes on to a recursive
+function that does most of the work.  
 -/
-def mk_interp_r_c : Nat → Nat → Interp
-| r, c => bools_to_interp (mk_row_bools r c)
+
+def bools_to_interp : List Bool → Interp
+  | l => bools_to_interp_helper l.length l
+where bools_to_interp_helper : (vars : Nat) → (vals : List Bool) → Interp
+  | _, [] => all_false
+  | vars, h::t =>
+    let len := (h::t).length
+    override (bools_to_interp_helper vars t) (var.mk (vars - len)) h 
+
+-- Demonstration
+def interp3' := bools_to_interp [false, true, true] 
+
+#eval interp3' v₀  -- expect false
+#eval interp3' v₁  -- expect true
+#eval interp3' v₂  -- expect true
+
 
 /-!
-Given number of vars, v, generate list of 2^v interpretations
+## From Number of Variables to List of Interpretations
+
+Building in steps, we next define a function that takes a
+number of variables and a row index and that returns the
+corresponding interpretation function. It uses *mk_row_bools*
+to create the right row of Boolean values then applies the
+preceding *bools_to_interp* function to it to return the
+corresponding interpretation function. 
+-/
+def mk_interp_vars_row : (vars: Nat) → (row: Nat) → Interp
+| v, r => bools_to_interp (mk_row_bools r v)
+
+def interp3'' :=  mk_interp_vars_row 3 3 -- vars=3, row=3
+
+-- Demonstration
+#eval interp3'' v₀  -- expect false
+#eval interp3'' v₁  -- expect true
+#eval interp3'' v₂  -- expect true
+
+
+/-!
+Finally, now, given nothing but a number of variables, we can
+iteratively generate a list of all 2^v interpretations. We use
+the same style of function definition above, where the top-level
+program computes *2^v* from *v* and then passes *2^v* (the number
+of interpretations/rows to generate, along with *v*, the number 
+of variables, to a recursive function that does most of the work.
 -/
 def mk_interps (vars : Nat) : List Interp := 
   mk_interps_helper (2^vars) vars
 where mk_interps_helper : (rows : Nat) → (vars : Nat) → List Interp
-  | 0, v         => [mk_interp_r_c 0  v]
-  | (n' + 1), v  => (mk_interp_r_c n' v)::mk_interps_helper n' v
+  | 0, _         => []
+  | (n' + 1), v  => (mk_interp_vars_row v n')::mk_interps_helper n' v
+
+/-
+Generate list of 8 interpretations for three variables
+-/
+def interps3 := mk_interps 3
+
+#reduce interps3.length   -- expect 8
 
 /-!
-TESTS
+## From List Interp and Expr to List Output Bool Values
+Now how about a function that takes a list of interpretations and
+an expresssion and that produces a list of output values? 
 -/
 
--- Test Cases. 
-#eval right_bit 4   -- 4 = 100, expect 0
-#eval right_bit 3   -- 3 =  11, expect 1
-#eval shift_right 4 -- 4 = 100, expect 10 = 2
-#eval shift_right 5 -- 5 = 101, expect 10 = 2
-#eval nat_to_bin 6  -- expect [1,1,0] 
-#eval nat_to_bin 5  -- expect [1,0,1]
-#eval nat_to_bin 4  -- expect [1,0,0]
-#eval nat_to_bin 3  -- expect   [1,1]
-#eval nat_to_bin 2  -- expect   [1,0]
-#eval nat_to_bin 1  -- expect     [1]
-#eval nat_to_bin 0  -- expect     [0]
+def eval_expr_interps : List Interp → Expr → List Bool
+| [], _ => []
+--| h::t, e => (eval_expr e h)::eval_expr_interps t e
+| h::t, e => eval_expr_interps t e ++ [eval_expr e h]
 
-#eval zero_pad 5 [1,1]        -- expect [0,0,0,1,1]
-#eval zero_pad 5 [1,0,1,1,0]  -- expect [1,0,1,1,0]
+/-!
+The change in the preceding algorithm puts the list of output
+values in the right order with respect to our *enumeration* of
+interpretations.
+-/
 
-#eval mk_bit_row 5 5  -- expect [0,0,1,0,1]
+-- Demonstration ]
+#reduce eval_expr_interps (mk_interps 2) ({v₀} ∧ {v₁})  -- [F,F,F,T]
+#reduce eval_expr_interps (mk_interps 2) ({v₀} ∨ {v₁})  -- [F,T,T,T]
 
-def row_5_vars_4 := bit_list_to_bool_list (mk_bit_row 5 4)  -- expect [f,t,f,t]
-def row_6_vars_3 := bit_list_to_bool_list (mk_bit_row 6 3)  -- expect [t,t,f]
+/-!
+
+## From Expr to Number of Variables (Highest Variable Index)
+
+But our interface isn't yet ideal. We're providing an expression as 
+an argument, and from it we should be able to figure out how many 
+variables are involved. In other words, we shouldn't have to provide 
+a list of interpretations as a separate (and here the first) argument.
+The observation that leads to a solution is that we can analyze any
+expression to determine the highest index of any variable appearing
+in it. If we add 1 to that index, we'll have the number of variables
+in the expression and thus the number of columns in the truth table.
+We can then use mk_interps with that number as an argument to create
+the list of interpretations, corresponding to truth table rows, that
+ne need to pass to eval_expr_interps to get the list of outputs values.
+-/
+
+def highest_variable_index : Expr → Nat
+| Expr.var_exp (var.mk i) => i
+| Expr.un_exp _ e => highest_variable_index e
+| Expr.bin_exp _ e1 e2 => max (highest_variable_index e1) (highest_variable_index e2)
+
+#eval highest_variable_index {v₀}
+#eval highest_variable_index ({v₀} ∧ {v₂})
+
+/-!
+## Major Result: Expr → List Bool, One For Each Interpretation
+
+Here's a really important function. Given an expression in propositional
+logic (using our syntax) it returns the list of outputs values under each
+of the possible interpretations of the variables (thus atomic expressions)
+in the given expression.
+-/
+
+def truth_table_outputs : Expr → List Bool
+| e =>  eval_expr_interps (mk_interps (highest_variable_index e + 1)) e
+
+/-!
+Demonstration/Tests: Confirm that actual results are as expected by
+writing out the truth tables on paper. Note that in the second case,
+with the highest variable index being 2 (Z is var.mk 2), we have *3* 
+variables/columns, thus 8 rows, and thus a list of 8 output values. 
+-/
+
+/-!
+Let's give nicer names to three atomic propositions (i.e., variable
+expressions).
+-/
+def X := {v₀}
+def Y := {v₁}
+def Z := {v₂}
 
 
-#eval (mk_interp_r_c 6 3) (var.mk 0)  -- expect true  (1)
-#eval (mk_interp_r_c 6 3) (var.mk 1)  -- expect true  (1)
-#eval (mk_interp_r_c 6 3) (var.mk 2)  -- expect false (0)
+/-!
+Now we can produce lists of outputs under all interpretations of variables
+from index 0 to the highest index of any variable appearing in the given
+expression. Confirm that the results are expected by writing out the
+truth tables on paper, computing the expected outputs, and checking them
+against what we compute here.
+-/
+#reduce truth_table_outputs (X ∧ Y)
+#reduce truth_table_outputs (X ∨ Z)
+
+-- Write the truth tables on paper then check here
+#reduce truth_table_outputs ((X ∧ Y) ∨ (X ∧ Z))
+#reduce truth_table_outputs ((X ∨ Y) ∧ (X ∨ Z))
+
+-- Study expression and predict outputs before looking.
+-- What names would you give to these particular propositions?
+#reduce truth_table_outputs ((¬(X ∧ Y) ⇒ (¬X ∨ ¬Y)))
+#reduce truth_table_outputs (((¬X ∨ ¬Y) ⇒ ¬(X ∧ Y)))
+#reduce truth_table_outputs ((¬(X ∨ Y ) ⇒ (¬X ∧ ¬ Y)))
+#reduce truth_table_outputs (((¬X ∧ ¬ Y) ⇒ ¬(X ∨ Y )))
+
+
+/-!
+## HOMEWORK PART 1:
+
+Write three functions
+- sat : Expr → Bool
+- unsat: Expr → Bool
+- valid: Expr → Bool
+
+Given any expression, *e*, in propositional logic, the first returns true
+if *e* is sastisfiable, otherwise false. The second returns true if *e* is
+unsatisfiable, otherwise false. The third returns true if *e* is valid, and
+otherwise returns false. You can write helper functions if/as needed. Write
+short comments to explain what each of your functions does. Write a few test
+cases to demonstrate your results.
+-/
+
+-- Here
+
+-- A few tests
+#eval is_valid (X)                      -- expect false
+#eval is_sat (X)                        -- exect true
+#eval is_sat (X ∧ ¬X)                   -- expect false
+#eval is_unsat (X ∧ ¬X)                 -- expect true
+#eval is_valid (X ∨ ¬X)                 -- expect true
+#eval is_valid ((¬(X ∧ Y) ⇒ (¬X ∨ ¬Y))) -- expect true
+#eval is_valid (¬(X ∨ Y) ⇒ (¬X ∧ ¬Y))   -- expect true
+#eval is_valid ((X ∨ Y) ⇒ (X → ¬Y))     -- expect false
+
+-- Test cases
+
+
+
