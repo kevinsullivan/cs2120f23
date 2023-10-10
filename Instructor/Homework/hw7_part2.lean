@@ -1,7 +1,5 @@
 /-!
-# Exam 1
-
-DO NOT CHEAT.
+# Homework #7 Part 2 -- Exam Practice
 -/
 
 /-! 
