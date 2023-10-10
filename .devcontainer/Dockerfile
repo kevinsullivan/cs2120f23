@@ -10,6 +10,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 SHELL ["/bin/bash", "-c"]
 
+
 # Update and configure Ubuntu 
 RUN apt-get clean && apt-get update -y && apt-get upgrade -y && apt-get update --fix-missing
 RUN apt-get install -y locales && locale-gen en_US.UTF-8  
@@ -18,6 +19,7 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8  
 
 # Install essential tools and libraries
+RUN apt-get clean && apt-get update -y && apt-get upgrade -y && apt-get update --fix-missing
 RUN apt-get -y install lsb-release build-essential git vim wget gnupg curl unzip libssl-dev libffi-dev libconfig-dev
 
 
@@ -30,7 +32,7 @@ COPY .profile.txt /root/.profile
 # Install Python3
 RUN apt-get -y install python3-pip python3-venv python3-dev 
 ENV PYTHONIOENCODING utf-8
-RUN python3 -m pip install pipx
+RUN python3 -m pip install pipx z3-solver
 RUN python3 -m pipx ensurepath --force 
 RUN . ~/.profile
 

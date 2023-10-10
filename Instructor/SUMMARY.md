@@ -1,6 +1,7 @@
 # Summary
 
-- [Set-up Instructions](./setup.md)
+[A Computational Introduction to Discrete Mathematics](./intro.md)
+
 - [Lectures 01 and 02](./Lectures/lecture_01_02.lean.md)
 - [Lectures 03 and 04](./Lectures/lecture_03_04.lean.md)
 - [Lecture 05](./Lectures/lecture_05.lean.md)
@@ -20,3 +21,4 @@
 - [Homework #6](./Homework/hw6.lean.md)
 - [Homework #7](./Homework/hw7_part2.lean.md)
 - [Lean Resources](./Resources/README.md)
+- [Set-up Instructions](./setup.md)
