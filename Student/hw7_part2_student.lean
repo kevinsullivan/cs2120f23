@@ -70,6 +70,8 @@ def prod_ors_to_or_prods {α β γ δ: Type} :
 | (Sum.inr b, Sum.inl c) => Sum.inr (Sum.inr (Sum.inl (b,c)))
 | (Sum.inr b, Sum.inr d) => Sum.inr (Sum.inr (Sum.inr (b,d)))
 
+#reduce prod_ors_to_or_prods ((Sum.inr 3),(Sum.inr true))
+
 -- Write the second function here from scratch
 
 def or_prods_to_prod_ors {α β γ δ: Type} :
@@ -78,6 +80,8 @@ def or_prods_to_prod_ors {α β γ δ: Type} :
 | Sum.inr (Sum.inl (a,d)) => (Sum.inl a, Sum.inr d)
 | Sum.inr (Sum.inr (Sum.inl (b,c))) => (Sum.inr b, Sum.inl c)
 | Sum.inr (Sum.inr (Sum.inr (b,d))) => (Sum.inr b, Sum.inr d)
+
+#reduce or_prods_to_prod_ors (prod_ors_to_or_prods ((Sum.inr 3),(Sum.inl true)))
 
 /-!
 ## #4 Propositional Logic Syntax and Semantics
@@ -103,7 +107,13 @@ of propositional logic. Just write the expression
 here using the notation we've defined.
 -/
 
--- def e := (A ∨ O) ∧ (C ∨ B) ⇔ ((A ∧ C) ∨ (A ∧ B) ∨ (O ∧ C) ∨ (O ∧ B))
+def A := true
+def O := true
+def C := true
+def B := true
+
+def e := (A ∨ O) ∧ (C ∨ B) ↔ ((A ∧ C) ∨ (A ∧ B) ∨ (O ∧ C) ∨ (O ∧ B))
+
 
 /-!
 ## #5 Propositional Logic Validity

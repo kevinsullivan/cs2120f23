@@ -160,6 +160,7 @@ inductive binary_op : Type
 | and
 | or
 | imp
+| bi_imp
 inductive Expr : Type
 | var_exp (v : var)
 | un_exp (op : unary_op) (e : Expr)
@@ -169,16 +170,21 @@ prefix:max "¬" => Expr.un_exp unary_op.not
 infixr:35 " ∧ " => Expr.bin_exp binary_op.and  
 infixr:30 " ∨ " => Expr.bin_exp binary_op.or 
 infixr:25 " ⇒ " =>  Expr.bin_exp binary_op.imp
-infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff 
+infixr:20 " ⇔ " => Expr.bin_exp binary_op.bi_imp
 def eval_un_op : unary_op → (Bool → Bool)
 | unary_op.not => not
 def implies : Bool → Bool → Bool
 | true, false => false
 | _, _ => true
+def bi_implies : Bool → Bool → Bool
+| true, true => true
+| false, false => true
+| _, _ => false
 def eval_bin_op : binary_op → (Bool → Bool → Bool)
 | binary_op.and => and
 | binary_op.or => or
 | binary_op.imp => implies
+| binary_op.bi_imp => bi_implies
 def Interp := var → Bool  
 def eval_expr : Expr → Interp → Bool 
 | (Expr.var_exp v),        i => i v
@@ -680,6 +686,33 @@ cases to demonstrate your results.
 
 -- Here
 
+def is_sat : Expr → Bool
+  | e => sat_evaluator (truth_table_outputs e)
+where sat_evaluator : List Bool → Bool
+  | [] => false
+  | true::_ => true
+  | false::t => sat_evaluator t
+
+-- other method -> h::t => if h then true else sat_evaluator t
+
+def is_valid : Expr → Bool
+  | e => val_evaluator (truth_table_outputs e)
+where val_evaluator : List Bool → Bool
+  | [] => true
+  | true::t => val_evaluator t
+  | false::_ => false
+
+-- other method -> h::t => if (not h) then false else val_evaluator t
+
+def is_unsat : Expr → Bool
+  | e => unsat_evaluator (truth_table_outputs e)
+where unsat_evaluator : List Bool → Bool
+  | [] => true
+  | false::t => unsat_evaluator t
+  | true::_ => false
+
+-- other method -> h::t => if h then false else unsat_evaluator t
+
 -- A few tests
 #eval is_valid (X)                      -- expect false
 #eval is_sat (X)                        -- exect true
@@ -688,9 +721,22 @@ cases to demonstrate your results.
 #eval is_valid (X ∨ ¬X)                 -- expect true
 #eval is_valid ((¬(X ∧ Y) ⇒ (¬X ∨ ¬Y))) -- expect true
 #eval is_valid (¬(X ∨ Y) ⇒ (¬X ∧ ¬Y))   -- expect true
-#eval is_valid ((X ∨ Y) ⇒ (X → ¬Y))     -- expect false
+#eval is_valid ((X ∨ Y) ⇒ (X ⇒ ¬Y))     -- expect false
 
 -- Test cases
 
+def a := var.mk 0
+def o := var.mk 1
+def c := var.mk 2
+def b := var.mk 3
 
+def A := {a}
+def O := {o}
+def C := {c}
+def B := {b}
 
+def e := (A ∨ O) ∧ (C ∨ B) ⇔ ((A ∧ C) ∨ (A ∧ B) ∨ (O ∧ C) ∨ (O ∧ B))
+
+#eval is_valid e
+#eval is_sat e
+#eval is_unsat e
