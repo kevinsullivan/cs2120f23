@@ -1,11 +1,17 @@
 /-!
+# UVa CS2120-002 F23 Midterm Exam
 
-# Propositional Logic: Syntax and Sematics
 
-Here's our formal definition of the syntax and 
-semantics of propositional logic.
 
-## Syntax
+
+## Propositional Logic: Syntax, Sematics, Satisfiability
+
+This section of the exam simply includes our formal 
+definition of the syntax and semantics of propositional
+logic and of functions that determine whether a given 
+expression is valid, satisfiable, or unsatisfiable.
+
+### Syntax
 -/
 
 -- variables
@@ -34,7 +40,7 @@ infixr:25 " ⇒ " =>  Expr.bin_exp binary_op.imp
 infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff 
 
 /-!
-## Semantics
+### Semantics
 -/
 
 -- meanings of unary operators
@@ -68,7 +74,12 @@ def eval_expr : Expr → Interp → Bool
 | (Expr.bin_exp op e1 e2), i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
 
 /-!
-## Truth Tables 
+### Satisfiability
+
+We built a satisfiability checker for propositional logic,
+in several pieces. This subsection includes all definitions.
+
+#### Truth Table Input Rows 
 -/
 
 -- Nat to Binary
@@ -107,7 +118,7 @@ def mk_row_bools : (row : Nat) → (vars : Nat) → List Bool
 | r, v => bit_list_to_bool_list (mk_bit_row r v)
 
 /-!
-## Interpretations
+##### Interpretations
 -/
 
 -- Convert list of bools to interpretation
@@ -145,7 +156,7 @@ def max_variable_index : Expr → Nat
 def num_vars : Expr → Nat := λ e => max_variable_index e + 1
 
 /-!
-## Truth Table Outputs
+#### Truth Table Outputs
 -/ 
 def eval_expr_interps : List Interp → Expr → List Bool
 | [], _ => []
@@ -156,7 +167,7 @@ def truth_table_outputs : Expr → List Bool
 | e =>  eval_expr_interps (mk_interps (num_vars e)) e
 
 /-!
-## Satisfiability Checker
+### The Satisfiability Checkers
 -/
 
 -- functions to check if bool list has any, resp. all, values true
@@ -168,14 +179,13 @@ def reduce_and : List Bool → Bool
 | [] => true
 | h::t => and h (reduce_and t)
 
-
 -- Three main functions: test given expression for satsfiability properties
 def is_sat : Expr → Bool := λ e : Expr => reduce_or (truth_table_outputs e)
 def is_valid : Expr → Bool := λ e : Expr => reduce_and (truth_table_outputs e)
 def is_unsat : Expr → Bool := λ e : Expr => not (is_sat e)
 
 /-!
-## Quick Demo
+### Quick Demo
 -/
 
 -- some atomic/variable expressions
