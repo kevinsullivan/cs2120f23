@@ -106,6 +106,10 @@ def bit_list_to_bool_list : List Nat → List Bool
 def mk_row_bools : (row : Nat) → (vars : Nat) → List Bool
 | r, v => bit_list_to_bool_list (mk_bit_row r v)
 
+/-!
+## Interpretations
+-/
+
 -- Convert list of bools to interpretation
 def override : Interp → var → Bool → Interp
 | old_interp, var, new_val => 
@@ -140,8 +144,9 @@ def max_variable_index : Expr → Nat
 
 def num_vars : Expr → Nat := λ e => max_variable_index e + 1
 
-
--- From interpretation list and expresssion compute output values 
+/-!
+## Truth Table Outputs
+-/ 
 def eval_expr_interps : List Interp → Expr → List Bool
 | [], _ => []
 | h::t, e => eval_expr_interps t e ++ [eval_expr e h]
