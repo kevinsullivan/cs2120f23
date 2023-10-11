@@ -32,7 +32,8 @@ COPY .profile.txt /root/.profile
 # Install Python3
 RUN apt-get -y install python3-pip python3-venv python3-dev 
 ENV PYTHONIOENCODING utf-8
-RUN python3 -m pip install pipx z3-solver
+RUN python3 -m pip install pipx 
+# z3-solver # broken on Apple Silicon Mac 
 RUN python3 -m pipx ensurepath --force 
 RUN . ~/.profile
 

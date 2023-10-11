@@ -5,11 +5,10 @@ The established rules apply. Do this work on your own.
 
 This homework will test and strengthen your understanding
 of inductive data types, including Nat and List α, and the
-use of recursive functions to process and construct values
-of such types.
+use of recursive functions to process values of such types.
 
-The second part will test and develop your knowledge and
-understanding of formal languages, and propositional logic,
+The second part will do the same for your knowledge and
+understanding of formal languages, and propositional logic
 (PL) in particular, including the syntax and semantics of
 PL, and translations between formal statements in PL and
 corresponding concrete English-language examples.
@@ -22,12 +21,14 @@ corresponding concrete English-language examples.
 /-! 
 ### #1: Iterated Function Application 
 
-Here are two functions, each of which takes a function,
-*f*, as an argument, and an argument, *a*, to that function, 
-and returns the result of applying *f* to *a* one or more
-times. The first function just applies *f* to *a* once. The
-second function applies *f* to *a* twice. Be sure you fully
-understand these definitions before proceeding. 
+Here are two functions, each of which takes as arguments, 
+(1) a function, *f*, and (2) an argument, *a*, to *f*, and 
+that returns the result of applying *f* to *a*. The first 
+function returns the result of applying *f* to *a* once. The
+second function returns the result of applying *f* to *a* 
+twice. You should be confident in your understanding of
+these functions before going on to the main part of this
+problem. 
 -/
 
 def apply {a : α} : (α → α) → α → α 
@@ -37,7 +38,7 @@ def apply_twice {a : α} : (α → α) → α → α
 | f, a => f (f a)
 
 /-!
-Your job now is to define a function, *apply_n*, that takes
+Your job is to define a function, *apply_n*, that takes
 a function, *f*, a natural number,  *n*, and an argument, 
 *a*, and that returns the result of applying *f* to *a n* 
 times. Define the result of applying *f* to *a* zero times
@@ -50,8 +51,8 @@ natural number, *n'*.
 -- Answer here
 
 def apply_n {α : Type} : (α → α) → α → Nat → α  
-| f, a, 0 => _
-| f, a, (n' + 1) => _
+| f, a, 0 => a
+| f, a, (n' + 1) => f (apply_n f a n')
 
 -- Test cases: confirm that expectations are correct
 
@@ -65,63 +66,12 @@ def apply_n {α : Type} : (α → α) → α → Nat → α
 #eval apply_n (λ n => n^2) 2 4    -- expect 65536
 
 
-/-!
-# A Short Introduction to Lists 
-
-The polymorphic data type, List α, is used to
-represent lists of values of any type, α. The 
-List type builder provides two constructors: 
-one to create and empty list of α values, and 
-one to construct a new non-empty list from a
-new element (head, of type α) and a one smaller
-list (tail, of type List α). Here's how the List
-type builder is defined (simplied just a tad).
--/
-
-namespace cs2120
-
-inductive List (α : Type): Type
-| nil : List α
-| cons (h : α) (t : List α) : List α
-
-end cs2120
-
-/-!
-Lean defines three useful notations for creating
-and destructuring lists.
-
-- [] means List.nil
-- h::t means cons h t
-- [1, 2, 3] means the list, 1::[2,3]
-  - which means 1::2::[3]
-  - which means 1::2::3::[]
-  - which means cons 1 (cons 2 (cons 3 nil))
--/
-
-#check ([] : List Nat)
-#check 1::[2,3]
-#check [1,2,3]
-
-/-!
-You can use these notations when pattern 
-matching to analyze arguments. Here we show
-how this work by defining a function that
-takes a list and returns *either* (using a
-sum type) *unit* to represent the case where
-there is no first element, or the value at
-the head of the list.
--/
-
-def first_elt : List Nat → Unit ⊕ Nat
-| [] => Sum.inl Unit.unit
-| h::_ => Sum.inr h
-
-#reduce first_elt []    -- expect Sum.inl unit
-#reduce first_elt [1,2] -- expect 1 (left)
-
-
 /-! 
 ### #2: List length function
+
+Before diving into this question, you would do
+well to review the definition of the polymorphic
+data type, List α.
 
 Lists are defined inductively in Lean. A list of
 values of some type α is either the empty list of
@@ -136,8 +86,8 @@ of the list.
 -/
 
 def len {α : Type} : List α → Nat
-| _ => _
-| h::t => _
+| [] => 0
+| h::t => 1 + len t
 
 #eval @len Nat []                   -- expect 0
 #eval len [0,1,2]                   -- expect 3
@@ -162,8 +112,8 @@ be for your function to work in all cases.
 -/
 
 def reduce_and : List Bool → Bool
-| _ => _
-| _ => and _ _
+| [] => true
+| h::t => and h (reduce_and t)
 
 -- Test cases
 
@@ -186,7 +136,7 @@ should return [false, true].
 
 def map_not : List Bool → List Bool 
 | [] => []
-| h::t => _   -- hint: use :: to construct answer
+| h::t => (not h)::map_not t
 
 -- test cases
 #eval map_not []              -- exect []
@@ -195,14 +145,14 @@ def map_not : List Bool → List Bool
 /-! 
 ### #5 List the First n Natural Numbers
 
-Define a function called *countdown* that takes a 
+Define a function called *dountodnw* that takes a 
 natural number argument, *n*, and that returns a list 
 of all the natural numbers from *n* to *0*, inclusive. 
 -/
 
--- Your answer here
-
-
+def countdown : Nat → List Nat 
+| 0 => [0]
+| (n' + 1) => (n'+1)::countdown n'
 
 -- test cases
 #eval countdown 0            -- expect [0]
@@ -223,9 +173,9 @@ this function as an analog of natural number addition.
 
 -- Here
 
-def concat {α : Type} : _
-| [], m => _
-| _, _ =>  _
+def concat {α : Type} : List α → List α → List α
+| [], m => m
+| h::t, m =>  h::concat t m
 
 -- Test cases
 
@@ -234,61 +184,7 @@ def concat {α : Type} : _
 #eval concat [1,2] [3,4]  -- expect [1,2,3,4]
 
 /-!
-### #7: Lift Element to List
-
-Write a function, *pure'*, that takes a value, *a*, of any
-type α, and that returns a value of type List α containing
-just that one element.
--/
-
--- Here
-
-#eval pure' "Hi"       -- expect ["Hi"]
-
-/-!
-### Challenge: List Reverse
-
-Define a function, list_rev, that takes a list of values
-of any type and that returns it in reverse order. Hint: you 
-can't use :: with a single value on the right; it needs a
-list on the right. Instead, consider using *concat*.
--/
-
--- Answer here:
-
-
-/-!
 ## Part 2: Propositional Logic: Syntax and Semantics
 
 Forthcoming as an update to this file.
 -/
-
-
-def fact : Nat → Nat 
-| 0 => 1
-| (n' + 1) => (n' + 1) * fact n'
-
-def list_len { α : Type } : List α → Nat 
-| [] => 0
-| h::t => 1 + list_len t
-
-def sum_cubes : List Nat → Nat
-| [] => 0
-| h::t => h^3 + sum_cubes t 
-
-#eval sum_cubes [1,2,3,4,5]
-
-def reduce_or : List Bool → Bool
-| [] => false
-| h::t => or h (reduce_or t) 
-
-def reduce_and' : List Bool → Bool
-| [] => true
-| h::t => and h (reduce_and t)
-
-#eval list_len [true, true, true, false]
-
-def is_even : Nat → Bool
-| 0 => true
-| 1 => false
-| (n' + 2) => is_even n'
