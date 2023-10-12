@@ -18,13 +18,12 @@
 - [Homework #3](./Homework/hw3.lean.md)
 - [Homework #4](./Homework/hw4.lean.md)
 - [Homework #5](./Homework/hw5.lean.md)
-<<<<<<< HEAD
-=======
 - [Homework #6](./Homework/hw6.lean.md)
 - [Homework #6 Key](./Homework/hw6_key.lean.md)
->>>>>>> 36b4520c9015f853187bb5b8285488572d34804d
 - [Homework #5 Addendum on Negation](./Homework/hw5_addendum.lean.md)
 - [Homework #6](./Homework/hw6.lean.md)
 - [Homework #7](./Homework/hw7_part2.lean.md)
+- [Exam 1 Read Ahead](./Exams/exam_1_read_ahead.lean.md)
+- [Exam 1](./Exams/exam_1.lean.md)
 - [Lean Resources](./Resources/README.md)
 - [Set-up Instructions](./setup.md)
