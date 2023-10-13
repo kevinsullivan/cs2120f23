@@ -22,6 +22,7 @@
 - [Homework #6 Key](./Homework/hw6_key.lean.md)
 - [Homework #5 Addendum on Negation](./Homework/hw5_addendum.lean.md)
 - [Homework #6](./Homework/hw6.lean.md)
+- [Homework #6 Key](./Homework/hw6_key.lean.md)
 - [Homework #7](./Homework/hw7_part2.lean.md)
 - [Exam 1 Read Ahead](./Exams/exam_1_read_ahead.lean.md)
 - [Exam 1](./Exams/exam_1.lean.md)
