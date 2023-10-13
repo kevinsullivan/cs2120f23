@@ -1,9 +1,4 @@
 /-!
-# UVa CS2120-002 F23 Midterm Exam
-
-
-
-
 ## Propositional Logic: Syntax, Sematics, Satisfiability
 
 This section of the exam simply includes our formal 
@@ -27,6 +22,8 @@ inductive binary_op : Type
 
 -- expressions (abstract syntax)
 inductive Expr : Type
+| true_exp 
+| false_exp 
 | var_exp (v : var)
 | un_exp (op : unary_op) (e : Expr)
 | bin_exp (op : binary_op) (e1 e2 : Expr)
@@ -38,6 +35,9 @@ infixr:35 " ∧ " => Expr.bin_exp binary_op.and
 infixr:30 " ∨ " => Expr.bin_exp binary_op.or 
 infixr:25 " ⇒ " =>  Expr.bin_exp binary_op.imp
 infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff 
+notation " ⊤ " => Expr.top_exp
+notation " ⊥ " => Expr.bot_exp
+
 
 /-!
 ### Semantics
@@ -69,6 +69,8 @@ def Interp := var → Bool
 
 -- The meanings of expressions "under" given interpretations
 def eval_expr : Expr → Interp → Bool 
+| Expr.true_exp,           _ => true
+| Expr.false_exp,          _ => false
 | (Expr.var_exp v),        i => i v
 | (Expr.un_exp op e),      i => (eval_un_op op) (eval_expr e i)
 | (Expr.bin_exp op e1 e2), i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
@@ -149,6 +151,8 @@ where mk_interps_helper : (rows : Nat) → (vars : Nat) → List Interp
 
 -- Count the number of variables in a given expression
 def max_variable_index : Expr → Nat
+| Expr.true_exp => 0
+| Expr.false_exp => 0
 | Expr.var_exp (var.mk i) => i
 | Expr.un_exp _ e => max_variable_index e
 | Expr.bin_exp _ e1 e2 => max (max_variable_index e1) (max_variable_index e2)
@@ -183,18 +187,3 @@ def reduce_and : List Bool → Bool
 def is_sat : Expr → Bool := λ e : Expr => reduce_or (truth_table_outputs e)
 def is_valid : Expr → Bool := λ e : Expr => reduce_and (truth_table_outputs e)
 def is_unsat : Expr → Bool := λ e : Expr => not (is_sat e)
-
-/-!
-### Quick Demo
--/
-
--- some atomic/variable expressions
-def Bread  : Expr := {var.mk 0}
-def Cheese : Expr := {var.mk 1}
-def Jam    : Expr := {var.mk 2}
-
-#eval is_sat (Bread)
-#eval is_sat (Bread ∧ ¬Bread)
-#eval is_valid (Bread ∧ ¬Bread)
-#eval is_valid (Bread ∨ ¬Bread)
-#eval is_unsat (Bread ∧ ¬Bread)

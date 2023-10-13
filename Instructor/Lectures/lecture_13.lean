@@ -679,6 +679,8 @@ against what we compute here.
 #reduce truth_table_outputs (((¬X ∧ ¬ Y) ⇒ ¬(X ∨ Y )))
 
 
+#reduce truth_table_outputs ((X ⇔ Y))
+
 /-!
 ## HOMEWORK PART 1:
 
@@ -697,6 +699,19 @@ cases to demonstrate your results.
 
 -- Here
 
+def reduce_or : List Bool → Bool 
+| [] => false
+| h::t => or h (reduce_or t)
+
+def reduce_and : List Bool → Bool 
+| [] => true
+| h::t => or h (reduce_and t)
+
+def is_sat : Expr → Bool := λ e : Expr => reduce_or (truth_table_outputs e)
+
+def is_valid : Expr → Bool := λ e : Expr => reduce_and (truth_table_outputs e)
+
+
 
 -- A few tests
 #eval is_valid (X)                      -- expect false
@@ -704,7 +719,7 @@ cases to demonstrate your results.
 #eval is_sat (X ∧ ¬X)                   -- expect false
 #eval is_unsat (X ∧ ¬X)                 -- expect true
 #eval is_valid (X ∨ ¬X)                 -- expect true
-#eval is_valid ((¬(X ∧ Y) ⇒ (¬X ∨ ¬Y))) -- expect true
+#eval is_valid ((¬(X ∧ Y) ⇔  (¬X ∨ ¬Y))) -- expect true
 #eval is_valid (¬(X ∨ Y) ⇒ (¬X ∧ ¬Y))   -- expect true
 #eval is_valid ((X ∨ Y) ⇒ (X → ¬Y))     -- expect false
 
