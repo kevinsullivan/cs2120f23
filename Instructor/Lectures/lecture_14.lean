@@ -1,9 +1,24 @@
 /-!
-# A Few Things
+# Higher-Order Functions and a Model Finder (SAT Solver)
 
-UNDER CONSTRUCTION. HIGHER-ORDER FUNCTIONS OK. REST IS IN FLUX.
+This chapter presents three main topics:
 
-## Some General-Purpose Higher-Order functions
+- The generalized List map, foldr, and filter functions
+- Improvements in our previous code using these ideas
+- A model finder, a.k.a., a *SAT solver* 
+
+## General-Purpose Higher-Order List Functions
+
+In this section, we introduce three generalized higher-order
+functions dealing with lists. The *map* function converts one
+list into another list of the same length by converting each
+element in the input list into a correspond element in the 
+output list. The *foldr* function reduces a list to a single
+value by in effect inserting a specified binary operation 
+between each pair of elements in a list and evaluating the 
+result. The *filter* function takes a list and a predicate 
+function on list elements and returns the sublist of those
+elements for which the predicate function returns true. 
 
 ### List.map
 
@@ -98,12 +113,12 @@ rest of the list to a partial result, again of type β.
 #eval List.foldr (λ s b => s.length%2 == 0) false ["Hi!", "Lean!"]
 
 -- Specialize foldr to define reduce_or
-def reduce_or := List.foldr or false
-#eval reduce_or [false, false, true]
+def reduce_or' := List.foldr or false
+#eval reduce_or' [false, false, true]
 
 -- Specialize foldr to define reduce_and
-def reduce_and := List.foldr and true
-#eval reduce_and [false, false, true]
+def reduce_and' := List.foldr and true
+#eval reduce_and' [false, false, true]
 
 /-!
 As an exercise, define a function using foldr that computes
@@ -169,20 +184,26 @@ def filter (p : α → Bool) : List α → List α
 -- Filter to extra even-length strings in list of strings
 #eval List.filter (λ s => s.length %2 == 0) ["Hi", "there", "Mary"]
 
+
+
+
+
 /-!
 ## Improving our Propositional Logic Implementation 
 
+In this section, we apply the ideas above, along with a suggestion
+by a student to replace our icky code for generating truth table input
+lists with a compact and beautiful recursive function. 
 
-- Redefine bit_list_to_bool_list function while keeping its name and type, using List.map
-- Redefine reduce_or and reduce_and while keeping their names, using List.foldr
--/
+- Redefine bit_list_to_bool_list using List.map
+- Redefine reduce_or and reduce_and using List.foldr
+- Improve our validity/sat/unsat checking code substantially
 
-
-/-!# Propositional Logic: SAT Solving With a SAT Solver
-
-## Propositional Logic 
-
-We include these definitions with minimal explanation.
+To start, here is our most recent version of our specification of the 
+syntax and semantics of proposition logic. There are no changes to be 
+made here. If you've thoroughly grasped these definitions, skip forward.
+If you're still unsure what *eval_expr* does, you need to not go on
+until you've really understood that function.
 
 ### Syntax
 -/
@@ -236,6 +257,7 @@ def eval_bin_op : binary_op → (Bool → Bool → Bool)
 
 def Interp := var → Bool 
 
+-- main semantic evaluation function
 def eval_expr : Expr → Interp → Bool 
 | Expr.true_exp,           _ => true
 | Expr.false_exp,          _ => false
@@ -251,7 +273,7 @@ A satisfiability checker for propositional logic.
 #### Truth Table Input Rows 
 -/
 
-/- OBSOLETED
+-- replace it all!
 def right_bit (n : Nat) := n%2
 def shift_right (n : Nat) := n/2
 def nat_to_bin : Nat → List Nat
@@ -280,19 +302,26 @@ def bit_list_to_bool_list : List Nat → List Bool
 
 def mk_bool_row : (row : Nat) → (vars : Nat) → List Bool
 | r, v => bit_list_to_bool_list (mk_bit_row r v)
--/
 
--- Replaces all of the preceding code
-def make_bool_lists: Nat → List (List Bool)
-| 0 => [[]]
-| n + 1 =>  (List.map (fun L => false::L) (make_bool_lists n)) ++ 
-            (List.map (fun L => true::L) (make_bool_lists n))
-
+-- Mikhail replaced all of the preceding code with this!
+-- def make_bool_lists: Nat → List (List Bool)
+-- | 0 => [[]]
+-- | n + 1 =>  (List.map (fun L => false::L) (make_bool_lists n)) ++ 
+--             (List.map (fun L => true::L) (make_bool_lists n))
 
 /-!
-The first 2 functions are standalone, but mk_interps uses functions defined in lecture_13.lean. 
-END NEW STUFF
+#### Count Distinct Variables in Expression
 -/
+
+-- Note the zeros. Why?
+def max_variable_index : Expr → Nat
+  | Expr.true_exp => 0
+  | Expr.false_exp => 0
+  | Expr.var_exp (var.mk i) => i
+  | Expr.un_exp _ e => max_variable_index e
+  | Expr.bin_exp _ e1 e2 => max (max_variable_index e1) (max_variable_index e2) 
+
+def num_vars : Expr → Nat := λ e => max_variable_index e + 1                    
 
 /-!
 #### Interpretations
@@ -312,29 +341,25 @@ where bools_to_interp_helper : (vars : Nat) → (vals : List Bool) → Interp
     let len := (h::t).length
     override (bools_to_interp_helper vars t) (var.mk (vars - len)) h 
 
-/-! Obsoleted
+-- replace
 def mk_interp_vars_row : (vars: Nat) → (row: Nat) → Interp
-| v, r => bools_to_interp (mk_bool_row r v)
+| v, r => bool_list_to_interp (mk_bool_row r v)
 
 def mk_interps (vars : Nat) : List Interp := 
   mk_interps_helper (2^vars) vars
 where mk_interps_helper : (rows : Nat) → (vars : Nat) → List Interp
   | 0, _         => []
   | (n' + 1), v  => (mk_interp_vars_row v n')::mk_interps_helper n' v
--/
 
--- improved version
+/-! 
+Mikhail's version 
 def mk_interps : Nat → List Interp
 | n => List.map bool_list_to_interp (make_bool_lists n) 
+-/
 
-def max_variable_index : Expr → Nat
-  | Expr.true_exp => 0
-  | Expr.false_exp => 0
-  | Expr.var_exp (var.mk i) => i
-  | Expr.un_exp _ e => max_variable_index e
-  | Expr.bin_exp _ e1 e2 => max (max_variable_index e1) (max_variable_index e2)
+def mk_expr_interps : Expr → List Interp
+| e => mk_interps (num_vars e)
 
-def num_vars : Expr → Nat := λ e => max_variable_index e + 1
 
 /-!
 #### Truth Table Output Column
@@ -344,16 +369,24 @@ def eval_expr_interps : List Interp → Expr → List Bool
 | [], _ => []
 | h::t, e => eval_expr_interps t e ++ [eval_expr e h]
 
--- Given expression, return truth table outputs by ascending row index
-def truth_table_outputs : Expr → List Bool
+
+def truth_table_outputs' : Expr → List Bool
 | e =>  eval_expr_interps (mk_interps (num_vars e)) e
+
+
+def truth_table_outputs : Expr → List Bool
+| e => 
+  let interps := mk_interps (num_vars e)
+  eval_expr_under_all_interps_helper e interps 
+where  eval_expr_under_all_interps_helper (e : Expr) : List Interp → List Bool 
+  | [] => []
+  | h::t => eval_expr_under_all_interps_helper e t ++ [eval_expr e h]
 
 /-!
 ### Satisfiability Checkers
 -/
 
-/-! Obsoleted
-
+-- replace
 def reduce_or : List Bool → Bool 
 | [] => false
 | h::t => or h (reduce_or t)
@@ -361,10 +394,11 @@ def reduce_or : List Bool → Bool
 def reduce_and : List Bool → Bool 
 | [] => true
 | h::t => and h (reduce_and t)
--/
 
+/-!
 def reduce_or := List.foldr or false 
 def reduce_and := List.foldr and true
+-/
 
 -- Three main functions: test given expression for satsfiability properties
 def is_sat : Expr → Bool := λ e : Expr => reduce_or (truth_table_outputs e)
@@ -372,60 +406,153 @@ def is_valid : Expr → Bool := λ e : Expr => reduce_and (truth_table_outputs e
 def is_unsat : Expr → Bool := λ e : Expr => not (is_sat e)
 
 /-!
-## A SAT Solver
+## A Model Finder, i.e., SAT Solver
 
 A SAT solver takes an expression, e, and returns a value of 
 the sum type, *SomeOrNone*, an instance of which which holds 
 either *some model,* if there is at least one, or *nothing*.
-We use a sum type, Interp ⊕ Unit: *(Sum.inl m)* returns the
-model, *m*, while *Sum.inr Unit.unit* signals that there is
-no model to return. 
+
+### Using a Sum Type to Implement a Partial Function
+A partial function is a function that is not defined for all
+possible input values. For example, a function, *model* that
+takes an expression and returns a model will not always have
+a model to return (if the expression is unsatisfiable). But
+in Lean, every function must be total. The way out is with a
+function that returns a value of a sum type, Interp ⊕ Unit.
+If there is a model, *m*, it will return *(Sum.inl m)*. If
+there's not model, it will return *Sum.inr Unit.unit*. This
+approach in effect extends the *Interp* type with one more
+value, namely *Unit.unit*, which we'll use to signal that 
+the underlying partial function (from expression to model) 
+is undefined for the given expression: that there's no model 
+to return. 
 -/
 
 def SomeInterpOrNone := Interp ⊕ Unit   -- This is a *type*
 
 /-
+### A Model Finding Function Possibly Returning No Model
+
 Here's the function. Note thus use of several "let bindings"
 in this code. They bind names, as shorthands, to given terms, 
 so a final return value can be expressed more succinctly and 
 clearly. This is a common style of coding in most functional
-programming languages. Here we bind names to two terms, then
-the expression, *find_model interps e*, defines the return
-value. 
+programming languages. You should spend a few minutes here to
+internalize this style of coding, then start to use it. Here 
+we bind names to two terms, then we evaluate the expression, 
+*find_model_helper interps e*, defines the return value. 
 -/
-def get_model_fun : Expr → SomeInterpOrNone
+def find_model : Expr → SomeInterpOrNone
 | e =>
-  let num_vars := num_vars e
-  let interps := (mk_interps num_vars)
-  find_model interps e
-where find_model : List Interp → Expr → SomeInterpOrNone
+  let interps := mk_expr_interps e
+  -- let num_vars := num_vars e
+  -- let interps := (mk_interps num_vars)
+  find_model_helper interps e
+where find_model_helper : List Interp → Expr → SomeInterpOrNone
 | [], _ => Sum.inr Unit.unit
-| h::t, e => if (eval_expr e h) then Sum.inl h else find_model t e
+| h::t, e => if (eval_expr e h) then Sum.inl h else find_model_helper t e
 
 -- Tests
 def X := {var.mk 0}
 def Y := {var.mk 1}
-#reduce get_model_fun (X)       -- expect Sum.inl _ (a function)
-#reduce get_model_fun (X ∧ ¬X)  -- expect Sum.inr Unit.unit
+def Z := {var.mk 2}
 
--- List of Booleans for first *num_vars* variables under given Interp 
+#reduce find_model (X)       -- expect Sum.inl _ (a function)
+#reduce find_model (X ∧ ¬X)  -- expect Sum.inr Unit.unit
+
+/-!
+### Convenience Function to Print an Interpretation 
+-/
+
+-- Given interpretation return values assigned to first num_vars variables 
 def interp_to_bools : Interp → (num_vars : Nat) → List Bool
 | _,  0 => []
 | i, (n' + 1) => interp_to_bools i n' ++ [(i (var.mk n'))]
 
 /-!
-Given some model, return list of Boolean values of first *num_vars* 
-variables, or in the case of no model, just return an empty list.
+Given some model or no model (a sum type object) return an empty 
+list of Bools if there's no model, and a list of Boolean values for 
+its first *num_vars* variables, otherwise. 
 -/
 def some_model_or_none_to_bools : SomeInterpOrNone → (num_vars : Nat) → List Bool
 | Sum.inl i, n => interp_to_bools i n
 | Sum.inr _, _ => []
 
-
 -- Test cases
-def Y := {var.mk 1}
 
-#reduce some_model_or_none_to_bools (get_model_fun (X ∧ ¬Y)) 2
-#reduce some_model_or_none_to_bools (get_model_fun (X ∧ ¬X)) 2
-#reduce some_model_or_none_to_bools (get_model_fun (¬X ∨ ¬Y)) 2
+#reduce some_model_or_none_to_bools (find_model (X ∧ ¬Y)) 2    -- expect [true, false]
+#reduce some_model_or_none_to_bools (find_model (X ∧ ¬X)) 2    -- expect [] (unsat)
+#reduce some_model_or_none_to_bools (find_model (¬X ∨ ¬Y)) 2   -- expect some model
+
+/-!
+New function: 
+
+Given an expression and a list of interpretations, derive
+the number, v, of relevant variables from the expression, and 
+return a list Boolean lists of all 2^v interpretations, each
+list being v Bools in length. 
+-/
+
+def get_interps_bools_lists : Expr → List Interp → List (List Bool) 
+| e, is =>
+  let vars := num_vars e
+  match is with
+    | [] => []
+    | h::t => interp_to_bools h vars::get_interps_bools_lists e t
+
+-- Tests TBD
+
+/-!
+### Exercises
+
+#1. Define a function, *all_models*, that takes an expression 
+and returns a list, possibly empty, of all of its models, i.e.,
+of interpretation functions that make the expression true. Use 
+*filter* in your answer. The challenge is to write the filter 
+predicate function.
+-/
+
+def all_models : Expr → List Interp
+| e => List.filter (λ i => eval_expr e i) (mk_expr_interps e)
+
+-- tests
+#reduce all_models (X ∧ ¬ X)              -- expect []
+#reduce (all_models (X ∨ Y)).length       -- expect 3
+#reduce (all_models (X ∧ Y)).length       -- expect 1
+
+
+/-!
+#2. Define a function that reduces a list to a list of  an expression, e, return a list of all of its 
+models, each represented as a truth table row, i.e., 
+as a list of Bools.
+-/
+def all_models_bool : Expr → List (List Bool)
+| e =>  get_interps_bools_lists e (all_models e)
+
+-- tests
+#eval all_models_bool (X ∧ ¬ X) 
+#eval all_models_bool (X ∨ ¬ X) 
+#eval all_models_bool (X ∧ Y)
+#eval all_models_bool (¬(X ∧ Y) ⇒ ¬X ∨ ¬Y)
+#eval all_models_bool ((X ⇒ Y) ⇒ (Y ⇒ Z) ⇒ (X ⇒ Z))
+
+/-!
+Define a function that takes a *list* of interpretations and that returns a list
+of Bool *lists*, one sublist for each interpretation in the list thereofs. Use map.
+-/
+
+
+/-!
+Define a utility (low-level) function that takes a list of interpretations 
+and a number of variables to display and that returns a *list of lists* of 
+Boolean values, one list reflecting each interpretation, with Boolean values 
+indicating the values the interpretation assigns to corresponding variables. 
+-/
+
+
+/-!
+Write a function that takes an expression and returns the number of models it has
+(restricting to the number of distinct variables). Wait, is there a bug in our code
+for counting the number of distinct variables in an expression?! Uh oh.
+-/
 
