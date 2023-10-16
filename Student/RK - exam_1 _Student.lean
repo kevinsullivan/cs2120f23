@@ -287,10 +287,9 @@ the Sandwich type.
 -/
 
 -- Your answer here
--- (s: (Cheese ⊕ Spread)) 
-structure Sandwich : Type := (c : Bread) (s: (Cheese ⊕ Spread))
+structure Sandwich : Type := (c : Bread) (c2: (Cheese ⊕ Spread))
 
-def v := Sandwich.mk Bread.white (Sum.inr Spread.jam)
+
 
 /-!
 ### c. Now make yourself a Sandwich [15 points]
