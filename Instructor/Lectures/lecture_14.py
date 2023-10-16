@@ -16,38 +16,50 @@ print("Not expression: ", Not(X))
 print("Implies expression: ", Implies(X, Y))
 print("Iff expression: ", (X == Y))
 
-# In Z3, True and False are Constants
+# In Propositional Logic in Z3, True and False are Constant Expressions 
 
 print("True is a propositional constant: ", True)
 print("False is a propositional constant: ", False)
+print("Simplifying X /\ True: ", simplify(And(X, True)))
+print("Simplifying X \/ False: ", simplify(Or(X, False)))
 
 # Satisfiability Solving
 
-print ("Solve X And Y")
+print ("Solving X /\ Y")
 solve(And(X,Y))
 
-print ("Solve X Or Y")
+print ("Solving X \/ Y")
 solve(Or(X,Y))
 
-print ("Solve X And Not X")
+print ("Solving X /\ ~X")
 solve(And(X,(Not(X))))
 
-print ("Solve X Or Not X")
+print ("Solving X \/ ~X")
 solve(Or(X, Not(X)))
 
-print("Solve X => False")
+# Think about this one. The implication being true says what about X?
+print("Solving X => False")
 solve(Implies(X, False))
 
-print ("Solve (X => False) /\ X")
+print ("Solving (X => False) /\ X")
 solve(And(Implies(X, False)), X)
 
 print("Solve (X => Y) /\ (Y => Z)")
 solve(And(Implies(X,Y),Implies(Y,Z)))
 
-print("Solve implicit conjunction of constraints")
+print("Solve a set of constraints")
 solve(Implies(X, Y), 
       Or(Not(X), Z), 
       Z == Not(Y))
+
+# There's no validity checker, but it's easy to make one
+# Expression e is valid if true under every interpretation
+# That's equivalent to ~e being false under every interpretation
+# Z3 will tell us if an expression is "unsat"
+# Just check to see if ~e is unsat; if so then e is valid
+
+print("Unsatisfiability of negation, ~(X \/ ~X), means (X \/ ~X) is valid.")
+solve(Not(Or(X,Not(X))))
 
 # Simplification
 

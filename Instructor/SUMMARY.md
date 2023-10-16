@@ -1,6 +1,6 @@
 # Summary
 
-[A Computational Introduction to Discrete Mathematics](./intro.md)
+[Discrete Mathematics Via Type Theory](./intro.md)
 
 - [Lectures 01 and 02](./Lectures/lecture_01_02.lean.md)
 - [Lectures 03 and 04](./Lectures/lecture_03_04.lean.md)
@@ -13,11 +13,17 @@
 - [Lecture 11](./Lectures/lecture_11.lean.md)
 - [Lecture 12](./Lectures/lecture_12.lean.md)
 - [Lecture 13](./Lectures/lecture_13.lean.md)
+- [Lecture 14](./Lectures/lecture_14.py.md)
 - [Homework #2](./Homework/hw2.lean.md)
 - [Homework #3](./Homework/hw3.lean.md)
 - [Homework #4](./Homework/hw4.lean.md)
 - [Homework #5](./Homework/hw5.lean.md)
 - [Homework #6](./Homework/hw6.lean.md)
+- [Homework #6 Key](./Homework/hw6_key.lean.md)
 - [Homework #5 Addendum on Negation](./Homework/hw5_addendum.lean.md)
+- [Homework #6](./Homework/hw6.lean.md)
+- [Homework #7](./Homework/hw7_part2.lean.md)
+- [Exam 1 Read Ahead](./Exams/exam_1_read_ahead.lean.md)
+- [Exam 1](./Exams/exam_1.lean.md)
 - [Lean Resources](./Resources/README.md)
 - [Set-up Instructions](./setup.md)

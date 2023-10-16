@@ -1,5 +1,7 @@
 /-!
-# Homework #7 Part 2 -- Exam Practice
+# Exam 1
+
+DO NOT CHEAT.
 -/
 
 /-! 
@@ -13,8 +15,6 @@ otherwise.
 
 -- Define your function here
 
-def pythag : Nat → Nat → Nat → Bool
-| a, b, c => if (a^2 + b^2 = c^2) then true else false
 
 -- The following test cases should then pass
 #eval pythag 3 4 5  -- expect true
@@ -33,7 +33,7 @@ inclusive.
 
 def sum_cubes : Nat → Nat
 | 0 => 0
-| n' + 1 => (n'+1)^3 + sum_cubes n'
+| (n' + 1) => (n' + 1)^3 + sum_cubes n'
 
 
 -- test case: sum_cubes 4 = 1 + 8 + 27 + 64 = 100
@@ -68,14 +68,7 @@ def prod_ors_to_or_prods {α β γ δ: Type} :
 | (Sum.inr b, Sum.inl c) => Sum.inr (Sum.inr (Sum.inl (b,c)))
 | (Sum.inr b, Sum.inr d) => Sum.inr (Sum.inr (Sum.inr (b,d)))
 
--- Write the second function here from scratch
 
-def or_prods_to_prod_ors {α β γ δ: Type} :
-  α × γ ⊕ α × δ ⊕ β × γ ⊕ β × δ → (α ⊕ β) × (γ ⊕ δ)
-| Sum.inl (a,c) => (Sum.inl a, Sum.inl c)
-| Sum.inr (Sum.inl (a,d)) => (Sum.inl a, Sum.inr d)
-| Sum.inr (Sum.inr (Sum.inl (b,c))) => (Sum.inr b, Sum.inl c)
-| Sum.inr (Sum.inr (Sum.inr (b,d))) => (Sum.inr b, Sum.inr d)
 
 /-!
 ## #4 Propositional Logic Syntax and Semantics
@@ -101,10 +94,7 @@ of propositional logic. Just write the expression
 here using the notation we've defined.
 -/
 
--- def e := (A ∨ O) ∧ (C ∨ B) ⇔ ((A ∧ C) ∨ (A ∧ B) ∨ (O ∧ C) ∨ (O ∧ B))
-
 /-!
-## #5 Propositional Logic Validity
 At the end of your updated Homework #7 file, use our
 validity checking function to check your expression
 for validity, in the expectation that the checker will
