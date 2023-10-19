@@ -184,8 +184,9 @@ it again.
 -- Mikhail
 def make_bool_lists: Nat → List (List Bool)
 | 0 => [[]]
-| n + 1 =>  (List.map (fun L => false::L) (make_bool_lists n)) ++ 
-            (List.map (fun L => true::L) (make_bool_lists n))
+| n' + 1 =>  (List.map (fun L => false::L) (make_bool_lists n')) ++ 
+            (List.map (fun L => true::L) (make_bool_lists n'))
+-- REVIEW
 
 /-!
 #### Bool List to/from Interpretation Function 
@@ -224,8 +225,9 @@ where bools_to_interp_helper : (vars : Nat) → (vals : List Bool) → Interp
 /-!
 To think about: smells like some kind of fold. Iteratively combine
 bool at head of list with given interpretation by overriding at with
-the head value for the *which?* variable
-
+the h
+ead value for the *which?* variable
+-/
 
 
 /-!
@@ -308,6 +310,7 @@ where eval_expr_over_interps : Expr → List Interp → List Bool
 | _, [] => []
 | e, h::t => eval_expr_over_interps e t ++ [eval_expr e h]
 
+-- REVIEW
 
 /-!
 #### n-ary And and Or functions
@@ -373,6 +376,7 @@ where find_model_helper : List Interp → Expr → Option Interp
 | [], _ => none
 | h::t, e => if (eval_expr e h) then some h else find_model_helper t e
 
+-- REVIEW
 
 -- Utility: convert a "Option model" into a list of Bools, empty for none 
 def some_model_or_none_to_bools : SomeInterpOrNone → (num_vars : Nat) → List Bool
