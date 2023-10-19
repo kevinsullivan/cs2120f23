@@ -213,5 +213,5 @@ satisfy the overall formula?
 So let's crank up Z3! Open lecture_15.py. Read and and run
 it using the run icon at the top of the Python editing panel.
 
-More to come.
+More to come. UNDER CONSTRUCTION.
 -/
