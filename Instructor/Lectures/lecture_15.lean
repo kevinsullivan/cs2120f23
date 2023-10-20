@@ -1,6 +1,8 @@
 /-!
 # Satifiability Modulo Theories
 
+UNDER CONSTRUCTION.
+
 At the end of the last chapter, we saw first-hand the 
 magnificence of automated satisfiability and validity 
 checking for propositional logic. Most recently we met
@@ -186,29 +188,30 @@ def Z := {var.mk 2}
 /-!
 ## Satisfiability Modulo Theories
 
-If you're impressed that we can have software that
-automatically solves systems of Boolean constraint, you
-will be especially delighted to learn that SMT solvers
-also solve systems where atomic propositions can be
-elaborated in other formal languages, such as that 
-of everyday arithmetic. Solvers are now need to handle 
-things like systems of linear inequalities. 
+So far we have specified software that solves (finds
+models of) propositions in pure propositional logic.
+But this logic is esoecially austere. Variables can 
+have only Boolean values, and the operators are all
+Boolean.
 
-In the language of a typical SMT solver, like DeMoura's
-Z3, atomic propositions in propositional logic can be 
-expanded into formulas in a variety of other formal 
-languages, e.g., the language of linear inequalities, 
-for which fully automated solvers, that can find values
-for arithmetic variables that make expressions true, 
-do exist.
+What makes propositional logic much more useful is to
+allow atomic expressions (variable expressions) to be
+expanded into expressions in other formal languages.
+For example, expanding the variables in X and Y in the
+expression X ∧ Y into arithmetic expressions, we could 
+write the following proposition: X > 0 ∧ Y = 2 * X,
+with X and Y ranging over the natural numbers. 
 
-So, whereas in propositional logic, you can write *X ∧ Y*, 
-in propositional logic extended with the "theory" called 
-*everyday arithmetic*, you can write (X > Y + 2) ∧ (Y ≤ 7). 
+In this logic, interpretations are extended to associate
+values of types other than Boolean with variables. Model
+finding then involves finding values of such variables,
+e.g., integer-valued variables, that make an expression
+true. Here a model (solution) would be { X = 1, Y = 2 }.
 
-Question: You solve it! What's the smallest integer value of 
-X for which there's some value of Y so that together X and Y
-satisfy the overall formula?
+
+Question: You're the Solver! What's the smallest integer value 
+of X for which there's some integer value of Y that make this
+proposition true: (X > Y + 2) ∧ (Y ≤ 7)?
 
 So let's crank up Z3! Open lecture_15.py. Read and and run
 it using the run icon at the top of the Python editing panel.
