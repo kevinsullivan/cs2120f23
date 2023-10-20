@@ -185,8 +185,13 @@ it again.
 def make_bool_lists: Nat → List (List Bool)
 | 0 => [[]]
 | n' + 1 =>  (List.map (fun L => false::L) (make_bool_lists n')) ++ 
-            (List.map (fun L => true::L) (make_bool_lists n'))
+             (List.map (fun L => true::L) (make_bool_lists n'))
 -- REVIEW
+
+#eval make_bool_lists 0
+#eval make_bool_lists 1
+#eval make_bool_lists 2
+#eval make_bool_lists 3
 
 /-!
 #### Bool List to/from Interpretation Function 
@@ -304,13 +309,24 @@ Boolean values.
 -/ 
 
 -- The column of truth table outputs for e
-def truth_table_outputs : Expr → List Bool
+def truth_table_outputs' : Expr → List Bool
 | e =>  eval_expr_over_interps e (mk_interps_vars (num_vars e))
 where eval_expr_over_interps : Expr → List Interp → List Bool
 | _, [] => []
 | e, h::t => eval_expr_over_interps e t ++ [eval_expr e h]
 
 -- REVIEW
+
+def truth_table_outputs : Expr → List Bool
+| e => List.map (eval_expr e) (mk_interps_vars (num_vars e))
+
+
+
+-- | e =>  eval_expr_over_interps e (mk_interps_vars (num_vars e))
+-- where eval_expr_over_interps : Expr → List Interp → List Bool
+-- | _, [] => []
+-- | e, h::t => eval_expr_over_interps e t ++ [eval_expr e h]
+
 
 /-!
 #### n-ary And and Or functions
@@ -367,6 +383,7 @@ def o2 := @Option.none Bool -- need to make type argument explicit
 Here's the main API for our model finder. Given an expression, *e*,
 return *some m*, *m* a model of *e* if there is one, or *none* if not. 
 -/
+#check @Option
 
 def find_model : Expr → Option Interp
 | e =>
@@ -443,6 +460,10 @@ def find_counterexamples_bool : Expr → List (List Bool)
 def X := {var.mk 0}
 def Y := {var.mk 1}
 def Z := {var.mk 2}
+
+#eval truth_table_outputs (X ∧ Y)
+#eval List.foldr or false (truth_table_outputs (X ∧ Y))
+#eval List.foldr and true (truth_table_outputs (X ∧ Y))
 
 /-!
 Is it true that if X being true makes Y true, then does X being 
