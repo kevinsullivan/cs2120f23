@@ -208,10 +208,13 @@ finding then involves finding values of such variables,
 e.g., integer-valued variables, that make an expression
 true. Here a model (solution) would be { X = 1, Y = 2 }.
 
+A Game: You're the Finder. What's the smallest integer 
+value for X and a corresponding integer value for Y that 
+make this proposition true: (X > Y + 2) ∧ (Y ≤ 7)?
 
-Question: You're the Solver! What's the smallest integer value 
-of X for which there's some integer value of Y that make this
-proposition true: (X > Y + 2) ∧ (Y ≤ 7)?
+-- Your answer here: 
+
+## The Z3 SMT Solver via a Python API
 
 So let's crank up Z3! Open lecture_15.py. Read and and run
 it using the run icon at the top of the Python editing panel.
