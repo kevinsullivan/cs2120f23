@@ -662,6 +662,8 @@ against what we compute here.
 #reduce truth_table_outputs (((¬X ∧ ¬ Y) ⇒ ¬(X ∨ Y )))
 
 
+#reduce truth_table_outputs ((X ⇔ Y))
+
 /-!
 ## HOMEWORK PART 1:
 
@@ -680,13 +682,14 @@ cases to demonstrate your results.
 
 -- Here
 
+
 -- A few tests
 #eval is_valid (X)                      -- expect false
 #eval is_sat (X)                        -- exect true
 #eval is_sat (X ∧ ¬X)                   -- expect false
 #eval is_unsat (X ∧ ¬X)                 -- expect true
 #eval is_valid (X ∨ ¬X)                 -- expect true
-#eval is_valid ((¬(X ∧ Y) ⇒ (¬X ∨ ¬Y))) -- expect true
+#eval is_valid ((¬(X ∧ Y) ⇔  (¬X ∨ ¬Y))) -- expect true
 #eval is_valid (¬(X ∨ Y) ⇒ (¬X ∧ ¬Y))   -- expect true
 #eval is_valid ((X ∨ Y) ⇒ (X → ¬Y))     -- expect false
 

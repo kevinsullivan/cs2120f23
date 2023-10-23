@@ -118,7 +118,7 @@ def mk_row_bools : (row : Nat) → (vars : Nat) → List Bool
 | r, v => bit_list_to_bool_list (mk_bit_row r v)
 
 /-!
-##### Interpretations
+#### Interpretations
 -/
 
 -- Convert list of bools to interpretation
@@ -156,7 +156,7 @@ def max_variable_index : Expr → Nat
 def num_vars : Expr → Nat := λ e => max_variable_index e + 1
 
 /-!
-#### Truth Table Outputs
+#### Truth Table Output Column
 -/ 
 def eval_expr_interps : List Interp → Expr → List Bool
 | [], _ => []
@@ -167,7 +167,7 @@ def truth_table_outputs : Expr → List Bool
 | e =>  eval_expr_interps (mk_interps (num_vars e)) e
 
 /-!
-### The Satisfiability Checkers
+### Satisfiability Checkers
 -/
 
 -- functions to check if bool list has any, resp. all, values true
