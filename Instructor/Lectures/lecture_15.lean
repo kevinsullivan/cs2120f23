@@ -218,6 +218,22 @@ make this proposition true: (X > Y + 2) ∧ (Y ≤ 7)?
 
 So let's crank up Z3! Open lecture_15.py. Read and and run
 it using the run icon at the top of the Python editing panel.
+You should be able to run it by clicking the Python run icon.
 
-More to come. UNDER CONSTRUCTION.
+Find Python Z3 documentation [here](https://ericpony.github.io/z3py-tutorial/guide-examples.htm).
+Then continue to follow instructions for readings and activities
+given elsewhere to continue with this chapter. Return here when
+done.
+
+## Function Terms as Free Variables
+
+We assume you've now seen how to write and "run" basic propositional
+logic and arithmetic constraints, and have seen enough examples to 
+know what it feels like to have Z3 through Python find and report
+solutions to declaratively specified problems. 
+
+## Encoding Problems in SMT for Automated Model Search
+
+TBD, drawing material from the Z3 Python Tutorial.
+
 -/

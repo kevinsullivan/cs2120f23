@@ -70,4 +70,3 @@ print (simplify (And(X, Y, X)))
 X = Int("X")
 Y = Int("Y")
 solve (X > 2, X < 10, Y == X + 1)
-
