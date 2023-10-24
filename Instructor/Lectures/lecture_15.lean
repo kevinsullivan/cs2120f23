@@ -227,13 +227,16 @@ done.
 
 ## Function Terms as Free Variables
 
-We assume you've now seen how to write and "run" basic propositional
+We assume you've now seen how to read, write, and solve propositional
 logic and arithmetic constraints, and have seen enough examples to 
-know what it feels like to have Z3 through Python find and report
-solutions to declaratively specified problems. 
+know what it feels like to have Z3 find solutions without the need
+to write problem-specific procedural code. 
 
 ## Encoding Problems in SMT for Automated Model Search
+Currently as quoted from Z3 Python Tutorial Python files.
+### Cats Mice Dogs 
+### Sudoku
+### Eight Queens
 
-TBD, drawing material from the Z3 Python Tutorial.
 
 -/
