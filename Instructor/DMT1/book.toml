@@ -9,6 +9,7 @@ title = "Discrete Mathematics via Type Theory"
 [output.html]
 additional-css = ["alectryon.css", "pygments.css"]
 additional-js = ["alectryon.js"]
+mathjax-support = true
 
 [output.html.fold]
 enable = true
