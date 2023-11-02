@@ -1,5 +1,60 @@
 /-!
-# Predicate Logic and Proofs: Introduction
+# Predicate Logic
+
+In this chapter we build a bridge from
+representing logical propositions and proofs
+using computational types and values, to the
+logical type universe in Lean, called Prop.
+We'll explain why this can be a good idea as
+we go along.
+
+## Empty : Type becomes False : Prop
+-/
+
+#check Empty
+/-!
+inductive Empty : Type
+-/
+
+#check False
+/-!
+inductive False : Prop
+-/
+
+/-!
+### Computational
+-/
+
+-- we model negation as proof of uninhabiteness
+def no (α : Type) : Type := α → Empty
+
+-- a sensible proofs_of_false type is uninhabited
+inductive something_false : Type
+
+-- proof that proof_of_false is false
+def no_falsity : no something_false  :=
+  λ a => nomatch a
+
+#check no_falsity
+
+/-!
+### Logical
+-/
+
+#check Not
+/-!
+def Not (a : Prop) : Prop := a → False
+-/
+
+
+
+
+/-!
+We first and mainly in this course introduce
+you to predicate logic through its embedding
+as a simple special case in the higher-order
+logic of the Lean prover. We'll explain what
+that means.
 
 You have now understood propositional logic,
 including the properties of an expression being
@@ -150,7 +205,11 @@ out those propositions that should evaluate to true
 
 -/
 
-inductive isFrom : Person → Location → Prop
+inductive IsFrom : Person → Location → Prop
+
+open Person Location IsFrom
+
+#check IsFrom harry dc
 
 
 
