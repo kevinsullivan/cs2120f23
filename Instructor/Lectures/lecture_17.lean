@@ -88,7 +88,8 @@ Once you have such a proof, you can do *case analysis*
 on it: in the first case, you'll have a proof of *P*,
 and in the second case, you'll have a proof of ¬P.
 One has thus excluded the possibility of the "middle"
-case, where one doesn't have a proof either way.-/
+case, where one doesn't have a proof either way.
+-/
 
 /-!
 Now proving X ∨ ¬X is trivial. It follows by a simple
@@ -106,6 +107,23 @@ np, of ¬P. In more detail the cases will be either Or.inl p,
 where (p : P), or Or.inr np, where (np : ¬P). The "middle"
 case, where we don't have a proof either way, is excluded.
 
+Now here's a proposition that seems that it ought to be
+true. It is *classically* true. You can check it using our
+validity checker, with A and B as propositional variables.
+But we struggled to prove it *constructively* (using Lean).
+From a proof of ¬(A ∧ B) (A ∧ B → False), it's impossible
+to derive a proof of ¬A or a proof of ¬B, and we'd need at
+least one of those proofs to prove ¬A ∨ ¬B.
+
+This proposition is thus *not valid* in the constructive
+logic of Lean. No wonder we have trouble proving it. On the
+other hand, it is classically valid; and accepting the law
+of the excluded middle as an axiom puts us back in classical
+reasoning space. Using it, you can get yourself proofs of
+both A ∨ ¬A and B ∨ ¬B, and now it's just a matter of case
+analysis.
+
+HOMEWORK: Complete this proof.
 -/
 
 example (A B : Prop) : ¬(A ∧ B) -> ¬A ∨ ¬B :=
