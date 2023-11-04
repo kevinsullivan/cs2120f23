@@ -3,6 +3,12 @@
 -/
 
 /-!
+
+## Examples
+
+We begin with examples to review and reinforce lessons so far.
+
+### ¬False is Valid
 To prove ¬P, where P is an proposition, prove *Not P*, which
 is to say, prove *P → False*. You can read that logically as
 prove the implication, *P* implies *False*. You can also read
@@ -15,11 +21,13 @@ example : ¬False :=
 λ f => False.elim f
 
 /-!
-Prove the rule of "no contradictions."
+### No Contradiction Rule is Valid
 -/
 example (P : Prop) : ¬(P ∧ ¬P) := λ (⟨ p, np ⟩) => np p
 
 /-!
+
+### Transitivity of Implication is Valid
 Prove the transitivity of implication. Note carefully
 the relationship of this proof to function composition.
 -/
@@ -31,21 +39,21 @@ example (α β γ : Type) : (α → β) → (β → γ) → (α → γ) :=
 fun ab bc => fun a => bc (ab a)
 
 /-!
-Prove rule for distribution of or over and.
+### Or Distributes Over And
 -/
 example (P Q R : Prop) : P ∨ (Q ∧ R) → (P ∨ Q) ∧ (P ∨ R)
 | Or.inl p => ⟨ Or.inl p, Or.inl p ⟩
 | Or.inr ⟨ q, r ⟩ => ⟨ Or.inr q, Or.inr r⟩
 
 /-!
-Prove one of DeMorgan's laws.
+### At least one of DeMorgan's Laws is Valid
 -/
 example (A B : Prop) : ¬A ∨ ¬B → ¬(A ∧ B)
 | Or.inl na => λ ⟨ a, _ ⟩ => na a
 | Or.inr nb => λ ⟨ _, b ⟩ => nb b
 
 /-!
-Law of excluded middle.
+## The Axiom of the Excluded Middle
 -/
 
 /-!
@@ -94,18 +102,23 @@ case, where one doesn't have a proof either way.
 /-!
 Now proving X ∨ ¬X is trivial. It follows by a simple
 application of em to X.
+
+Finally, we've see that if given any proposition, P, and
+the axiom of the excluded middle, you can always obtain
+a proof of P ∨ ¬P for free. The trick is then to do case
+analysis on that proof, with just two cases: Either P is
+true, and you can assume you have a proof, p, of P; or P
+is false, and you can assume you have a proof, np, of ¬P.
+The cases will be either *Or.inl p*, where (p : P), or
+*Or.inr np*, where (np : ¬P). The "middle" case, where we
+don't have a proof either way, is excluded.
 -/
 example : X ∨ ¬X := em X
 
 /-!
-Given any proposition, P, and the axiom of the excluded
-middle, you can always obtain a proof of P ∨ ¬P; then you
-can do case analysis on that proof, with just two cases:
-Either P is true, and you can assume you have a proof, p,
-of P; or P is false, and you can assume you have a proof,
-np, of ¬P. In more detail the cases will be either Or.inl p,
-where (p : P), or Or.inr np, where (np : ¬P). The "middle"
-case, where we don't have a proof either way, is excluded.
+### One of DeMorgan's Laws is *Not* Valid in Lean
+
+##
 
 Now here's a proposition that seems that it ought to be
 true. It is *classically* true. You can check it using our
@@ -113,15 +126,17 @@ validity checker, with A and B as propositional variables.
 But we struggled to prove it *constructively* (using Lean).
 From a proof of ¬(A ∧ B) (A ∧ B → False), it's impossible
 to derive a proof of ¬A or a proof of ¬B, and we'd need at
-least one of those proofs to prove ¬A ∨ ¬B.
+least one of those proofs to prove ¬A ∨ ¬B. This proposition
+is *not valid* in the constructive logic of Lean. No wonder
+we had trouble proving it.
 
-This proposition is thus *not valid* in the constructive
-logic of Lean. No wonder we have trouble proving it. On the
-other hand, it is classically valid; and accepting the law
-of the excluded middle as an axiom puts us back in classical
-reasoning space. Using it, you can get yourself proofs of
-both A ∨ ¬A and B ∨ ¬B, and now it's just a matter of case
-analysis.
+### Use *em* For Classical Reasoning
+
+Accepting the law of the excluded middle as an axiom puts
+us back in classical reasoning space. Using it, you can get
+yourself proofs of both A ∨ ¬A and B ∨ ¬B, and now it's just
+a matter of showing that the proposition is true in each of
+the four resulting cases.
 
 HOMEWORK: Complete this proof.
 -/
