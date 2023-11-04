@@ -15,6 +15,7 @@
 - [Lecture 13](./Lectures/lecture_13.lean.md)
 - [Lecture 14](./Lectures/lecture_14.lean.md)
 - [Lecture 15](./Lectures/lecture_15.lean.md)
+- [Lecture 16](./Lectures/lecture_16.lean.md)
 - [Lecture 17](./Lectures/lecture_17.lean.md)
 - [Homework #2](./Homework/hw2.lean.md)
 - [Homework #3](./Homework/hw3.lean.md)
