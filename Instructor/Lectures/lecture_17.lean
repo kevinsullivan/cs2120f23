@@ -8,38 +8,66 @@
 
 We begin with examples to review and reinforce lessons so far.
 
-### ¬False is Valid
-To prove ¬P, where P is an proposition, prove *Not P*, which
-is to say, prove *P → False*. You can read that logically as
-prove the implication, *P* implies *False*. You can also read
-it as saying, construct a function of this type, which would
-convert any proof of *P* into a proof of *False*. There is no
-such proof of False, so in this context there can be no proof
-of P.
+### ¬False is Valid (True Under Any Interpretation)
+
+This example will teach and reinforce the idea that, to prove
+¬P, for any proposition P, you show that an assumed proof of
+P leads to a contradiction (a proof of False). Formally, you
+show P → False (by implementing a function of this type), from
+which it follows that P is uninhabited (there is assuredly no
+proof).
 -/
 example : ¬False :=
 λ f => False.elim f
 
+
 /-!
-### No Contradiction Rule is Valid
+### The *No Contradiction* Rule is Valid
+
+This example teaches and reinforces the idea that a proof,
+np, of a proposition, ¬P, works like a function, namely one
+that takes a proof of P as an assumed argument, and that in
+this context constructs and returns a proof of False. The
+upshot is that if you have in your context both a proof, p,
+of some proposition, P, and a proof, np, of ¬P, then you
+have both a function, np: P → false, and an argument, p : P,
+from which you can derive a proof of False by applying np
+to p: (np p).
 -/
-example (P : Prop) : ¬(P ∧ ¬P) := λ (⟨ p, np ⟩) => np p
+example (P : Prop) : ¬(P ∧ ¬P) :=
+λ (⟨ p, np ⟩) =>
+  np p
+
 
 /-!
-
 ### Transitivity of Implication is Valid
 Prove the transitivity of implication. Note carefully
 the relationship of this proof to function composition.
 -/
 example (P Q R : Prop) : (P → Q) → (Q → R) → (P → R) :=
-fun pq qr => fun p => qr (pq p)
+fun pq qr =>
+  fun p =>
+    qr (pq p)
 
--- Here it is in Type, from Homework #3
+-- Here it is in Type, as function composition from HW#3
 example (α β γ : Type) : (α → β) → (β → γ) → (α → γ) :=
-fun ab bc => fun a => bc (ab a)
+fun ab bc =>
+  fun a =>
+    bc (ab a)
 
 /-!
 ### Or Distributes Over And
+
+This example emphasizes how one reasons when given an
+assumption that some disjunction is true: it's by case
+analysis. There are two different ways in which that
+assumed disjunction could be true, and you need to show
+that the conclusion follows *in either case*. So first
+you assume the first case holds, and show the conclusion
+follows, then you assume the second case and show that
+the conclusion still follows. Therefore the conclusion
+follows in either case. Of course in general you might
+have to do additional complex reasoning for each case.
 -/
 example (P Q R : Prop) : P ∨ (Q ∧ R) → (P ∨ Q) ∧ (P ∨ R)
 | Or.inl p => ⟨ Or.inl p, Or.inl p ⟩
@@ -47,41 +75,48 @@ example (P Q R : Prop) : P ∨ (Q ∧ R) → (P ∨ Q) ∧ (P ∨ R)
 
 /-!
 ### At least one of DeMorgan's Laws is Valid
+
+This example reinforces the idea that if you have to
+return a proof of a negation, ¬X, what you really have
+to return is a function of type X → False. Note that
+the return values here are lambda expressions.
 -/
 example (A B : Prop) : ¬A ∨ ¬B → ¬(A ∧ B)
-| Or.inl na => λ ⟨ a, _ ⟩ => na a
-| Or.inr nb => λ ⟨ _, b ⟩ => nb b
+| Or.inl na =>
+  λ ⟨ a, _ ⟩ => na a
+| Or.inr nb =>
+  λ ⟨ _, b ⟩ => nb b
 
 /-!
-## The Axiom of the Excluded Middle
+## The Law of the Excluded Middle as an Independent Axiom
 -/
 
 /-!
 Unlike in classical (e.g., propositional) logic, where
 the proposition, X ∨ ¬X is *valid*, it's is not valid in
-the *constructive* logic of the Lean prover.
+the *constructive* logic of the Lean prover. Before you
+go on, remind yourself of why it's valid in propositional
+logic. Answer: it's by case analysis on possible values of
+X.
 
-In classical logic (propositional and first-order predicate
-logic, given any *proposition*, P, we can always obtain a
-*proof* of the proposition, *P ∨ ¬P. In propositional logic
-it comes from the Boolean algebraic values and functions we
-use to represent logical operations. In first-order predicate
-logic, it's an axiom. It's called the *law of the excluded
-middle*, though it'd better be called an axiom, assumed to
-be true.
+In classical (propositional, first-order predicate) logic,
+given any *proposition*, P, P is either true or it is false,
+and in either case P ∨ ¬P is true, and so it's also *valid*.
+This principle of logical reasoning is called *the law of
+the excluded middle*.
 
-In the constructive predicate logic of Lean, however, and at
-first shockingly, the proposition, X ∨ ¬X is not valid. One
-need only remember that there are only two ways to construct
-a proof of an *Or* proposition (a *disjunction*) in our logic:
-with a proof of *X* or a proof of *¬X*. If we don't have either
-proof, we can't provei *X ∨ ¬X*.
+In the constructive predicate logic of Lean, however, X ∨ ¬X
+is not valid. Why? There are only two ways to construct a proof
+of a *disjunction*: either giving a proof of *X* or giving a
+proof of *¬X*. We don't have either to start with, so there's
+no way to proceed.
 -/
 example : X ∨ ¬X := _   -- no proof; not *constructively valid*
 
 /-!
 We can however, add the law of the excluded middle,
-as a new *axiom*, to Lean, as follows.
+as a new *axiom*, to the constructive logic of Lean, as
+follows.
 -/
 axiom em (P : Prop): P ∨ ¬ P
 /-!
