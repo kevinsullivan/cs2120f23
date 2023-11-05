@@ -1,23 +1,23 @@
 /-!
 # Model Finders and Counterexample Generators
 
-The main topic of this chapter is model and 
+The main topic of this chapter is model and
 counterexample generation: given a proposition
 in propositional logic, find models if there are
 any, and similarly find counterexamples if there
-are any. 
+are any.
 
 We'll begin by generalizing some patterns we've
 been seeing in functions that handle lists. The
 first section introduces and illustrates the use
-of List map, foldr, and filter functions. 
+of List map, foldr, and filter functions.
 
-Second, we'll see that with these functions in 
-hand and a better understanding of recursion, we 
+Second, we'll see that with these functions in
+hand and a better understanding of recursion, we
 can improve our propositional logic satisfiability
 checking functions.
 
-Finally, we will introduce the concept of a model 
+Finally, we will introduce the concept of a model
 finder for expressions in propositional logic, also
 known as a *SAT solver*, and see how that idea can
 also provide a way to generate counterexamples to
@@ -30,7 +30,7 @@ propositions that are not always true.
 The *List.map* function, converts a list of α terms,
 into a list of corresponding β values by applying a
 given function, *f : α → β*, to each α in turn. E.g.,
-*map (λ (s : String) => s.length) ["Hello", "Lean"]* 
+*map (λ (s : String) => s.length) ["Hello", "Lean"]*
 returns *[5, 4]*.
 
 Here's the type of List.map in the Lean libraries.
@@ -54,11 +54,11 @@ takes any number of arguments, in a list. As an example, our
 to just one, indicating whether the list has at least one true
 value, is simply an n-ary extension of *or*. Applying such an
 n-ary operation on no arguments (an empty list) simply returns
-the identity element (base case value).  
+the identity element (base case value).
 -/
 
 
-#check @List.foldr 
+#check @List.foldr
 
 #eval List.foldr Nat.add 0 [1,2,3,4,5]  -- expect 15
 #eval List.foldr Nat.mul 0 [1,2,3,4,5]  -- expect 120, oops!
@@ -70,7 +70,7 @@ the identity element (base case value).
 -/
 
 /-!
-The *List.filter* function takes a list, *l* of α values, and an α → Bool 
+The *List.filter* function takes a list, *l* of α values, and an α → Bool
 predicate function that indicates whether a given α value has a particular
 property, and returns the sublist of α values in l that have property, *p*.
 -/
@@ -103,18 +103,18 @@ inductive binary_op : Type
 | iff
 
 inductive Expr : Type
-| true_exp 
-| false_exp 
+| true_exp
+| false_exp
 | var_exp (v : var)
 | un_exp (op : unary_op) (e : Expr)
 | bin_exp (op : binary_op) (e1 e2 : Expr)
 
 notation "{"v"}" => Expr.var_exp v
-prefix:max "¬" => Expr.un_exp unary_op.not 
-infixr:35 " ∧ " => Expr.bin_exp binary_op.and  
-infixr:30 " ∨ " => Expr.bin_exp binary_op.or 
+prefix:max "¬" => Expr.un_exp unary_op.not
+infixr:35 " ∧ " => Expr.bin_exp binary_op.and
+infixr:30 " ∨ " => Expr.bin_exp binary_op.or
 infixr:25 " ⇒ " =>  Expr.bin_exp binary_op.imp
-infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff 
+infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff
 notation " ⊤ " => Expr.top_exp
 notation " ⊥ " => Expr.bot_exp
 
@@ -140,10 +140,10 @@ def eval_bin_op : binary_op → (Bool → Bool → Bool)
 | binary_op.imp => implies
 | binary_op.iff => iff
 
-def Interp := var → Bool 
+def Interp := var → Bool
 
 -- main semantic evaluation function
-def eval_expr : Expr → Interp → Bool 
+def eval_expr : Expr → Interp → Bool
 | Expr.true_exp,           _ => true
 | Expr.false_exp,          _ => false
 | (Expr.var_exp v),        i => i v
@@ -155,27 +155,27 @@ def eval_expr : Expr → Interp → Bool
 /-!
 ## Satisfiability Properties
 
-Next we present an improved version of or code for checking of 
-expressions for validity, satisfiability, and unsatisfiability. 
+Next we present an improved version of or code for checking of
+expressions for validity, satisfiability, and unsatisfiability.
 
 One significant enhancement, suggested by Mikhail, is replacement
-of our rather ponderous approach to generating the input sides of 
+of our rather ponderous approach to generating the input sides of
 truth tables with a single recursive function. We also use our new
 map, filter, and reduce functions to replace numerous specialized
-instances. 
+instances.
 
-### Truth Table Input Rows 
+### Truth Table Input Rows
 
 We had previousl developed an explanatory but ponderous approach to
 generating a list of of all lists of boolean input rows. The idea was
 to treat the each (input) row as a binary expansion of the row index
-(a lit of bit), convert bits to bools, and add padding on the left. 
+(a lit of bit), convert bits to bools, and add padding on the left.
 Mikhail noticed that we could replace it all with a single recursive
-function. 
+function.
 
 Exercise: Study this function definition until you understand fully
 how it works. Along the way, use it to generate a few outputs then
-inspect them to be sure you know what the function does. Figure out 
+inspect them to be sure you know what the function does. Figure out
 the recursion works to the point you're confident you could write the
 code yourself. To test yourself, erase the implementation then write
 it again.
@@ -184,7 +184,7 @@ it again.
 -- Mikhail
 def make_bool_lists: Nat → List (List Bool)
 | 0 => [[]]
-| n' + 1 =>  (List.map (fun L => false::L) (make_bool_lists n')) ++ 
+| n' + 1 =>  (List.map (fun L => false::L) (make_bool_lists n')) ++
              (List.map (fun L => true::L) (make_bool_lists n'))
 -- REVIEW
 
@@ -194,7 +194,7 @@ def make_bool_lists: Nat → List (List Bool)
 #eval make_bool_lists 3
 
 /-!
-#### Bool List to/from Interpretation Function 
+#### Bool List to/from Interpretation Function
 
 Given a list of *n* Boolean values, [b₀, ..., bₙ₋₁], we have to
 be able to turn it into an *interpretation* function, so that we
@@ -204,14 +204,14 @@ each vᵢ means (var.mk i).
 
 Our approach will be to start with a given interpretation (such
 as the *all false* interpretation) and then for each *bᵢ* in the
-list of Booleans, we will iteratively *override* the function so 
+list of Booleans, we will iteratively *override* the function so
 that when it's used to evaluate the value of *vᵢ* it will return
 *bᵢ*.
 -/
 
 -- Function override
 def override : Interp → var → Bool → Interp
-| old_interp, var, new_val => 
+| old_interp, var, new_val =>
   (λ v => if (v.n == var.n)     -- when applied to var
           then new_val          -- return new value
           else old_interp v)  -- else retur old value
@@ -225,7 +225,7 @@ where bools_to_interp_helper : (vars : Nat) → (vals : List Bool) → Interp
   | vars, h::t =>
     let len := (h::t).length
     -- override recursively computed interp mapping variable to head bool
-    override (bools_to_interp_helper vars t) (var.mk (vars - len)) h 
+    override (bools_to_interp_helper vars t) (var.mk (vars - len)) h
 
 /-!
 To think about: smells like some kind of fold. Iteratively combine
@@ -249,14 +249,14 @@ def interp_to_list_bool : (num_vars : Nat) → Interp →  List Bool
 | (n' + 1) , i => interp_to_list_bool n' i ++ [(i (var.mk n'))]
 
 -- From number of variables, list of interpretations, to list of Bool lists
-def interps_to_list_bool_lists : Nat → List Interp → List (List Bool) 
+def interps_to_list_bool_lists : Nat → List Interp → List (List Bool)
 | vars, is => List.map (interp_to_list_bool vars) is
 
 /-!
 #### Maximum Variable Index in Expression
 
 We will consider the number of variables to include in a truth
-table for a given expression to be the one plus the zero-based 
+table for a given expression to be the one plus the zero-based
 index of the highest-indexed variable in any given expression.
 For example, if an expression uses only *v₉* explicitly we will
 consider it to use all ten variables, *v₀* to *v₉* inclusive.
@@ -267,7 +267,7 @@ def max_variable_index : Expr → Nat
   | Expr.false_exp => 0
   | Expr.var_exp (var.mk i) => i
   | Expr.un_exp _ e => max_variable_index e
-  | Expr.bin_exp _ e1 e2 => max (max_variable_index e1) (max_variable_index e2) 
+  | Expr.bin_exp _ e1 e2 => max (max_variable_index e1) (max_variable_index e2)
 
 
 /-!
@@ -278,20 +278,20 @@ of the highest-indexed variable in the expression, plus one to
 account for the usual zero-based indexing.
 -/
 
-def num_vars : Expr → Nat := λ e => max_variable_index e + 1                    
+def num_vars : Expr → Nat := λ e => max_variable_index e + 1
 
 /-!
 #### From Expression to List of Interpretations
 
 Given an expression, we compute the number, *n*, of variables it
 uses then we generate a list of all *2^n* interpretation functions
-for it. Note that we just eliminate a whole raft of ponderous code 
-with a single clever recursive function, thanks to Mikhail.  
- 
+for it. Note that we just eliminate a whole raft of ponderous code
+with a single clever recursive function, thanks to Mikhail.
+
 -/
 -- Number of variables to interpretations list using Mikhail's code
 def mk_interps_vars : Nat → List Interp
-| n => List.map bool_list_to_interp (make_bool_lists n) 
+| n => List.map bool_list_to_interp (make_bool_lists n)
 
 -- From expression to a list of interpretations for it
 def mk_interps_expr : Expr → List Interp
@@ -305,8 +305,8 @@ with a single line of code using List.map. The resulting list of
 Boolean values should reflect the values of the given expression
 under each interpretation in the list of interpretations. You will
 use map to convert a list of interpretations (for e) into a list of
-Boolean values. 
--/ 
+Boolean values.
+-/
 
 -- The column of truth table outputs for e
 def truth_table_outputs' : Expr → List Bool
@@ -341,7 +341,7 @@ def reduce_and := List.foldr and true
 
 Finally we can define the API we want to provide for checking
 arbitrary propositional logic expressions for their satisfiability
-properties: for being satisfiable, valid, or unsatisfiable. 
+properties: for being satisfiable, valid, or unsatisfiable.
 -/
 
 def is_sat (e : Expr) : Bool := reduce_or (truth_table_outputs e)
@@ -354,11 +354,11 @@ def is_unsat (e : Expr) : Bool := not (is_sat e)
 
 We now turn to the third and last major topic in this chapter.
 Given a propositional logic expression, *e*, a model finder finds
-a model of *e* if there is one. It returns either a model of e if 
-there is one or a signal that there isn't one. 
+a model of *e* if there is one. It returns either a model of e if
+there is one or a signal that there isn't one.
 
 To return either a model if there is one or a signal that there
-isn't one, we could use a sum type: either a model on the left or 
+isn't one, we could use a sum type: either a model on the left or
 Unit.unit on the right to signal that there is no model.
 -/
 
@@ -366,7 +366,7 @@ def SomeInterpOrNone := Interp ⊕ Unit   -- NB: this is a *type*
 
 /-!
 A better solution is to use the standard polymorphic Option type.
-Its two constructors are *some α* and *none*. The first is used 
+Its two constructors are *some α* and *none*. The first is used
 to construct an option carrying a value, (a : α). The second is
 used (in lieu of *Sum.inr Unit.unit*) to indicate that there's no
 value to provide.
@@ -381,7 +381,7 @@ def o2 := @Option.none Bool -- need to make type argument explicit
 
 /-!
 Here's the main API for our model finder. Given an expression, *e*,
-return *some m*, *m* a model of *e* if there is one, or *none* if not. 
+return *some m*, *m* a model of *e* if there is one, or *none* if not.
 -/
 #check @Option
 
@@ -395,7 +395,7 @@ where find_model_helper : List Interp → Expr → Option Interp
 
 -- REVIEW
 
--- Utility: convert a "Option model" into a list of Bools, empty for none 
+-- Utility: convert a "Option model" into a list of Bools, empty for none
 def some_model_or_none_to_bools : SomeInterpOrNone → (num_vars : Nat) → List Bool
 | Sum.inl i, n => interp_to_list_bool n i
 | Sum.inr _, _ => []
@@ -413,13 +413,13 @@ by generating an exhaustive list of all interpretations
 then filtering them to save those that make *e* true.
 -/
 
-def find_models (e : Expr) := 
-  List.filter                 -- filter on 
+def find_models (e : Expr) :=
+  List.filter                 -- filter on
     (λ i => eval_expr e i)    -- i makes e true
     (mk_interps_expr e)       -- over all interps
 
 
--- Render models of e : Expr as List of Bool Lists (num_vars e long) 
+-- Render models of e : Expr as List of Bool Lists (num_vars e long)
 def find_models_bool : Expr → List (List Bool)
 | e =>  interps_to_list_bool_lists (num_vars e) (find_models e)
 
@@ -437,14 +437,14 @@ def count_models := List.length ∘ find_models
 /-!
 ### Counter-Example Generator
 
-More interesting, and oft used, is *counter-example finding*. When 
-we say we want to *disprove* a proposition, mean is that we want to 
+More interesting, and oft used, is *counter-example finding*. When
+we say we want to *disprove* a proposition, mean is that we want to
 show that it's not *valid*: that there's at least one interpretation
 that makes the proposition is false. If that is so, then it makes the
 negation of the proposition true. Counterexamples, if there are any,
 are models of the negation of a propositio; and we now know how to
 find such models using our model finder. Defining a counter-example
-finder is thus trivial. 
+finder is thus trivial.
 -/
 
 def find_counterexamples (e : Expr) := find_models (¬e)
@@ -466,13 +466,13 @@ def Z := {var.mk 2}
 #eval List.foldr and true (truth_table_outputs (X ∧ Y))
 
 /-!
-Is it true that if X being true makes Y true, then does X being 
+Is it true that if X being true makes Y true, then does X being
 false make Y false?
 -/
 
 #check ((X ⇒ Y) ⇒ (¬X ⇒ ¬Y))
-#eval is_valid ((X ⇒ Y) ⇒ (¬X ⇒ ¬Y))    
-#reduce find_counterexamples_bool ((X ⇒ Y) ⇒ (¬X ⇒ ¬Y)) 
+#eval is_valid ((X ⇒ Y) ⇒ (¬X ⇒ ¬Y))
+#reduce find_counterexamples_bool ((X ⇒ Y) ⇒ (¬X ⇒ ¬Y))
 #reduce (implies (implies false true) (implies true false))
 
 /-!
@@ -481,8 +481,8 @@ then does Y being false imply X is false?
 -/
 
 #check ((X ⇒ Y) ⇒ (¬Y ⇒ ¬X))
-#eval is_valid ((X ⇒ Y) ⇒ (¬Y ⇒ ¬X))    
-#reduce find_counterexamples_bool ((X ⇒ Y) ⇒ (¬Y ⇒ ¬X)) 
+#eval is_valid ((X ⇒ Y) ⇒ (¬Y ⇒ ¬X))
+#reduce find_counterexamples_bool ((X ⇒ Y) ⇒ (¬Y ⇒ ¬X))
 
 
 /-!
@@ -509,13 +509,13 @@ Search for models  (returns list of functions)
 
 
 
-/-! 
+/-!
 Search for models (returns list of list of bools)
--/ 
+-/
 
 #eval find_models_bool (X ∧ ¬ X)                     -- []
 #eval find_models_bool (X ∨ ¬ X)                     -- [[false], [true]
-#eval find_models_bool (X ∧ Y)                       -- [[true, true]]  
+#eval find_models_bool (X ∧ Y)                       -- [[true, true]]
 #eval find_models_bool (¬(X ∧ Y) ⇒ ¬X ∨ ¬Y)          -- all four interps
 #eval find_models_bool ((X ⇒ Y) ⇒ (Y ⇒ Z) ⇒ (X ⇒ Z)) -- all eight interps
 
@@ -528,5 +528,5 @@ Forthcoming:
 - Expand make_bool_lists applied to values 0-3.
 - Validate a list of standard inference rules.
 - Find the Fallacies, Explain Counterexamples.
-- Replace ponderous function definition using map. 
+- Replace ponderous function definition using map.
 -/
