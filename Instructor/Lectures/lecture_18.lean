@@ -166,7 +166,7 @@ even length strings.
 
 (3) Define a predicate, str_eq_len, applicable to any
 String value, s, and to any Nat value, n, that is satisfied
-exactly in those cases where s.length equals n.
+just in those cases where s.length equals n.
 
 (4) Define str_eq_lens : set String × Nat, to be the *set*
 of all ordered pairs, p = ⟨ s, n ⟩, such that n = s.length.
@@ -175,5 +175,6 @@ of all ordered pairs, p = ⟨ s, n ⟩, such that n = s.length.
 that ⟨ "I love Logic!", 13 ⟩ ∈ str_eq_lens.
 
 (6) Use "example" again to state and prove the proposition,
-⟨ "Lean!", 1 ⟩ ∉ str_eq_lens.
+⟨ "Lean!", 1 ⟩ ∉ str_eq_lens. Yes, that's shorthand notation
+for ¬ ⟨ "Lean!", 1 ⟩ ∈ str_eq_lens.
 -/
