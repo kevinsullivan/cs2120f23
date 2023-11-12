@@ -126,6 +126,33 @@ def square_pairs : Set (Nat × Nat) := { p : Nat × Nat | square_pair p }
 #reduce (3, 9) ∈ square_pairs
 
 /-!
+Here it is again but with two arguments rather than one pair.
+This material is new relative to that presented in class. Take
+an extra few minutes to study the precise differences in syntax
+and sense between these two examples. In one, separate arguments
+are packed into pairs, whereas in the second, they're not. They're
+disaggregated.
+-/
+def square_pair' : Nat → Nat → Prop
+| n1, n2 => n2 = n1^2
+
+#reduce square_pair' 1 1   -- ✓
+#reduce square_pair' 2 4   -- ✓
+#reduce square_pair' 3 9   -- ✓
+#reduce square_pair' 5 20  -- ×
+
+def square_pairs' : Set (Nat × Nat) := { p : Nat × Nat | square_pair' p.1 p.2 }
+#reduce square_pairs
+#reduce (3, 9) ∈ square_pairs
+
+/-!
+When we specify multi-argument predicates our practice
+is to present the arguments one by one in disaggregated
+form. Among other things we can then more easily partially
+evaluate the function on any one of its actual parameters.
+-/
+
+/-!
 #### Pythagorean triples
 -/
 
@@ -139,57 +166,59 @@ def py_trips : Set (Nat × Nat × Nat) := { t | t.1^2 = t.2.1^2 + t.2.2^2}
 #reduce py_trips (5,4,3)
 
 /-!
-### Exercises
+## Homework
 
-- Write a predicate for the property of being an even-length string
-- Write an expression for the set of all even length strings
+(1) Define a predicate, ev_len_str, expressing the property
+of a string of being of an even-length.
 -/
 
-def ev_len (s : String) : Prop := is_even (s.length)
-#reduce ev_len "Hello!"
+-- Here
 
-def ev_len_strs : Set String := { s | is_even (s.length) }
 
-def one_and_two : Set Nat := { n | n = 1 ∨ n = 2}
-#reduce 3 ∈ one_and_two
 
-/-!
-## Quantifiers
-
-Quantifiers are part of the syntax of predicate logic. They allow one
-to assert that every object (∀) of some type has some property, or that
-there exists (∃) (there is) at least one object of a given type with a
-specified property. The syntax of such propositions is as follows:
-
-- ∀ (x : T), P x
-- ∃ (x : T), P x
-
--- Every dog is friendly
-
--- ∀ (d : Dog), Friendly d
--- ∀ (p q : Person), Loves p q
--- ∀ (p : P), ∃ (q : Person), Loves p q
-
-### Universal Quantification
-
-The first proposition can be read as asserting that every value *x* of
-type *T* satisfies predicate *P*. Another way to say this is that for
-every *x* there is a proof of the proposition, *P x*. Another way to
-say that is that there's a function that when given any *x* returns a
-proof of *P x*. Indeed, that's how we prove such a proposition: show
-that if given any *x* you can produce and return a proof of *P x*.
+/-
+(2) Use #check to typecheck an expression for the set of all
+even length strings.
 -/
 
-/-!
-### ∀ (for all)
--/
-def zornz (n : Nat) : n = 0 ∨ n ≠ 0 :=
-match n with
-  | 0       => Or.inl rfl   -- proves an equality
-  | n' + 1  => Or.inr (fun _ => nomatch n')
+-- Here
 
-/-!
-### ∃ (there exists)
+
+
+/-
+(3) Define a predicate, str_eq_len, applicable to any
+String value, s, and to any Nat value, n, that is satisfied
+just in those cases where s.length equals n.
 -/
 
-def sl5 : ∃ (s : String), s.length = 5 := ⟨"Hello", rfl ⟩
+-- Here
+
+
+
+/-
+(4) Define str_eq_lens : set String × Nat, to be the *set*
+of all ordered pairs, p = ⟨ s, n ⟩, such that n = s.length.
+-/
+
+-- Here
+
+
+
+/-
+(5) Use "example" in Lean to state and prove the proposition
+that ⟨ "I love Logic!", 13 ⟩ ∈ str_eq_lens.
+-/
+
+-- Here
+
+
+
+
+/-
+(6) Use "example" in Lean again to state and prove that
+⟨ "I love Logic!", 1 ⟩ ∉ str_eq_lens. That's shorthand
+notation for ¬("I love Logic!", 1⟩ ∈ str_eq_lens. And you
+know what that means.
+-/
+
+-- Here
