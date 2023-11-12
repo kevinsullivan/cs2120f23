@@ -36,6 +36,9 @@ Here's our simple example reformulated.
 -/
 
 def is_even : Nat → Prop := λ n => n % 2 = 0
+#check is_even 4
+#reduce is_even 4
+#check is_even 5
 
 /-!
 You can see that is_even is a predicate by checking its type.
@@ -117,8 +120,9 @@ def square_pair : Nat × Nat → Prop
 #reduce square_pair (3, 9)   -- ✓
 #reduce square_pair (5, 20)  -- ×
 
-def square_pairs : Set (Nat × Nat) := { p : Nat × Nat | square_pair (p.1, p.2) }
-#reduce square_pairs
+def square_pairs : Set (Nat × Nat) := { p : Nat × Nat | square_pair p }
+#reduce square_pairs (3, 9)
+#reduce square_pairs (3, 10)
 #reduce (3, 9) ∈ square_pairs
 
 /-!
@@ -128,12 +132,26 @@ def square_pairs : Set (Nat × Nat) := { p : Nat × Nat | square_pair (p.1, p.2)
 def pythagorean_triple : Nat → Nat → Nat → Prop
 | h, x, y => h^2 = x^2 + y^2
 
+#reduce pythagorean_triple 5 4 3
+
+def py_trips : Set (Nat × Nat × Nat) := { t | t.1^2 = t.2.1^2 + t.2.2^2}
+
+#reduce py_trips (5,4,3)
+
 /-!
 ### Exercises
 
 - Write a predicate for the property of being an even-length string
 - Write an expression for the set of all even length strings
 -/
+
+def ev_len (s : String) : Prop := is_even (s.length)
+#reduce ev_len "Hello!"
+
+def ev_len_strs : Set String := { s | is_even (s.length) }
+
+def one_and_two : Set Nat := { n | n = 1 ∨ n = 2}
+#reduce 3 ∈ one_and_two
 
 /-!
 ## Quantifiers
@@ -145,6 +163,12 @@ specified property. The syntax of such propositions is as follows:
 
 - ∀ (x : T), P x
 - ∃ (x : T), P x
+
+-- Every dog is friendly
+
+-- ∀ (d : Dog), Friendly d
+-- ∀ (p q : Person), Loves p q
+-- ∀ (p : P), ∃ (q : Person), Loves p q
 
 ### Universal Quantification
 

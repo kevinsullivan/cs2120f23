@@ -200,8 +200,14 @@ of the four resulting cases.
 HOMEWORK: Complete this proof.
 -/
 
+#check em
+
 example (A B : Prop) : ¬(A ∧ B) -> ¬A ∨ ¬B :=
 λ nab =>
 let proof_of_aornota := em A
 let proof_of_bornotb := em B
-_
+match proof_of_aornota with
+| Or.inl a => match proof_of_bornotb with
+              | Or.inl b => False.elim (nab (And.intro a b))
+              | Or.inr nb => Or.inr nb
+| Or.inr na => Or.inl na
