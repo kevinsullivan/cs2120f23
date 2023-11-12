@@ -1,7 +1,7 @@
 import Mathlib.Init.Set
 
 /-!
-## Predicates
+# Predicates
 
 You've seen that in predicate logic, a proposition is a
 declarative statement that asserts that some state of affairs
@@ -13,10 +13,10 @@ way to formalize such a proposition using the mod operator.
 #check 4 % 2 = 0
 
 /-!
-### Families of Propositions
+## Families of Propositions
 
 Indeed, there is an infinite family of propositions, all just
-like this one except for the particular number we plug in instead
+like this on~`e except for the particular number we plug in instead
 of four. As another example, *the natural number, five, is even*
 is also a proposition. And there's one such proposition for each
 and every natural number.
@@ -49,7 +49,7 @@ zero. The type of our predicate is thus *Nat → Prop*.
 #check (is_even)      -- Nat → Prop
 
 /-!
-### Applying a Predicate to Arguments Yields a Proposition
+## Applying a Predicate to Arguments Yields a Proposition
 
 Given a predicate we derive a proposition by *applying* it to one
 or more arguments of the specified types. The *is_even* predicate
@@ -65,14 +65,14 @@ with simpler propositions involving just 0 and 1.
 -/
 
 /-!
-### To Satisfy a Predicate
+## To Satisfy a Predicate
 We will say that specific parameter values *satisfy* a predicate
 if they yield a proposition that is true. In a sense, a proposition
 thus specifies a *property* (such as that of being even) that a value
 might or might not have. For example, four has the property of being
 even but five doesn't.
 
-### Predicates Specify Properties
+## Predicates Specify Properties
 
 In this way a predicate picks out the subset of parameter values with
 a specified *property*. As an example, we can make a list of natural
@@ -103,13 +103,13 @@ def evens : Set Nat := { n | is_even n }
 
 
 /-!
-### Predicates of Multiple Arguments
+## Predicates of Multiple Arguments
 
 Predicates can take any number of arguments. Here are some examples.
 -/
 
 /-!
-#### Ordered pairs of numbers and their squares
+### Ordered pairs of numbers and their squares
 -/
 
 def square_pair : Nat × Nat → Prop
@@ -153,7 +153,7 @@ evaluate the function on any one of its actual parameters.
 -/
 
 /-!
-#### Pythagorean triples
+### Pythagorean triples
 -/
 
 def pythagorean_triple : Nat → Nat → Nat → Prop
