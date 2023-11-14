@@ -166,9 +166,6 @@ def pythagorean_triple : Nat → Nat → Nat → Prop
 - Write an expression for the set of all even length strings
 -/
 
-
-
-
 /-!
 ## Quantifiers
 
