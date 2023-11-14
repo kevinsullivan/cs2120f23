@@ -1,7 +1,7 @@
 import Mathlib.Init.Set
 
 /-!
-## Predicates
+# Predicates
 
 You've seen that in predicate logic, a proposition is a
 declarative statement that asserts that some state of affairs
@@ -13,10 +13,10 @@ way to formalize such a proposition using the mod operator.
 #check 4 % 2 = 0
 
 /-!
-### Families of Propositions
+## Families of Propositions
 
 Indeed, there is an infinite family of propositions, all just
-like this one except for the particular number we plug in instead
+like this on~`e except for the particular number we plug in instead
 of four. As another example, *the natural number, five, is even*
 is also a proposition. And there's one such proposition for each
 and every natural number.
@@ -36,6 +36,9 @@ Here's our simple example reformulated.
 -/
 
 def is_even : Nat → Prop := λ n => n % 2 = 0
+#check is_even 4
+#reduce is_even 4
+#check is_even 5
 
 /-!
 You can see that is_even is a predicate by checking its type.
@@ -46,7 +49,7 @@ zero. The type of our predicate is thus *Nat → Prop*.
 #check (is_even)      -- Nat → Prop
 
 /-!
-### Applying a Predicate to Arguments Yields a Proposition
+## Applying a Predicate to Arguments Yields a Proposition
 
 Given a predicate we derive a proposition by *applying* it to one
 or more arguments of the specified types. The *is_even* predicate
@@ -62,14 +65,14 @@ with simpler propositions involving just 0 and 1.
 -/
 
 /-!
-### To Satisfy a Predicate
+## To Satisfy a Predicate
 We will say that specific parameter values *satisfy* a predicate
 if they yield a proposition that is true. In a sense, a proposition
 thus specifies a *property* (such as that of being even) that a value
 might or might not have. For example, four has the property of being
 even but five doesn't.
 
-### Predicates Specify Properties
+## Predicates Specify Properties
 
 In this way a predicate picks out the subset of parameter values with
 a specified *property*. As an example, we can make a list of natural
@@ -100,13 +103,13 @@ def evens : Set Nat := { n | is_even n }
 
 
 /-!
-### Predicates of Multiple Arguments
+## Predicates of Multiple Arguments
 
 Predicates can take any number of arguments. Here are some examples.
 -/
 
 /-!
-#### Ordered pairs of numbers and their squares
+### Ordered pairs of numbers and their squares
 -/
 
 def square_pair : Nat × Nat → Prop
@@ -117,20 +120,45 @@ def square_pair : Nat × Nat → Prop
 #reduce square_pair (3, 9)   -- ✓
 #reduce square_pair (5, 20)  -- ×
 
-def square_pairs : Set (Nat × Nat) := { p : Nat × Nat | square_pair (p.1, p.2) }
+def square_pairs : Set (Nat × Nat) := { p : Nat × Nat | square_pair p }
+#reduce square_pairs (3, 9)
+#reduce square_pairs (3, 10)
+#reduce (3, 9) ∈ square_pairs
+
+/-!
+Here it is again but with two arguments rather than one pair.
+This material is new relative to that presented in class. Take
+an extra few minutes to study the precise differences in syntax
+and sense between these two examples. In one, separate arguments
+are packed into pairs, whereas in the second, they're not. They're
+disaggregated.
+-/
+def square_pair' : Nat → Nat → Prop
+| n1, n2 => n2 = n1^2
+
+#reduce square_pair' 1 1   -- ✓
+#reduce square_pair' 2 4   -- ✓
+#reduce square_pair' 3 9   -- ✓
+#reduce square_pair' 5 20  -- ×
+
+def square_pairs' : Set (Nat × Nat) := { p : Nat × Nat | square_pair' p.1 p.2 }
 #reduce square_pairs
 #reduce (3, 9) ∈ square_pairs
 
 /-!
-#### Pythagorean triples
+When we specify multi-argument predicates our practice
+is to present the arguments one by one in disaggregated
+form. Among other things we can then more easily partially
+evaluate the function on any one of its actual parameters.
+-/
+
+/-!
+### Pythagorean triples
 -/
 
 def pythagorean_triple : Nat → Nat → Nat → Prop
 | h, x, y => h^2 = x^2 + y^2
 
-def py_trips : Set (Nat × Nat × Nat) := { t | t.1^2 = t.2.1^2 + t.2.2^2 }
-
-#reduce py_trips (5,4,3)
 /-!
 ### Exercises
 
@@ -138,10 +166,6 @@ def py_trips : Set (Nat × Nat × Nat) := { t | t.1^2 = t.2.1^2 + t.2.2^2 }
 - Write an expression for the set of all even length strings
 -/
 
-def ev_len (s:String) : Prop := is_even (s.length)
-#reduce ev_len "hello!"
-
-def ev_len_strs : Set String := {s | is_even (s.length)}
 /-!
 ## Quantifiers
 
@@ -163,16 +187,16 @@ proof of *P x*. Indeed, that's how we prove such a proposition: show
 that if given any *x* you can produce and return a proof of *P x*.
 -/
 
-/-!
-### ∀ (for all)
--/
-def zornz (n : Nat) : n = 0 ∨ n ≠ 0 :=
-match n with
-  | 0       => Or.inl rfl   -- proves an equality
-  | n' + 1  => Or.inr (fun _ => nomatch n')
+-- Here
 
-/-!
-### ∃ (there exists)
+
+
+
+/-
+(6) Use "example" in Lean again to state and prove that
+⟨ "I love Logic!", 1 ⟩ ∉ str_eq_lens. That's shorthand
+notation for ¬("I love Logic!", 1⟩ ∈ str_eq_lens. And you
+know what that means.
 -/
 
-def sl5 : ∃ (s : String), s.length = 5 := ⟨"Hello", rfl ⟩
+-- Here
