@@ -19,6 +19,13 @@ proof of *P x*. Indeed, that's how we prove such a proposition: show
 that if given any *x* you can produce and return a proof of *P x*.
 -/
 
+
+
+
+
+
+
+
 def zornz'' (n : Nat) : n = 0 ∨ n ≠ 0 :=
 match n with
   | 0       => Or.inl rfl   -- proves an equality
@@ -31,6 +38,9 @@ def zornz' : (n : Nat) →  n = 0 ∨ n ≠ 0
 def zornz : ∀ (n : Nat),  n = 0 ∨ n ≠ 0
   | 0       => Or.inl rfl   -- proves an equality
   | n' + 1  => Or.inr (fun _ => nomatch n')
+
+def ex_mis : ∀ (P : Prop), P ∨ ¬P
+| _ => _    -- no can do
 
 
 /-!
