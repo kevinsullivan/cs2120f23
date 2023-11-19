@@ -3,11 +3,11 @@
 
 We now turn to the second of the two quantifiers in
 predicate logic: the existential operator, *∃.* It is
-used to writepropositions of the form, *∃ (x : T), P x*.
+used to write propositions of the form, *∃ (x : T), P x*.
 This proposition is read as asserting that *there is some
 (at least one) value of type, T, that satisfies P*. As
 an example, we repeat our definition of the *is_even*
-predicate, and then write aproposition asserts that
+predicate, and then write a proposition asserts that
 there is (there exists) *some* even natural number.
 -/
 
@@ -29,13 +29,13 @@ That we have an object *w* along with a proof of *P w*
 shows that there does exist some object with property
 *P* (namely *w*).
 
-The introduction rule in Lean is called *Exists.intro.*
+This introduction rule in Lean is called *Exists.intro.*
 It takes two arguments: (1) a value, *w : T*, and a proof
-of *P w*. Here's a simple example.
+of *P w*. Here's a simple example showing that there exists
+an even number, with *4* as a witness.
 -/
 
-example : exists (n : Nat), is_even n :=
-Exists.intro 4 rfl
+example : exists (n : Nat), is_even n := Exists.intro 4 rfl
 
 /-!
 The witness is 4 and the proof (computed by rfl) is a
