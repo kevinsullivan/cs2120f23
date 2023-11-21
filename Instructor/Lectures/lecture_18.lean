@@ -159,6 +159,8 @@ evaluate the function on any one of its actual parameters.
 def pythagorean_triple : Nat → Nat → Nat → Prop
 | h, x, y => h^2 = x^2 + y^2
 
+
+
 /-!
 ### Exercises
 

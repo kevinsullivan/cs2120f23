@@ -166,6 +166,75 @@ def pythagorean_triple : Nat → Nat → Nat → Prop
 - Write an expression for the set of all even length strings
 -/
 
+/-
+### Homework
+-/
+
+/-
+(1) Define a predicate, ev_len_str, expressing the property of a string of being of an even-length.
+-/
+
+-- Here
+
+def ev_len_str : String → Prop
+| s => s.length %2 =0
+
+
+/-
+(2) Use #check to typecheck an expression for the set of all
+even length strings.
+-/
+
+-- Here
+
+#check {s: String | ev_len_str s}
+
+
+/-
+(3) Define a predicate, str_eq_len, applicable to any
+String value, s, and to any Nat value, n, that is satisfied
+just in those cases where s.length equals n.
+-/
+
+-- Here
+
+def str_eq_len : String → Nat → Prop
+| s, n => s.length = n
+
+/-
+(4) Define str_eq_lens : set String × Nat, to be the *set*
+of all ordered pairs, p = ⟨ s, n ⟩, such that n = s.length.
+-/
+
+-- Here
+
+def str_eq_lens : Set (String × Nat) := { p | str_eq_len p.1 p.2 }
+
+
+
+/-
+(5) Use "example" in Lean to state and prove the proposition
+that ⟨ "I love Logic!", 13 ⟩ ∈ str_eq_lens.
+-/
+
+-- Here
+
+example : ⟨"I love Logic!",13 ⟩ ∈ str_eq_lens := rfl
+
+
+
+/-
+(6) Use "example" in Lean again to state and prove that
+⟨ "I love Logic!", 1 ⟩ ∉ str_eq_lens. That's shorthand
+notation for ¬("I love Logic!", 1⟩ ∈ str_eq_lens. And you
+know what that means.
+-/
+
+-- Here
+
+example : ⟨"I love Logic!",1⟩ ∉ str_eq_lens :=
+λ (t : ⟨"I love Logic!",1⟩ ∈ str_eq_lens) => nomatch t
+
 /-!
 ## Quantifiers
 
