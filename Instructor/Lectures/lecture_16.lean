@@ -1,5 +1,7 @@
 /-!
-# Constructive Logic via the Curry-Howard Correspondence
+# Curry-Howard: Logic as Computation
+
+ToDo: More explanation.
 -/
 
 /-!

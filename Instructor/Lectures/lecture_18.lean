@@ -159,41 +159,59 @@ evaluate the function on any one of its actual parameters.
 def pythagorean_triple : Nat → Nat → Nat → Prop
 | h, x, y => h^2 = x^2 + y^2
 
+#reduce pythagorean_triple 5 4 3
 
+def py_trips : Set (Nat × Nat × Nat) := { t | t.1^2 = t.2.1^2 + t.2.2^2}
 
-/-!
-### Exercises
-
-- Write a predicate for the property of being an even-length string
-- Write an expression for the set of all even length strings
--/
-
-
-
+#reduce py_trips (5,4,3)
 
 /-!
-## Quantifiers
+## Homework
 
-Quantifiers are part of the syntax of predicate logic. They allow one
-to assert that every object (∀) of some type has some property, or that
-there exists (∃) (there is) at least one object of a given type with a
-specified property. The syntax of such propositions is as follows:
-
-- ∀ (x : T), P x
-- ∃ (x : T), P x
-
-### Universal Quantification
-
-The first proposition can be read as asserting that every value *x* of
-type *T* satisfies predicate *P*. Another way to say this is that for
-every *x* there is a proof of the proposition, *P x*. Another way to
-say that is that there's a function that when given any *x* returns a
-proof of *P x*. Indeed, that's how we prove such a proposition: show
-that if given any *x* you can produce and return a proof of *P x*.
+(1) Define a predicate, ev_len_str, expressing the property
+of a string of being of an even-length.
 -/
 
 -- Here
 
+
+
+/-
+(2) Use #check to typecheck an expression for the set of all
+even length strings.
+-/
+
+-- Here
+
+
+
+/-
+(3) Define a predicate, str_eq_len, applicable to any
+String value, s, and to any Nat value, n, that is satisfied
+just in those cases where s.length equals n.
+-/
+
+-- Here
+
+
+
+/-
+(4) Define str_eq_lens : set String × Nat, to be the *set*
+of all ordered pairs, p = ⟨ s, n ⟩, such that n = s.length.
+-/
+
+-- Here
+
+
+
+/-
+(5) Use "example" in Lean to state and prove the proposition
+that ⟨ "I love Logic!", 13 ⟩ ∈ str_eq_lens.
+-/
+
+-- Here
+
+example : ⟨ "I love Logic!", 13 ⟩ ∈ str_eq_lens := rfl
 
 
 
@@ -202,6 +220,28 @@ that if given any *x* you can produce and return a proof of *P x*.
 ⟨ "I love Logic!", 1 ⟩ ∉ str_eq_lens. That's shorthand
 notation for ¬("I love Logic!", 1⟩ ∈ str_eq_lens. And you
 know what that means.
+-/
+
+-- Here
+
+example : ⟨ "I love Logic!", 1 ⟩ ∉ str_eq_lens :=
+λ (t : ⟨ "I love Logic!", 1 ⟩ ∈ str_eq_lens) => nomatch t
+
+
+
+
+/-!
+(7) Write a formal definition, in Lean, of *party*, as
+a *set* of objects of type *Person*. Make the Person type
+inhabited by giving it the single constructor, Person.jim.
+Hi, jim. Optionally use "structure" for this type, even if
+you don't know how to change the default constructor name,
+*mk*, to *jim*.
+-/
+
+
+
+/-!
 -/
 
 -- Here
