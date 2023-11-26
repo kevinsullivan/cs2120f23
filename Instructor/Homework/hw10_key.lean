@@ -41,10 +41,11 @@ variable
 5. If every cat likes every other cat, and c and d are cats, then c likes d.
 -/
 
+#check (∀ (x y : Cat), Likes₃ x y) → (∀ (c d : Cat), Likes₃ c d)
 
 /-!
 Finally, give a formal proof in Lean of the proposition in problem #5.
 -/
 
 example : (∀ (x y : Cat), Likes₃ x y) → (c d : Cat) → Likes₃ c d
-| h,c, d => h c d
+| h, c, d => h c d
