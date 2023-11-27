@@ -39,8 +39,8 @@ Intersection
 def even_and_small (n : Nat) : Prop := ev n ∧ small n
 def even_and_small_set : Set Nat := { n | even_and_small n}
 def even_and_small_set' : Set Nat := { n | ev n ∧ small n}
-
 example : 2 ∈ even_and_small_set := ⟨rfl , Or.inr (Or.inr (Or.inl rfl))⟩
+def even_and_small_set'' := ev_set ∩ small_set
 
 
 
