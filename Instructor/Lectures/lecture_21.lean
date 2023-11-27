@@ -96,7 +96,7 @@ display notation.
 
 example : Set Nat := { 0, 1, 2, 3, 4 }
 
-/-
+/-!
 ### Homogeneity
 
 The preceding example involved a set of natural numbers.
