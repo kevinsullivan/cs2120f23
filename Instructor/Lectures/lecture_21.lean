@@ -1,4 +1,4 @@
-import Mathlib.Init.Set
+import Mathlib.Data.Set.Basic
 
 /-!
 
@@ -9,23 +9,18 @@ Such a collection can be finite or infinite. For example, the
 set of natural numbers less than five is finite but the set of
 all natural numbers is infinite.
 
-For our purposes set theory is best understood as just another
-*algebraic structure*, like Boolean algebra or arithmetic. Set
-theory has both objects (sets) and operations on them. Your main
-task in this chapter is to understand set objects and operations
-on them. The first section of this chapter explains how we define
-sets in Lean. The second presents the major operations of set
-theory.
+Like Boolean algebra or arithmetic, set theory has both objects
+(sets, in the case) and operations on them. Your main aims in this
+chapter are to (1) understand the language of sets and operations
+on them in the abstract, (2) understand how sets and set operations
+are represented in predicate logic (and in Lean), (3) understand
+how to prove propositions about sets by proving their underlying
+logical propositions.
 
-A major concept running throughout this chapter is that set
-theory is defined, at least in Lean, directly in terms of
-underlying *logical* concepts. We will start with the idea
-that a set is represented by a predicate. Each set operation
-is then defined in terms of logic involving such predicates.
-What you have to learn are thus (1) the concepts of set theory,
-(2) how each one reduces directly to corresponding logic. To
-prove propositions in set theory, you will thus simply prove
-the corresponding underlying logical propositions.
+The first section of introduces sets and how they are defined
+as predicates in Lean. The second presents the major operations
+of set theory, and along the way explains the logic underpinning
+each set theory operation.
 
 We now turn to the *objects* of set theory, namely sets.
 One we understand how sets are defined by predicates, we
@@ -38,14 +33,22 @@ In Lean, a set is represented by a *predicate*, one that is made
 true by every member of the set, and not by any other values. We
 call a predicate used to define a set a *membership* predicate.
 
+You can see the actual definition of *Set* in Lean by going to
+its definition. Right click on Set and select *go to definition*.
+
+What you'll find is *def Set (α : Type u) := α → Prop*. In other
+words, the type, Set α, in Lean, really is just the type, α → Prop.
+A set truly *is* represented directly by a predicate in this sense.
+
 ### Membership Predicates
 
-As examples, here are two *predicates* on natural numbers. The
-first is true of a number if that number is even. The second
-is true of a number if that number is small, defined as *being
-equal to 0, *or* being equal to 1 *or*, ..., *or* being equal
-to 4.* The first specifies the set of even numbers; the second,
-a set of small natural numbers.
+Let's start by building on our understanding of predicates.
+Here are two *predicates* on natural numbers. The first is true
+of even numbers. The second is true of any number that is small,
+where that is defined as the number *being equal to 0, *or* being
+equal to 1 *or*, ..., *or* being equal to 4.* The first predicate
+can be understood as specifying the set of even numbers; the second
+predicate, a set of small numbers.
 -/
 
 def ev := λ n : Nat => n % 2 = 0
@@ -58,108 +61,118 @@ seeing the following answer.
 
 Answer: Plug in a *1* for each *n* in the definition of *small*
 to get the answer. There are 5 places where the substitution has
-to be made. Lean can tell you the answer.
+to be made. Lean can tell you the answer. Study it until you see
+that this predicate is true of all and only the numbers from 0 to
+4 (inclusive).
 -/
 
 #reduce small 1
 
 /-!
 The result is *1 = 0 ∨ 1 = 1 ∨ 1 = 2 ∨ 1 = 3 ∨ 1 = 4*. This
-predicate is true, of course, because *1 = 1*, so *1* is seen
+proposition is true, of course, because *1 = 1*. So *1* is proved
 to be a member of the set that the predicate specifies. Similarly
-applying the predicate to 3 or 4 yields true propositions, but
+applying the predicate to 3 or 4 will yield true propositions; but
 that doesn't work for 5, so 5 is not in the set that this predicate
 specifies.
 -/
 
 /-!
-To rigorously prove that 1 is in the set you prove the underlying
+To formally prove that 1 is in the set, you prove the underlying
 logical proposition, *1 = 0 ∨ 1 = 1 ∨ 1 = 2 ∨ 1 = 3 ∨ 1 = 4*. A
 proof of *set* membership thus reduces to a proof of an ordinary
-logical proposition, in this case a disjunction. You already know
-how to do that. Again a key insight to be taken from this chapter
-is that set theory in Lean reduces to logic you already understand!
+logical proposition, in this case a disjunction. Again an insight
+to be taken from this chapter is that set theory in Lean reduces
+to correspondinglogic you already understand and know how to deal
+with.
 
-Continuing with our example, and as a reminder, let's prove the
-proposition, *1 = 0 ∨ 1 = 1 ∨ 1 = 2 ∨ 1 = 3 ∨ 1 = 4*. Start by
-recalling that ∨ is is right associative, so what we really need
-to prove is *(1 = 0) ∨ (1 = 1 ∨ 1 = 2 ∨ 1 = 3 ∨ 1 = 4)*. It takes
+As a reminder, let's prove *1 = 0 ∨ 1 = 1 ∨ 1 = 2 ∨ 1 = 3 ∨ 1 = 4*.
+
+First, recall that ∨ is is right associative, so what we need to
+prove is *(1 = 0) ∨ (1 = 1 ∨ 1 = 2 ∨ 1 = 3 ∨ 1 = 4)*. It takes
 just a little analysis to see that there is no proof of the left
 side, *1 = 0*, but there *is* a proof of the right side. The right
 side is true because 1 = 1. Our proof is thus by *or introduction*
-on the right applied to a proof of the the *right*, applied to a
-proof of the right side, (1 = 1) ∨ (1 = 2 ∨ 1 = 3 ∨ 1 = 4). Be
-sure to see that using right introduction discards the left side
-of the original proposition and requires a proof of the right. A
-proof of it in turns is by or introduction on the left applied to
-a proof of 1 = 1, which is by the reflexive property of equality.
-In Lean, this idea can be expressed by rfl.
+on the right applied to a proof of the *right* side, which we can
+now slightly rewrite as (1 = 1) ∨ (1 = 2 ∨ 1 = 3 ∨ 1 = 4).
 
-Practice: Give a formal proof that 1 satisfies *small*.
-We advise you to use top-down, type-guided structured proof
-development to complete this simple proof.
+Be sure to see that using right introduction discards the left side
+of the original proposition and requires only a proof of the right.
+A proof of it, in turn, is by or introduction on the left applied to
+a proof of 1 = 1. That proof is by the reflexive property of equality
+(it's always true that anything equals itself). This idea is expressed
+in Lean using *rfl*.
+
+Exercise: Give a formal proof that 1 satisfies the *small*
+predicate. We advise you to use top-down, type-guided structured
+proof development to complete this simple proof. We give you the
+or introduction on the right to start.
 -/
 
-example : small 1 := _
+example : small 1 := (Or.inr (_))
 
 /-!
-### Set Notation
+### Set Theory Notation
 
-There are several ways to denote a set of objects. Two that
-you must understand because they are so commonly used in
-mathematics are *display* and *set comprehension* notation.
+In the language of set theory, there are two especially
+common notations for represeting sets. They are *display*
+and *set comprehension* notation.
 
 #### Display Notation
 
-To represent a finite set of objects, you can simply give
-them in a comma-separated list between curly braces. The
-set of small numbers from 0 to 4 inclusive is represented
-in this way as *{ 0, 1, 2, 3, 4 }*.
+To represent a finite set of objects in mathematical writing,
+you can give a comma-separated list of members between curly
+braces. The set of small numbers (0 to 4) can be represented
+in this way as *{ 0, 1, 2, 3, 4 }*. Sometimes we will want to
+give a set a name, as in, *let s = { 0, 1, 2, 3, 4 }*, or
+*let s be the set, { 0, 1, 2, 3, 4 }.*
 
-Lean supports display notation as a shorthand for writing
-a membership predicate. The corresponding predicate in this
-case, computed by Lean, is *λ n => n = 0 ∨ n = 1 ∨ n = 2
-∨ n = 3 ∨ n = 4*. In the following example, Lean doesn't
-infer that the set type is Set Nat, so we have to tell it
-so explicitly.
+Lean supports display notation as a set theory notation.
+One is still just definining a membership predicate, but
+it looks like the math you'll see in innumerable books and
+articles.
+
+The corresponding predicate in this case, computed by Lean,
+is *λ n => n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 ∨ n = 4*. In the
+following example, Lean doesn't infer that the set type is
+Set Nat, so we have to tell it so explicitly.
 -/
 
 def s1 : Set Nat := { 0, 1, 2, 3, 4 }
-#reduce s1   -- sets are predicates in Lean
+#reduce s1   -- the predicate that represents this set
 
 /-!
-
 #### Set Comprehension Notation
 
-Sets, including infinite sets, can also be specified
-using *set comprehension* notation. Here's an example
-using it to specify the same small set.
+Sets can also be specified using what is called *set
+comprehension* notation. Here's an example using it to
+specify the same small set.
 -/
 
-def s2 : Set Nat := { n : Nat | n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 ∨ n = 4}
-
+def s2 : Set Nat := { n : Nat | n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 ∨ n = 4 }
 /-!
-We pronounce the expression as *the set of values n of type Nat such
-that n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 ∨ n = 4. The curly braces indicate
-that we're defining a set. The *n : Nat* specifies is the argument to
-the membership predicate. The vertical bar is read *such that*. And the
-membership predicate is then written after it. We can easily check that
-this expression means the same thing as the one using display notation.
-Sets in Lean are truly represented by *logical predicates*.
+We pronounce the expression (to the right of the := of course) as
+*the set of values, n, of type Nat, such that n = 0 ∨ n = 1 ∨ n = 2 ∨
+n = 3 ∨ n = 4. The curly braces indicate that we're defining a set. The
+*n : Nat* specifies the set of set members. The vertical bar is read
+*such that*, or *satisfying the constraint that*. And the membership
+predicate is then written out.
 
-Exercise: Assume there's a type of objects call Ball and a predicate,
-Blue, on balls. Use set comprehension notation to specify the set of
-blue balls.
-
-Answer: { b : Ball | Blue b }.
-
-Again, you can read this expression in English as *the set of all
-balls, b, such that b is blue*.
+You can check that this set, s2, has the same membership predicate as s1.
 -/
+
 #reduce s2
 
 /-!
-### Type Homogeneity
+Example: Assume there's a type of objects call Ball and a predicate,
+Striped, on balls. Use set comprehension notation to specify the set of
+striped balls. Answer: { b : Ball | Striped b }. Read this expression
+in English as *the set of all balls, b, such that b is striped*, or
+more concisely and naturally simply as *the set of all striped balls*.
+-/
+
+/-!
+### Aside On Homogeneity
 
 The preceding example involved a set of natural numbers.
 In Lean, such a set, being defined by a predicate on the
@@ -254,12 +267,11 @@ two ways. At the abstract level of set theory, it asserts that
 1 is a member of the collection of elements making up small_set.
 At a concrete, logical, level, it means that *small_set 1*, the
 logical proposition that 1 satisfies the small_set predicate, is
-true.
+true, and that you can construct a proof of that.
 
-This proposition in turn has a proof, as we've seen. The very
-same proof proves 1 ∈ small_set. All these notations mean the
-same thing logically, but set theory notation encourages us to
-think abstractly now in terms of sets, not logic.
+The very same proof proves 1 ∈ small_set. All these notations mean
+the same thing, but set theory notation encourages us to think more
+abstractly: in terms of sets (collections), not predicates, per se.
 
 Nevertheless, to construct proofs in set theory in Lean, you
 must understand how the objects and operations in set theory
@@ -270,20 +282,24 @@ propositions.
 Here, for example, we *state* a proposition using set theory
 notation, but the proof is of the underlying *or* proposition.
 -/
-example : 1 ∈ small_set' := Or.inr (Or.inl rfl)
+
+#check 1 ∈ small_set      -- membership proposition in set theory
+#reduce 1 ∈ small_set     -- this proposition in predicate logic
+example : 1 ∈ small_set := Or.inr (Or.inl rfl)  -- a proof of it
 
 /-!
 The lesson is that when you look at an expression in set theory
 you really must understand its underlying logical meaning, for
-that is what you'll need to prove.
+it's the underlying logical proposition that you'll need to prove.
 
 So we're now in a position to see the formal definition of the
 membership operation on sets in Lean. In the Lean libraries, it
-is def Mem (a : α) (s : Set α) : Prop : s a (where α is any type).
-The notation ∈) reduces to corresponding logic, namely here to the
-proposition obtained by applying the set membership predicate to
-the argument, a. If the resulting proposition is true (witnessed
-by a proof in Lean) then it's in the set otherwise it's now.
+is *def Mem (a : α) (s : Set α) : Prop := s a*, where α is a type.
+The notation ∈ reduces to corresponding logic. More conretely, the
+set theory proposition a ∈ s reduces to applying the set, s, viewed
+as a membership predicate, to the argument, a (thus the expression,
+*s a*) to yield a proposition, (s a), that is true if and only if
+a is in s.
 -/
 
 /-!
@@ -296,62 +312,18 @@ it on your own. By *erase* we mean to replace the answer with
 *_*. Then use top-down, type-guided refinement to derive a complete
 proof in place of the *_*.
 -/
-example : 3 ∈ small_set := (Or.inr (Or.inr (Or.inr (Or.inl rfl))))
 
-/-!
-(2) Prove that for any (t : T), t ∉ ∅. The proof
-is by negation. You'll assume t ∈ ∅ and show that this
-leads to a contradiction (a proof of False in this case).
--/
-
-example (T : Type) (t : T) : t ∉ (∅ : Set T) := _
-
-
-/-!
-(3)) Prove the following. Remember t ∈ univ means univ t,
-and univ t invariablly reduces to True.
--/
-
-example (T : Type) (t : T) : t ∉ (∅ : Set T) := _
-
-/-!
-(4)) Prove 0 ∈ univ.
-
-To start, reduce the set theory notation to logic, then prove
-the logical proposition. We saw that *0 ∈ univ* reduces to
-*univ 0*, and that *univ 0* in turn reduces to *True*. So all you
-need to prove 0 ∈ univ is a proof of True. Go ahead. Note that
-Lean infers that the element type is Nat from argument value, 0.
--/
-example : 0 ∈ univ := _
-
-/-!
-(5) Prove the proposition that 3 is not
-in the empty set of natural numbers
--/
-example : 3 ∈ (∅ : Set Nat) := _  -- there's no proof
-
-/-!
-The proof is *by negation*. That means we assume that
-3 ∈ ∅  and then show that that leads to a contradiction
-(i.e., to a proof of false). The form of the proof is a
-function, here after the :=, that assumes that it has a
-proof, *h*, of the hypothesis that 3 is in the set. On
-the right of the => a case analysis on the possible forms
-of *h* reveals that there is no way h can be true, so by
-false elimination the proof is complete.
--/
-example : 3 ∉ (∅ : Set Nat) := _
+#reduce 3 ∈ small_set
+example : 3 ∈ small_set := Or.inr (Or.inr (Or.inr (Or.inl rfl)))
 
 /-!
 ### Take-Away
 
-The take-away is that the set theory expression, x ∈ X,
-simply means, and reduces to the proposition, that x
-satisfies the membership predicate of the set X. To
-prove x ∈ X, substitute x for the formal parameter in
-the membership predicate (apply the predicate to x)
-and prove the resulting proposition.
+A take-away is that the set theory expression, x ∈ X,
+simply means, that x satisfies the membership predicate
+that defines the set X. To prove x ∈ X, substitute x for
+the formal parameter in the membership predicate (apply
+the predicate to x) and prove the resulting proposition.
 -/
 
 /-!
@@ -381,8 +353,8 @@ the proof, *True.intro*.
 
 In Lean, the universal set of objects of a given type is
 written as *univ*. The definition of *univ* is in Lean's
-*Set* namespace, so you can use *univ* either by first opening
-the *Set* namespace, or by writing *Set.univ*.
+*Set* namespace, so you can use *univ* either by first
+opening the *Set* namespace, or by writing *Set.univ*.
 -/
 
 open Set
@@ -394,16 +366,13 @@ open Set
 /-!
 #### Empty set
 
-The empty set of values of a given type is the set
-containing *no* values of that type. It's membership
-predicate is thus false for every value of the type.
-Formally, the membership predicate for an empty set of
-values of type T is *λ (t : T) => False*.
-
-The predicate takes any value, *t*, ignores it, and
-always returns the *proposition*, False.* The empty
-set of values of a given type is often written as ∅.
-It is pronounced as *the empty set (of values of type T)*.
+The empty set of values of a given type, usually
+denoted as ∅, is the set
+containing *no* values of that (or any) type. It's
+membership predicate is thus false for every value of
+the type. No value is a member. Formally, the membership
+predicate for an empty set of values of type T is
+*λ (t : T) => False*.
 
 Again we emphasize that set theory in Lean is built on and
 corresponds directly with the logic you've been learning all
@@ -422,34 +391,32 @@ system involving objects and operations on these objects. In arithmetic,
 the objects are numbers and the operations are addition, multiplication,
 etc.  In Boolean algebra, the objects are true and false and operations
 include *and, or,* and *not*. In set theory, the objects are sets and
-the operations include membership (∈), intersection (∩), union (∪),
-difference (\) and more. We now turn to important operations on sets
-beyond membership.
+the operations include set membership (∈), intersection (∩), union (∪),
+difference (\), complement (ᶜ) and more. We now turn to operations on
+sets beyond mere membership.
 -/
 
 
 /-!
 ### Intersection
 
-Given a type, T, and two sets, s1 and s2, of type Set T, the
-*intersection* of s1 and s2 is the set whose members are exactly
-those values that are in both s1 *and* s2, by virtue of satisfying
-both of their membership predicates. The intersection
-of s1 and s2 is usually written as *s1 ∩ s2*.
+Given a type, T, and two sets, s1 and s2 of T-valued elements
+(members), the *intersection* of s1 and s2 is the set the members
+of which are those values that are in both s1 *and* s2. The intersection
+of s1 and s2 is written mathematically as *s1 ∩ s2*.
 
-In the Lean library, the intersection operation is defined as you
-might expect: def inter (s₁ s₂ : Set α) : Set α := {a | a ∈ s₁ ∧ a ∈ s₂}.
-Given two sets, their intersection is defined to be the set of values
-(itself represented by a membership predicate satisfy the membership
-predicates the first set *and* the second set.
+The intersection operation is defined in Lean as *inter (s₁ s₂ : Set α) :
+Set α := {a | a ∈ s₁ ∧ a ∈ s₂}*. Given two sets of alpha values, the result
+is the set of values, a, that satisfy both conditions: a ∈ s₁ ∧ a ∈ s₂. Set
+intersection (∩) is defined by predicate conjunction (∧).
 
-The key take-away is that intersection corresponds to logical *and*
-of the membership predicates. The similarity in notations reflects
-this fact, with ∧ for logical and and ∩ for set intersection. The
-following Lean commands illustrate this point.
+Intersection of sets corresponds to logical conjunction (using *and*)
+of the respective set membership predicates. The similarity in notations
+reflects this fact, with ∩ in the language of set theory reducing to ∧ in
+the language of predicate logic. The following Lean codeillustrate the point.
 -/
 
-variable (T : Type) (s t : Set T)
+variable (α : Type) (s t : Set α)
 #check s ∩ t    -- the intersection of sets is a set
 #reduce s ∩ t   -- its membership predicate is formed using ∧
 
@@ -460,37 +427,65 @@ contains only the elements 0, 2, and 4, as these are the only values
 that satisfy both the ev *and* small predicates.
 -/
 
-def even_and_small_set := ev_set ∩ small  -- intersection!
+def even_and_small_set := ev_set ∩ small_set  -- intersection!
 #reduce (0 ∈ even_and_small_set)  -- membership proposition
 
 /-!
-Exercise: Prove 6 ∈ even_and_small_set.
+As an example, let's prove 6 ∈ even_and_small_set. We'll first look
+at the logical proposition corresponding to the proposition in set
+theory assertion, then we'll try to prove tha underlying *logical*
+proposition.
 -/
+
+#reduce 6 ∈ even_and_small_set
+
+-- to prove: 0 = 0 ∧ (6 = 0 ∨ 6 = 1 ∨ 6 = 2 ∨ 6 = 3 ∨ 6 = 4)
+example: 6 ∈ even_and_small_set := _
 
 /-!
-Exercise: It's clear that *2 ∈ even_and_small_set*. But what
-is a proof of it? A good first step is to determine what is
-the underlying *logical* proposition that needs to be proved?
-First understand what is the corresponding logical proposition
-to be proved, then prove that. Here's the proposition. The left
-side corresponds to the proposition that 2 is even, and the right
-side that 2 is in the set of small natural numbers.
+The proposition to be proved is a conjunction. A proof of it
+will have to use And.intro applied to proofs of the left and
+right conjuncts. The notation for this is ⟨ _, _ ⟩, where the
+holes are filled in with the respective proofs. We can make a
+first step a top-down, type-guided proof by just applying this
+proof constructor, leaving the proofs to be filled in later.
+The Lean type system will tell us exactly what propositions
+then remain to be proved.
 -/
 
-#reduce 2 ∈ even_and_small_set
-
--- Use example to assert proposition and give proof here:
+example: 6 ∈ even_and_small_set := ⟨ _, _ ⟩
 
 /-!
-Exercises:
-
-- What values are in the set, {1, 2, 3} ∩ {4, 5, 6}?
-- For the following questions, assume that *prime* is a predicate on natural numbers true of a number, n, if and only if n is prime in the arithmetic sense; and that ev is our usual evenness predicate.
-  - Define ep1 to be the set that is the intersection of the prime and even numbers. Use set comprehension notation.
-  - Define ep2 to be the same set but now using display notation (listing the actual values in the set).
+On the left, we need a proof of *6 ∈ ev_set*. This can also
+be written as *ev_set 6*, treating the set as a predicate.
+This expression then reduces to 6 % 2 = 0, and further to
+*0 = 0*. That's what we need a proof of on the left, and
+*rfl* will construct it for us.
 -/
 
--- Here:
+example: 6 ∈ even_and_small_set := ⟨ rfl, _ ⟩
+
+/-!
+Finally, on the right we need a proof of 6 ∈ small_set.
+But ah ha! That's not true. We can't construct a proof
+of it, and so we're stuck, with no way to finish our
+proof. Why? The proposition is false!
+
+Exercise: Prove that! 6 ∉ small_set. Here you have to
+recall that 6 ∉ small_set means ¬(6 ∉ small_set), and
+that in turn means that a proof (6 ∉ small_set) leads
+to a contradiction and so cannot exist. That is, that
+6 ∉ small_set → False.
+
+This is again a proof by negation. We'll assume that
+we have a proof of the hypothesis of the implication
+(h : 6 ∉ even_and_small_set), and from that we will
+derive a proof of False (by case analysis on a proof
+of an impossibility using nomatch) and we'll be done.
+-/
+
+example : 6 ∉ even_and_small_set :=
+  fun (h : 6 ∈ even_and_small_set) => nomatch h
 
 /-!
 ### A Remark on Set Theory Notation
@@ -507,24 +502,15 @@ are provided to support the mathematical concepts involved
 in *set theory*.
 -/
 
-#check 2 ∈ even_and_small     -- set notation doesn't work
-#check 2 ∈ even_and_small_set -- set notation is enabled
-
 /-!
 ### Union
 
 Given two sets, s and t, the union of the sets, denoted as
-s ∪ t, is the set of values that are in either s *or* t. The
-membership predicate of s ∪ t is the disjunction of those of
-the two sets. An object is a member when it satisfies either
-the membership predicate of s *or* the membership predicate of
-t.
-
-In Lean, the formal definition of the union operation is given
-as: def union (s₁ s₂ : Set α) : Set α := {a | a ∈ s₁ ∨ a ∈ s₂}.
-
-As an example, we now define even_or_small_set as the *union* of
-the even_set and small_set.
+s ∪ t, is understood as the collection of values that are
+in s *or* in t. The membership predicate of s ∪ t is thus
+*union (s₁ s₂ : Set α) : Set α := {a | a ∈ s₁ ∨ a ∈ s₂}.
+As an example, we now define even_or_small_set as the union
+of the even_set and small_set.
 -/
 
 def even_or_small_set := ev_set ∪ small_set
@@ -532,7 +518,7 @@ def even_or_small_set := ev_set ∪ small_set
 /-!
 Now suppose we want to prove that 3 ∈ even_or_small_set. What
 we have to do is prove the underlying logical proposition. We
-can confirm what that proposition is using reduce.
+can confirm what logical proposition we need to prove using reduce.
 -/
 
 #reduce 3 ∈ even_or_small_set
@@ -545,25 +531,35 @@ satisfied by a given value.
 -/
 
 example : 3 ∈ even_or_small_set := Or.inr _
-
 example : 6 ∈ even_or_small_set := _
-
 example : 7 ∉ ev_set ∪ small_set := _
+example : 7 ∈ ev_set := _   -- stuck
+example : 7 ∉ ev_set := λ h => _
 
 /-!
 ### Set Complement
 Given a set s of elements of type α, the complement of s,
-denoted sᶜ, is *def compl (s : Set α) : Set α := {a | a ∉ s}.*
-In other words, sᶜ is the set of elements of type α that are
-*not* in s. So whereas intersection reduces to conjunction of
-membership predicates, and union reduces to the disjunction of
-membership predicates, the complement operation reduces to the
-negation of the membership predicate of a set.
+denoted sᶜ, is the set of all elements of type α that are
+*not* in s. Thus *compl (s : Set α) : Set α := {a | a ∉ s}.*
+
+So whereas intersection reduces to the conjunction of membership
+predicates, and union reduces to the disjunction of membership
+predicates, the complement operation reduces to the negation of
+membership predicates.
 -/
 
 variable (s : Set Nat)
-#check sᶜ             -- notation not working in Lean4?
-#reduce Set.compl s   -- apply Set.compl operation without notation
+#check sᶜ     -- Standard notation for complement of set s
+#reduce sᶜ    -- fun x => x ∈ s → False means fun x => x ∉ s
+
+/-!
+Exercises:
+
+(1) State and prove the proposition that 5 ∈ smallᶜ. Hint:
+You have to prove the corresponding negation: ¬5 ∈ small_set.
+-/
+
+example : 5 ∈ small_setᶜ := _
 
 
 /-!
@@ -571,6 +567,12 @@ variable (s : Set Nat)
 -/
 
 #reduce Set.diff
+-- fun s t a => s a ∧ (a ∈ t → False)
+-- fun s t a => a ∈ s ∧ a ∉ t (better abstracted expression of same idea)
+
+example : 6 ∈ ev_set \ small_set := ⟨ rfl, λ h => nomatch h ⟩
+
+#reduce 6 ∈ ev_set \ small_set
 
 /-!
 ### Subset
