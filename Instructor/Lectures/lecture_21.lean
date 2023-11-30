@@ -1,4 +1,4 @@
-import Mathlib.Data.Set.Basic
+-- import Mathlib.Data.Set.Basic
 
 /-!
 
@@ -471,15 +471,15 @@ But ah ha! That's not true. We can't construct a proof
 of it, and so we're stuck, with no way to finish our
 proof. Why? The proposition is false!
 
-Exercise: Prove that! 6 ∉ small_set. Here you have to
-recall that 6 ∉ small_set means ¬(6 ∉ small_set), and
-that in turn means that a proof (6 ∉ small_set) leads
+Exercise: Prove that 6 ∉ small_set. Here you have to
+recall that 6 ∉ small_set means ¬(6 ∈ small_set), and
+that in turn means that a proof (6 ∈ small_set) leads
 to a contradiction and so cannot exist. That is, that
-6 ∉ small_set → False.
+6 ∈ small_set → False.
 
 This is again a proof by negation. We'll assume that
 we have a proof of the hypothesis of the implication
-(h : 6 ∉ even_and_small_set), and from that we will
+(h : 6 ∈ even_and_small_set), and from that we will
 derive a proof of False (by case analysis on a proof
 of an impossibility using nomatch) and we'll be done.
 -/
