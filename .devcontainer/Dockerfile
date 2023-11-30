@@ -21,7 +21,7 @@ ENV LC_ALL en_US.UTF-8
 # Install essential tools and libraries
 RUN apt-get clean && apt-get update -y && apt-get upgrade -y && apt-get update --fix-missing
 RUN apt-get -y install lsb-release build-essential git vim wget gnupg curl unzip libssl-dev libffi-dev libconfig-dev
-RUN apt-get -y install graphviz libgraphviz-dev
+# RUN apt-get -y install graphviz libgraphviz-dev
 
 # Perform following actions in containers /root directory
 WORKDIR /root 
