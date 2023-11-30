@@ -637,7 +637,8 @@ example (α : Type) (r s t : Set α) : (r ∩ (s ∪ t)) = ((r ∩ s) ∪ (r ∩
     -- forward
     intro h
     cases h with
-    | intro hl hr => _
+    | intro hl hr =>
+      _
 
 
 
