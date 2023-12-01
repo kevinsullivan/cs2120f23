@@ -1,4 +1,4 @@
-import Mathlib.Init.Set
+-- import Mathlib.Init.Set
 
 /-!
 # Predicates
