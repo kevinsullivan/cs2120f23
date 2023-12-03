@@ -110,7 +110,7 @@ example : ¬ square 3 8 := λ h => nomatch h -- proof by negation
 example : square 1 1 ∧ square 3 9 := ⟨ sqr11, sqr39 ⟩
 
 /-!
-### TEST QUESTION #A
+### Exam Question #1
 
 Express the following proposition in English, complete the
 formal proof of it, and briefly explain in English how you
