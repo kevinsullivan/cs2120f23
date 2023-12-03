@@ -1,5 +1,5 @@
 /-!
-# Final #1 : The Equality Relation
+# Final #1 : Binary Relations and Equality
 
 This question will test your ability to build on what you have
 already learned. You are given a lesson on how *binary relations*
