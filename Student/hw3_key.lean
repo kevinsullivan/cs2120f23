@@ -30,7 +30,8 @@ a result.
 
 -- Answer below
 
-  
+def funkom: {α β γ : Type} → (β → γ) → (α → β) → (α → γ)
+| α, β, γ, g, f => 
 
 /-!
 We'll implement a function of this type using what

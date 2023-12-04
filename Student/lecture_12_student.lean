@@ -25,6 +25,7 @@ inductive binary_op : Type
 | and
 | or
 | imp
+| bi_imp
 
 inductive Expr : Type
 | var_exp (v : var)
@@ -49,10 +50,20 @@ infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff
 def eval_un_op : unary_op → (Bool → Bool)
 | unary_op.not => not
 
+def implies : Bool → Bool → Bool
+| true, false => false
+| _, _ => true
+
+def bi_implies : Bool → Bool → Bool
+| true, true => true
+| false, false => true
+| _, _ => false
+
 def eval_bin_op : binary_op → (Bool → Bool → Bool)
 | binary_op.and => and
 | binary_op.or => or
 | binary_op.imp => implies
+| binary_op.bi_imp => bi_implies
 
 def Interp := var → Bool  
 
@@ -210,7 +221,14 @@ First, define *b, c,* *j,* and *a* as propositional variables
 (of type *var*). We'll use *b* for *bread* or *beta*,* *c* for 
 *cheese,* *j* for *jam,* and *a* for α*. 
 -/
+def b := var.mk 0
+def c := var.mk 2
+def j := var.mk 1
+def a := var.mk 3
 
+-- get the index out of the c structure
+
+#eval c.n
 
 /-!
 ### #2. Atomic Propositions
@@ -218,6 +236,16 @@ First, define *b, c,* *j,* and *a* as propositional variables
 Define B, C, J and A as corresponding atomic propositions,
 of type *Expr*. 
 -/
+def B := {b}
+def C := {c}
+def J := {j}
+def A := {a}
+
+--  ((no jam) ⊕ (no cheese)) → (no (jam × cheese))
+
+
+
+
 
 /-!
 ### #3. Compound Propositions
@@ -229,10 +257,21 @@ defined.
 
 -- #1. ((no jam) ⊕ (no cheese)) → (no (jam × cheese)) 
 def e0 := (¬J ∨ ¬C) ⇒ ¬(J ∧ C)
+#eval eval_expr e0 (λ v => false)
 
 -- YOU DO THE REST
 
+-- (α → Empty ⊕ β → Empty) → (α × β → Empty)
+def e1 := (¬A ∨ ¬B) ⇒ ¬(A ∧ B)
+#eval eval_expr e1 (λ v => false)
 
+-- (no (α ⊕ β)) → ((no α) × (no β))
+def e2 := ¬(A ∨ B) ⇒ ((¬ A) ∧ (¬ B))
+#eval eval_expr e2 (λ v => true)
+
+--  ((no α) × (no β)) → (no (α ⊕ β)) 
+def e3 := ((¬ A) ∧ (¬ B)) ⇒ ¬(A ∨ B) 
+#eval eval_expr e3 (λ v => true)
 /-!
 ### #4. Implement Syntax and Semantics for Implies and Biimplication
 Next go back and extend our formalism to support the implies connective.
@@ -254,7 +293,14 @@ to evaluate to true under both the all_true and all_false interpretations.
 #eval eval_expr e0 (λ _ => true)  -- expect true
 
 -- You do the rest
+#eval eval_expr e1 (λ _ => false)  
+#eval eval_expr e1 (λ _ => true)  
 
+#eval eval_expr e2 (λ _ => false)  
+#eval eval_expr e2 (λ _ => true) 
+
+#eval eval_expr e3 (λ _ => false)  
+#eval eval_expr e3 (λ _ => true) 
 /-!
 ### #6. Evaluate the Expressions Under Some Other Interpretation
 
@@ -269,4 +315,24 @@ use wildcard matching to handle all remaining cases.
 
 -- Answer here
 
+def tf : var → Bool -- B and C are true, A and J are false
+| var.mk 0 => true
+| var.mk 2 => true 
+| _ => false
 
+def ft : var → Bool -- B and C are false, A and J are true
+| var.mk 0 => false
+| var.mk 2 => false
+| _ => true
+
+#eval eval_expr e0 tf  
+#eval eval_expr e0 ft  
+
+#eval eval_expr e1 tf  
+#eval eval_expr e1 ft
+
+#eval eval_expr e2 tf  
+#eval eval_expr e2 ft
+
+#eval eval_expr e3 tf  
+#eval eval_expr e3 ft

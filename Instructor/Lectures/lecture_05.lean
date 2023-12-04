@@ -232,7 +232,8 @@ otherwise.
 
 -- Answer here.
 
-def is_even_len := _  -- Be sure you can solve it
+def is_even_len := String → Bool
+  -- Be sure you can solve it
 
 #eval is_even_len "Love"    -- Expect true
 #eval is_even_len "Love!"   -- Expect false

@@ -21,7 +21,7 @@ to learn this material to pass the exam to come.
 /-!
 ## Problem #1
 
-Define a function of the following polymorphic type:
+Define a funtion of the following polymorphic type:
 {α β γ : Type} → (β → γ) → (α → β) → (α → γ). Call it
 *funkom*. After the implicit type arguments it should
 take two function arguments and return a function as
@@ -30,32 +30,8 @@ a result.
 
 -- Answer below
 
-  
-
-/-!
-We'll implement a function of this type using what
-we call top-down type-guided structured programming.
--/
-
-
-
-/-!
-Here's the procedure we followed when going over the HW.
-- introduce the name of the function with def
-- specify the *type* of the function after a :
-- use pattern matching bind names to unnamed arguments
-- "stub out" the entire return value using _
-- see the *context* for what you have and what you need
-  - some arbitrary (unspecified) type value, α, β, and γ
-  - an arbitrary function value, *g : β → γ*
-  - an arbitrary function value, *f : α → β*
-  - an arbitrary value, *a* of type *α*
-- the challenge: construct a *γ* given what you've assumed you have 
-- incrementally expand the implementation, from the outside to in
-  - I need a γ value; I can get it by applying *g* to a β value
-  - I need a β value; I can get that by applying *f* to an α
-  - I have an α in 
--/
+def funkom {α β γ : Type} : (β → γ) → (α → β) → (α → γ)
+| g, f => (fun a => g (f a))
 
 /-! 
 ## Problem #2
@@ -66,12 +42,10 @@ Define a function of the following polymorphic type:
 
 -- Answer below
 
-/-!
-We recommend the same top-down, type-guided structured
-programming approach. Some people would simply call it
-top-down refinement, or top-down programming. It's an
-essential strategy that every great programmer knows. 
--/
+def mkop {α β : Type} : (a : α) → (b : β) → α × β
+| a,b => (a, b)
+
+#check (@mkop)
 
 /-! 
 ## Problem #3
@@ -81,8 +55,10 @@ Define a function of the following polymorphic type:
 -/
 
 -- Answer below
+def op_left {α β : Type} : α × β → α
+| (a,_) => a
 
--- Hint: Use top-down structured programming!
+#check (@op_left)
 
 
 /-! 
@@ -94,54 +70,88 @@ Define a function of the following polymorphic type:
 
 -- Answer below
 
--- Hint: Use top-down structured programming
+def op_right {α β : Type} : α × β → β
+| (_,b) => b
 
-
-
+#check (@op_right)
 /-! 
 ## Problem #5
 
 Define a data type called *Day*, the values of which
 are the names of the seven days of the week: *sunday,
 monday,* etc. 
--/
 
-/-!
 Some days are work days and some days are play
 days. Define a data type, *kind*, with two values,
 *work* and *play*.
--/
 
-/-!
 Now define a function, *day2kind*, that takes a *day*
 as an argument and returns the *kind* of day it is as
 a result. Specify *day2kind* so that weekdays (monday
 through friday) are *work* days and weekend days are
 *play* days.
--/
 
-/-!
 Next, define a data type, *reward*, with two values,
 *money* and *health*.
--/
 
-/-!
 Now define a function, *kind2reward*, from *kind* to 
 *reward* where *reward work* is *money* and *reward play* 
 is *health*.
--/
 
-/-!
 Finally, use your *funkom* function to produce a new
 function that takes a day and returns the corresponding
 reward. Call it *day2reward*.
--/
 
-/-!
 Include test cases using #reduce to show that the reward
 from each weekday is *money* and the reward from a weekend
 day is *health*.
 -/
+
+inductive Day : Type
+| sunday
+| monday
+| tuesday
+| wednesday
+| thursday
+| friday
+| saturday
+
+open Day
+
+inductive kind : Type
+| work
+| play
+
+open kind
+
+def day2kind : Day → kind
+| saturday => play
+| sunday => play
+| _ => work
+
+inductive reward : Type
+| money
+| health
+
+open reward
+
+def kind2reward : kind → reward
+| work => money
+| play => health
+
+def day2reward : Day → reward
+| d => funkom kind2reward day2kind d
+
+#reduce day2reward monday
+#reduce day2reward tuesday
+#reduce day2reward wednesday
+#reduce day2reward thursday
+#reduce day2reward friday
+#reduce day2reward saturday
+#reduce day2reward sunday
+
+
+
 
 /-!
 ## Problem #6
@@ -158,7 +168,9 @@ Consider the outputs of the following #check commands.
 Is × left associative or right associative? Briefly explain
 how you reached your answer.
 
-Answer here: 
+Answer here: Right associative, because the type of the last line is (Nat × Nat) × Nat which means that the
+product in the parentheses was evaluated second while in the line above, the parentheses were evaluated first and so it behaves
+like how → behaves, which is right associated.
 
 ### B.
 Define a function, *triple*, of the following type:
@@ -167,7 +179,10 @@ Define a function, *triple*, of the following type:
 
 -- Here:
 
--- Hints: (1) put in parens for clarity; (2) use TDSP.
+def triple {α β γ : Type} : α → β → γ → (α × β × γ)
+| a, b, c => (a, b, c)
+
+#check (@triple)
 
 /-!
 ### C.
@@ -179,7 +194,14 @@ second, or third elements.
 
 -- Here:
 
--- Ok, this one takes a small leap of imagination
+def first {α β γ : Type} : α × β × γ → α
+| (a, _, _) => a
+
+def second {α β γ : Type} : α × β × γ → β
+| (_, b, _) => b
+
+def third {α β γ : Type} : α × β × γ → γ
+| (_, _, c) => c
 
 /-!
 ### D.
@@ -191,6 +213,10 @@ element of that triple.
 
 -- Here:
 
+#eval first (triple 1 2 3)
+#eval second (triple 1 2 3)
+#eval third (triple 1 2 3)
+
 /-!
 ### E.
 Use #check to check the type of a term. that you make 
@@ -198,6 +224,9 @@ up, of type (Nat × String) × Bool. The challenge here
 is to write a term of that type. 
 -/
 
+def prod_nat_string_bool: (Nat × String) × Bool := Prod.mk (1, "Hello") true
+
+#check prod_nat_string_bool
 
 
 

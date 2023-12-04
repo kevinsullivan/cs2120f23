@@ -177,7 +177,7 @@ def truth_table_outputs : Expr → List Bool
 | e =>  eval_expr_interps (mk_interps (num_vars e)) e
 
 /-!
-#### Reducers: Boolean List to Bool with And and Or
+### Satisfiability Checkers
 -/
 
 -- functions to check if bool list has any, resp. all, values true
@@ -188,10 +188,6 @@ def reduce_or : List Bool → Bool
 def reduce_and : List Bool → Bool 
 | [] => true
 | h::t => and h (reduce_and t)
-
-/-!
-### Satisfiability Checkers
--/
 
 -- Three main functions: test given expression for satsfiability properties
 def is_sat : Expr → Bool := λ e : Expr => reduce_or (truth_table_outputs e)
@@ -291,10 +287,9 @@ the Sandwich type.
 -/
 
 -- Your answer here
--- (s: (Cheese ⊕ Spread)) 
-structure Sandwich : Type := (c : Bread) (s: (Cheese ⊕ Spread))
+structure Sandwich : Type := (c : Bread) (c2: (Cheese ⊕ Spread))
 
-def v := Sandwich.mk Bread.white (Sum.inr Spread.jam)
+
 
 /-!
 ### c. Now make yourself a Sandwich [15 points]
@@ -368,7 +363,7 @@ Your job is to extend our syntax and semantics to include
 ⊤ and ⊥ as valid expressions. You will have to carry out
 the following tasks.
 
-- add true_exp and false_exp as constructors in Expr
+- add top_exp and bottom_exp as constructors in Expr
 - note that we've already added concrete notation definitions
 - add rules for evaluating these expressions to eval_expr
 - add rules for these expressions to max_variable_index
