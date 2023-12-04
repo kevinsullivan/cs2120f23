@@ -1,27 +1,26 @@
 /-!
-
 # Propositional Logic: A Satisfiability Solver
 
 You will recall that we say that an expression (formula) in
 propositional logic is *valid* if it evaluates to true under
 all possible interpretations (Boolean values for the variables
-that appear in it). It is *satisfiable* if there is at least 
+that appear in it). It is *satisfiable* if there is at least
 one intepretation under which it is true. And *unsatisfiable*
 if there's not even on interpretation that makes the expression
 true.
 
-We can understand these concepts clearly in terms of truth 
+We can understand these concepts clearly in terms of truth
 tables. As we've seen, each of the *input* columns represents
 a variable that can appear in the expression being evaluated.
-Each row up to but no including the final column represents 
+Each row up to but no including the final column represents
 one of the possible intepretations of the variables in the
 column (a function mapping those variables to Boolean values).
 The final column lists the values of the expression for each
 of the intepretations.
 
-As an example, consider the propositional logic expression, 
-*X*. Here's the truth table for it. There's one input column, 
-for the one variable. There are two interpretations (rows), 
+As an example, consider the propositional logic expression,
+*X*. Here's the truth table for it. There's one input column,
+for the one variable. There are two interpretations (rows),
 that we can write as *{X ↦ T}* and *{X ↦ F}*. Finally, the
 output column gives the truth value of the expression we're
 evaluating, *X*, under each interpretation.
@@ -33,18 +32,18 @@ evaluating, *X*, under each interpretation.
 
 From such a truth table it's trivial to determine whether a
 formula is valid, satisfiable, or unsatisfiable. If all output
-values are true, the formula is valid. It is also said to be 
-a *tautology*. If at least one output is true, the formula 
-is *satisfiable*, and the interpretations that make it true 
-are said to be *models* of the formula, or *solutions*. And 
-if all the outputs are false, the expression is *unsatisfiable* 
-and so has no models/solutions. From the truth table here, we 
-can easily see that *X* is not valid, but it is satisfiable, 
+values are true, the formula is valid. It is also said to be
+a *tautology*. If at least one output is true, the formula
+is *satisfiable*, and the interpretations that make it true
+are said to be *models* of the formula, or *solutions*. And
+if all the outputs are false, the expression is *unsatisfiable*
+and so has no models/solutions. From the truth table here, we
+can easily see that *X* is not valid, but it is satisfiable,
 with *{X ↦ T}* as a model.
 
 Exercise: Is the propositional logic expression, *X ∧ ¬X*
 valid, satisfiable, or unsatisfiable? What are its models,
-if any? 
+if any?
 
 | v₀ | {v₀} ∧ ¬{v₀} |
 |----|--------------|
@@ -53,7 +52,7 @@ if any?
 
 Exercise: Answer the same two questions for *X ∨ ¬X*. To
 derive your answers, fill in and analyze the truth tables
-for the two expressions. 
+for the two expressions.
 
 
 | v₀ | {v₀} ∨ ¬{v₀} |
@@ -67,38 +66,38 @@ for the two expressions.
 
 In the rest of this chapter we'll see how we can perhaps
 automate the generation of truth tables for any expressions,
-and thus have what we need to automatically determine its 
+and thus have what we need to automatically determine its
 validity, satisfiability, or unsatisfiability, and models
 if any.
 
-The key element will be a function that, when given the number, 
-*v,* of variables (columns) in a truth table, computes a list of 
-all *2^v* interpretation functions. By evaluating the expression 
-under each interpretation we'll get the list of output values 
+The key element will be a function that, when given the number,
+*v,* of variables (columns) in a truth table, computes a list of
+all *2^v* interpretation functions. By evaluating the expression
+under each interpretation we'll get the list of output values
 in the truth table. We then just analyze that list to determine
-whether all, some, or none of the output values is true. The 
+whether all, some, or none of the output values is true. The
 models of the expression, if any, are the interpretations in
-the rows that have true output values. 
+the rows that have true output values.
 
-The rest of this chapter is in several sections. First we 
-include our specification of the syntax and semantics of 
+The rest of this chapter is in several sections. First we
+include our specification of the syntax and semantics of
 propositional logic, without commentary. You can skip over
-this section unless you need to review the definitions. 
+this section unless you need to review the definitions.
 
 Next, we define a function that when given the number of
 variables, *v*, in an expression, computes the input side
-of a truth table as a list of *2^v* rows, Each row is a 
-distinct list of *v* Boolean values, as would appear in 
+of a truth table as a list of *2^v* rows, Each row is a
+distinct list of *v* Boolean values, as would appear in
 a paper-and-pencil truth table, and represents one of the
 *2^v* possible interpretations of the variables that might
 appear in the expression. The *i'th* entry in each row is
-the value assigned by that row/interpretation to the *i'th* 
-variable (column), with *i* ranging from *0* to *v-1*. 
+the value assigned by that row/interpretation to the *i'th*
+variable (column), with *i* ranging from *0* to *v-1*.
 
 Here's an example of the input side of a truth table for
 an expression with two variables. Be sure you can explain
 precisely what function, from variables to Boolean values,
-each row represents. 
+each row represents.
 
 |    | v₀ | v₁ |
 |----|----|----|
@@ -115,31 +114,31 @@ to the rows, as follows.
 - i₂ = {v₀ ↦ T, v₁ ↦ F}
 - i₃ = {v₀ ↦ T, v₁ ↦ T}
 
-Next, the trickiest part, we define a function that takes 
-as its input a row of Boolean values, *{b₀, ..., bᵥ₋₁}* and 
-that returns the corresponding interpretation *function*, of 
+Next, the trickiest part, we define a function that takes
+as its input a row of Boolean values, *{b₀, ..., bᵥ₋₁}* and
+that returns the corresponding interpretation *function*, of
 type *Interp* (i.e., *var → Bool*). We can then use such a
 function as an argument to our semantic function, *eval_expr*
 to compute the truth value of a given expression under that
 particular interpretation.
 
-Each such interpretation function behaves as follows. For *i* 
-in the range of *0* to *v-1*, given the *i'th* variable, *vᵢ* 
+Each such interpretation function behaves as follows. For *i*
+in the range of *0* to *v-1*, given the *i'th* variable, *vᵢ*
 *(mk_var i)* as input, it returns *bᵢ*, the Boolean value
 in the *i'th* position in the row of Boolean values, as its
-output. Otherwise, for variables with *i* indices outside 
-the range of interest, it just returns a default value, here 
+output. Otherwise, for variables with *i* indices outside
+the range of interest, it just returns a default value, here
 *false*.
 
 Next, we define a function that takes a list of all *2^v*
 rows of a truth table, containing Boolean values, and convert
 it into a list of interpretation functions, of type *Interp*.
 
-Finally, from there, we can easily implement the functions that 
-we really want: take any propositional logic expression and tell 
+Finally, from there, we can easily implement the functions that
+we really want: take any propositional logic expression and tell
 us if it's valid, satisfiable, or unsatisfiable.  We will also
 want to be able to get a list of models (interpretations) for
-any given expression. 
+any given expression.
 -/
 
 /-!
@@ -151,7 +150,7 @@ concrete syntax of propositional logic, as defined here, and also
 the purpose of the eval_expr semantic evaluator, that takes any
 expression in this syntax along with an interpretation and returns
 the truth value of the expression under the given interpretation of
-its atomic propositional variables. 
+its atomic propositional variables.
 -/
 
 structure var : Type :=  (n: Nat)
@@ -165,11 +164,11 @@ inductive Expr : Type
 | un_exp (op : unary_op) (e : Expr)
 | bin_exp (op : binary_op) (e1 e2 : Expr)
 notation "{"v"}" => Expr.var_exp v
-prefix:max "¬" => Expr.un_exp unary_op.not 
-infixr:35 " ∧ " => Expr.bin_exp binary_op.and  
-infixr:30 " ∨ " => Expr.bin_exp binary_op.or 
+prefix:max "¬" => Expr.un_exp unary_op.not
+infixr:35 " ∧ " => Expr.bin_exp binary_op.and
+infixr:30 " ∨ " => Expr.bin_exp binary_op.or
 infixr:25 " ⇒ " =>  Expr.bin_exp binary_op.imp
-infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff 
+infixr:20 " ⇔ " => Expr.bin_exp binary_op.iff
 def eval_un_op : unary_op → (Bool → Bool)
 | unary_op.not => not
 def implies : Bool → Bool → Bool
@@ -179,8 +178,8 @@ def eval_bin_op : binary_op → (Bool → Bool → Bool)
 | binary_op.and => and
 | binary_op.or => or
 | binary_op.imp => implies
-def Interp := var → Bool  
-def eval_expr : Expr → Interp → Bool 
+def Interp := var → Bool
+def eval_expr : Expr → Interp → Bool
 | (Expr.var_exp v),        i => i v
 | (Expr.un_exp op e),      i => (eval_un_op op) (eval_expr e i)
 | (Expr.bin_exp op e1 e2), i => (eval_bin_op op) (eval_expr e1 i) (eval_expr e2 i)
@@ -190,11 +189,11 @@ def eval_expr : Expr → Interp → Bool
 ## Generating Truth Table Rows
 
 Our first function will take as its input the number of
-variables (columns), *v*, for which the input side of a 
+variables (columns), *v*, for which the input side of a
 truth table is to be generated. We will represent this
-value as list of *2^v* rows, each of which is a list list 
+value as list of *2^v* rows, each of which is a list list
 of *v* Boolean values. Here, for example, is a table that
-represents the input side of a truth table with three 
+represents the input side of a truth table with three
 variables.
 
 |   |  v₀  |  v₁  |  v₃  |
@@ -212,7 +211,7 @@ variables.
 
 Let's see what pattern emerges if we replace each true
 and false value in this table with a corresponding binary
-digit (bit), *0* for *false* and *1* for *true*. 
+digit (bit), *0* for *false* and *1* for *true*.
 
 
 |      |  v₀  |  v₁  |  v₃  |
@@ -240,28 +239,28 @@ by doing nothing more than representing the row
 *index* as a binary numeral, padded with zeros on
 the left so that it's at least *v* digits wide,
 and then replacing the binary digits with the
-corresponding Boolean truth values.  
+corresponding Boolean truth values.
 
 ### Algorithm Design
 
-These insights unlock an algorithm design strategy. 
+These insights unlock an algorithm design strategy.
 First, define a function that, when given a number
 of variables, *v*, and a row index, *r*, returns the
-interpretation that associates the variables in the 
-columns to the Boolean represented by the bit values 
-in the binary representation of *r*. 
+interpretation that associates the variables in the
+columns to the Boolean represented by the bit values
+in the binary representation of *r*.
 
 Once we have this function, it'll be straightforward
-to take a number, *v*, of variables, *v*, and return 
+to take a number, *v*, of variables, *v*, and return
 a list of the *2^v* rows for the input side of a truth
-table. 
+table.
 -/
 
 /-!
 ### Row Index to List of Binary Digits
 
-We'll start by defining a function that converts a 
-given natural number into its binary representation 
+We'll start by defining a function that converts a
+given natural number into its binary representation
 as a *list* of binary digits. We'll just the natural
 numbers, *0* and *1* to represent binary digits.
 
@@ -270,25 +269,25 @@ of a binary representation of a number is *0* if the
 number is even and *1* if it's odd; (2) the rest of
 the bits are shifted one place to the right, dropping
 the rightmost bit, by division by 2. So what we do,
-while bits remain is to repeatedly (1) compute the 
+while bits remain is to repeatedly (1) compute the
 rightmost bit, (2) shift the rest of the bits right.
 
-To illustrate, consider row number, *5*. The binary 
+To illustrate, consider row number, *5*. The binary
 representation of *5* is *101*. From *right* to *left*
-that's 1*2^0 + 0*2^1 + 1*2^2 = 1 + 0 + 4 = 5.* The 
-number is odd so the rightmost bit is *1*, which is 
+that's 1*2^0 + 0*2^1 + 1*2^2 = 1 + 0 + 4 = 5.* The
+number is odd so the rightmost bit is *1*, which is
 the remainder, 5 % 2 = 1*. Now recurse on *5* shifted
-right by one bit, i.e., on *5/2* using natural number 
-division. *5/2* is *2*, so the nexxt bit is *2 % 2 = 0.* 
+right by one bit, i.e., on *5/2* using natural number
+division. *5/2* is *2*, so the nexxt bit is *2 % 2 = 0.*
 Recursing on *2 / 2 = 1,* we find the next bit to be
 *1 % 2 = 1.* Finally recurse on *1 / 2 = 0*. Zero is
-one of the two base cases, so we're done. The result 
-is the sequence of bits *[1, 0, 1]*. Exercise: Do it 
-yourself for *6*. What's the second base case?   
+one of the two base cases, so we're done. The result
+is the sequence of bits *[1, 0, 1]*. Exercise: Do it
+yourself for *6*. What's the second base case?
 
 Here's code. We abstract the computations of the right
 bit and shift right operations as named functions. The
-recursion, sadly, is not structural. 
+recursion, sadly, is not structural.
 -/
 
 def right_bit (n : Nat) := n%2
@@ -305,17 +304,17 @@ def nat_to_bin : Nat → List Nat
 /-!
 Okay, you're wondering, what's that weird expression,
 *have : (shift_right (n' + 2)) < (n' + 2) := sorry?*
-To make a long story short, the recursion here is not 
-structural. (Why?) That means that Lean won't be able 
+To make a long story short, the recursion here is not
+structural. (Why?) That means that Lean won't be able
 to prove to itself that the argument to the recursion is
 always decreasing, which is needed to prove that the
-recursion always terminates. To avoid Lean giving an 
+recursion always terminates. To avoid Lean giving an
 error, we have to give Lean an explicit proof that the
-argument decreases on each recursive call. The mystery 
+argument decreases on each recursive call. The mystery
 code tells Lean that we have such a proof. The *sorry*
-says, *but we're not going to give it now; just trust 
+says, *but we're not going to give it now; just trust
 us.* That's good enough for Lean not to complain. For
-now, that's what you need to know. 
+now, that's what you need to know.
 -/
 
 #eval nat_to_bin 0  -- expect [0]
@@ -331,14 +330,14 @@ We represent *F* (false) values in our truth tables
 as zeros. One remaining issue is that we have to make
 each output list of binary digits *v* digits long, to
 include *F* values (zeros) on the left. That is, we
-need to left-pad our lists with zeros so that each 
-list is at least *v* digits wide. 
+need to left-pad our lists with zeros so that each
+list is at least *v* digits wide.
 
-To do so, we'll iteratively prepend zeros to a given 
+To do so, we'll iteratively prepend zeros to a given
 list a number of times equal to *v* minus the length
-of a given list. In Lean *v - l* is zero in all cases 
+of a given list. In Lean *v - l* is zero in all cases
 where *l ≥ v* (these are natural numbers), so there is
-nothing left to do if the input list is long enough. 
+nothing left to do if the input list is long enough.
 
 It's a pretty easy recursion. We take this opportunity
 to show how you can do a little top-down programming
@@ -380,8 +379,8 @@ def mk_bit_row : (row: Nat) → (cols : Nat) → List Nat
 ### List of Bits to List of Bools
 
 Next we need a function to convert a list of bits
-(Nats) to a list of corresponding Bools. We will 
-convert Nat zero to false, and any other Nat to 
+(Nats) to a list of corresponding Bools. We will
+convert Nat zero to false, and any other Nat to
 true.
 -/
 
@@ -394,9 +393,9 @@ def bit_to_bool : Nat → Bool
 #eval bit_to_bool 1   -- expect true
 
 /-!
-With this element conversion function we can now define 
+With this element conversion function we can now define
 our list conversion function. There are two cases. First,'
-given an empty list of Nat we return an empty list of Bool. 
+given an empty list of Nat we return an empty list of Bool.
 Second, we have a bit (Nat) at the head of a non-empty list,
 in which case we return a list with that Nat converted to a
 Bool at the head, and the conversion of t, the rest of the
@@ -421,7 +420,7 @@ def mk_row_bools : (row : Nat) → (vars : Nat) → List Bool
 | r, v => bit_list_to_bool_list (mk_bit_row r v)
 
  -- expect [false, false, false, true, false, true]
-#eval mk_row_bools 5 6 
+#eval mk_row_bools 5 6
 
 /-!
 ## List Bool → Interp
@@ -430,20 +429,20 @@ We now devise an algorithm to convert a list of Booleans,
 [b₀, ..., bᵥ₋₁] into an interpretation. Denote *(mk_var i)*,
 the *i'th* variable, as *vᵢ*. The idea then is to convert
 the Boolean list into an interpretation function with the
-following behavior: *{ v₀ ↦ b₀, ..., vᵥ₋₁, vᵢ → false for 
+following behavior: *{ v₀ ↦ b₀, ..., vᵥ₋₁, vᵢ → false for
 i ≥ v}*.
 
-So how do we turn a list of values into a function from 
+So how do we turn a list of values into a function from
 variables to Boolean values? In short, we start with some
 interpretation, given a variable and a value for it, we
 return a new function that's exactly the same as the given
 one *except* when the variable argument is the same as the
 variable for which we want to return a new value. In that
 case, the new function returns the new value when it is
-applied to the variable whose value is being overridden. 
+applied to the variable whose value is being overridden.
 The top-level algorithm will then iteratively override the
 value of each variable according to the values in a given
-row of a truth table. 
+row of a truth table.
 
 The hardest-to-understand function is *override*. Given an
 interpretation, a variable whose value is to be overridden,
@@ -455,7 +454,7 @@ new function returns the specified new value.
 -/
 
 def override : Interp → var → Bool → Interp
-| old_interp, var, new_val => 
+| old_interp, var, new_val =>
   (λ v => if (v.n == var.n)     -- when applied to var
           then new_val          -- return new value
           else old_interp v)  -- else retur old value
@@ -493,19 +492,19 @@ To turn a list of Booleans into an interpretation,
 we thus start with some base interpretation, such as
 *all_false*, then iterate through the entries in the
 list, repeatedly overriding the most recently computed
-interpretation with the so-called *maplet, { vᵢ ↦ bᵢ }*. 
-The end result will be the interpretation { v₀ ↦ b₀, ..., 
-vᵥ₋₁ ↦ bᵥ₋₁, ...}, with all variables after *vᵥ₋₁* being 
+interpretation with the so-called *maplet, { vᵢ ↦ bᵢ }*.
+The end result will be the interpretation { v₀ ↦ b₀, ...,
+vᵥ₋₁ ↦ bᵥ₋₁, ...}, with all variables after *vᵥ₋₁* being
 mapped to the value given by the starting interpretation
-(in practice, *all_false,* for us). 
+(in practice, *all_false,* for us).
 
 Note: We introduce a new Lean programming mechanism: the
 ability to define a function in terms of a "sub-routine"
-that is subsequently defined in a *where* block. It is 
+that is subsequently defined in a *where* block. It is
 common to define functions this way when the top-level
 function is non-recursive and takes or computes some
 additional data that it then passes on to a recursive
-function that does most of the work.  
+function that does most of the work.
 -/
 
 def bools_to_interp : List Bool → Interp
@@ -514,10 +513,10 @@ where bools_to_interp_helper : (vars : Nat) → (vals : List Bool) → Interp
   | _, [] => all_false
   | vars, h::t =>
     let len := (h::t).length
-    override (bools_to_interp_helper vars t) (var.mk (vars - len)) h 
+    override (bools_to_interp_helper vars t) (var.mk (vars - len)) h
 
 -- Demonstration
-def interp3' := bools_to_interp [false, true, true] 
+def interp3' := bools_to_interp [false, true, true]
 
 #eval interp3' v₀  -- expect false
 #eval interp3' v₁  -- expect true
@@ -532,7 +531,7 @@ number of variables and a row index and that returns the
 corresponding interpretation function. It uses *mk_row_bools*
 to create the right row of Boolean values then applies the
 preceding *bools_to_interp* function to it to return the
-corresponding interpretation function. 
+corresponding interpretation function.
 -/
 def mk_interp_vars_row : (vars: Nat) → (row: Nat) → Interp
 | v, r => bools_to_interp (mk_row_bools r v)
@@ -550,10 +549,10 @@ Finally, now, given nothing but a number of variables, we can
 iteratively generate a list of all 2^v interpretations. We use
 the same style of function definition above, where the top-level
 program computes *2^v* from *v* and then passes *2^v* (the number
-of interpretations/rows to generate, along with *v*, the number 
+of interpretations/rows to generate, along with *v*, the number
 of variables, to a recursive function that does most of the work.
 -/
-def mk_interps (vars : Nat) : List Interp := 
+def mk_interps (vars : Nat) : List Interp :=
   mk_interps_helper (2^vars) vars
 where mk_interps_helper : (rows : Nat) → (vars : Nat) → List Interp
   | 0, _         => []
@@ -569,7 +568,7 @@ def interps3 := mk_interps 3
 /-!
 ## From List Interp and Expr to List Output Bool Values
 Now how about a function that takes a list of interpretations and
-an expresssion and that produces a list of output values? 
+an expresssion and that produces a list of output values?
 -/
 
 def eval_expr_interps : List Interp → Expr → List Bool
@@ -591,9 +590,9 @@ interpretations.
 
 ## From Expr to Number of Variables (Highest Variable Index)
 
-But our interface isn't yet ideal. We're providing an expression as 
-an argument, and from it we should be able to figure out how many 
-variables are involved. In other words, we shouldn't have to provide 
+But our interface isn't yet ideal. We're providing an expression as
+an argument, and from it we should be able to figure out how many
+variables are involved. In other words, we shouldn't have to provide
 a list of interpretations as a separate (and here the first) argument.
 The observation that leads to a solution is that we can analyze any
 expression to determine the highest index of any variable appearing
@@ -627,8 +626,8 @@ def truth_table_outputs : Expr → List Bool
 /-!
 Demonstration/Tests: Confirm that actual results are as expected by
 writing out the truth tables on paper. Note that in the second case,
-with the highest variable index being 2 (Z is var.mk 2), we have *3* 
-variables/columns, thus 8 rows, and thus a list of 8 output values. 
+with the highest variable index being 2 (Z is var.mk 2), we have *3*
+variables/columns, thus 8 rows, and thus a list of 8 output values.
 -/
 
 /-!
@@ -699,6 +698,3 @@ def is_unsat : Expr → Bool := not ∘ reduce_or ∘ truth_table_outputs
 #eval is_valid ((¬(X ∧ Y) ⇒ (¬X ∨ ¬Y))) -- expect true
 
 -- Test cases
-
-
-
