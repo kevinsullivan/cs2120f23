@@ -33,6 +33,7 @@
 - [Homework #7](./Homework/hw7_part2.lean.md)
 - [Exam 1 Read Ahead](./Exams/exam_1_read_ahead.lean.md)
 - [Exam 1](./Exams/exam_1.lean.md)
-- [Final Exam Part #1](./Exams/final.part1.lean.md)
+- [Final Exam Part #1](./Exams/final_part1.lean.md)
+- [Final Exam Part #2](./Exams/final_part2.lean.md)
 - [Lean Resources](./Resources/README.md)
 - [Set-up Instructions](./setup.md)
