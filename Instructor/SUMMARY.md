@@ -20,6 +20,7 @@
 - [Lecture 18](./Lectures/lecture_18.lean.md)
 - [Lecture 19](./Lectures/lecture_19.lean.md)
 - [Lecture 20](./Lectures/lecture_20.lean.md)
+- [Lecture 21](./Lectures/lecture_21.lean.md)
 - [Homework #2](./Homework/hw2.lean.md)
 - [Homework #3](./Homework/hw3.lean.md)
 - [Homework #4](./Homework/hw4.lean.md)

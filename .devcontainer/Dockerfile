@@ -21,7 +21,7 @@ ENV LC_ALL en_US.UTF-8
 # Install essential tools and libraries
 RUN apt-get clean && apt-get update -y && apt-get upgrade -y && apt-get update --fix-missing
 RUN apt-get -y install lsb-release build-essential git vim wget gnupg curl unzip libssl-dev libffi-dev libconfig-dev
-
+# RUN apt-get -y install graphviz libgraphviz-dev
 
 # Perform following actions in containers /root directory
 WORKDIR /root 
@@ -30,11 +30,16 @@ WORKDIR /root
 COPY .profile.txt /root/.profile
 
 # Install Python3
+RUN apt-get clean && apt-get update -y && apt-get upgrade -y && apt-get update --fix-missing
 RUN apt-get -y install python3-pip python3-venv python3-dev 
 ENV PYTHONIOENCODING utf-8
 RUN python3 -m pip install pipx 
 RUN python3 -m pip install cmake 
 RUN python3 -m pip install z3-solver 
+RUN python3 -m pip install plasTeX
+
+# RUN python3 -m pip install cmake 
+# RUN python3 -m pip install z3-solver 
 # z3-solver # broken on Apple Silicon Mac 
 RUN python3 -m pipx ensurepath --force 
 RUN . ~/.profile
@@ -53,7 +58,7 @@ WORKDIR /opt
 RUN apt-get update && apt-get install -y apt-transport-https && apt-get update && apt-get install -y dotnet-sdk-6.0
 
 # Java (at least for TLA+)
-RUN apt -y install default-jre default-jdk
+RUN apt-get -y install default-jre default-jdk
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> ~/.profile
 
 # Documentation
