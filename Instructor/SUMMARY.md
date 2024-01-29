@@ -2,9 +2,9 @@
 
 [Discrete Mathematics Via Type Theory](./intro.md)
 
-- [Lectures 01 and 02](./Lectures/lecture_01_02.lean.md)
-- [Lectures 03 and 04](./Lectures/lecture_03_04.lean.md)
-- [Lecture 05](./Lectures/lecture_05.lean.md)
+- [Types and Terms](./Lectures/01_types_terms.lean.md)
+- [Parametrically Polymorphic Types](./Lectures/02_para_poly_hof.lean.md)
+- [Function Composition](./Lectures/03_fun_comp.lean.md)
 - [Lecture 06](./Lectures/lecture_06.lean.md)
 - [Lecture 07](./Lectures/lecture_07.lean.md)
 - [Lecture 08](./Lectures/lecture_08.lean.md)

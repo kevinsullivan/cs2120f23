@@ -1,0 +1,63 @@
+/-!
+(2) Prove that for any (t : T), t ∉ ∅. The proof
+is by negation. You'll assume t ∈ ∅ and show that this
+leads to a contradiction (a proof of False in this case).
+-/
+
+example (T : Type) (t : T) : t ∉ (∅ : Set T) := _
+
+
+/-!
+(3)) Prove the following. Remember t ∈ univ means univ t,
+and univ t invariablly reduces to True.
+-/
+
+example (T : Type) (t : T) : t ∉ (∅ : Set T) := _
+
+/-!
+(4)) Prove 0 ∈ univ.
+
+To start, reduce the set theory notation to logic, then prove
+the logical proposition. We saw that *0 ∈ univ* reduces to
+*univ 0*, and that *univ 0* in turn reduces to *True*. So all you
+need to prove 0 ∈ univ is a proof of True. Go ahead. Note that
+Lean infers that the element type is Nat from argument value, 0.
+-/
+example : 0 ∈ univ := _
+
+/-!
+(5) Prove the proposition that 3 is not
+in the empty set of natural numbers
+-/
+example : 3 ∈ (∅ : Set Nat) := _  -- there's no proof
+
+/-!
+The proof is *by negation*. That means we assume that
+3 ∈ ∅  and then show that that leads to a contradiction
+(i.e., to a proof of false). The form of the proof is a
+function, here after the :=, that assumes that it has a
+proof, *h*, of the hypothesis that 3 is in the set. On
+the right of the => a case analysis on the possible forms
+of *h* reveals that there is no way h can be true, so by
+false elimination the proof is complete.
+-/
+example : 3 ∉ (∅ : Set Nat) := _
+
+One of the highlights of the course so far has been set
+theory: its conceptual universe, and a mathematical language
+with its own objects (set) and operations (intersection and
+so forth). Moreover, we have a direct translation from the
+language of set theory into the language of our underlying
+predicate logic. Knowing the logic is important as it tells
+you how to construct (vital parts of) proofs of propositions
+when they are expressed in the language of set theory. As an
+example, to prove a ∈ s ∩ t, just prove the proposition (in
+predicate logic) s a ∧ t a. In the first expression, we see
+s as a set. In the second, it's its membership predicate.
+
+
+A true test of your understanding of what we've covered is that you
+will be able to apply it to learn new concepts, as long as they are
+based on what you already know. You first exam challenge is to read,
+used Lean, and solve a few problems to learn more about relations.
+

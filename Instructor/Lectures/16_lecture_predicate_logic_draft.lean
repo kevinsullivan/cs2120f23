@@ -347,14 +347,11 @@ the other of the two values. We can then "prove" such
 propositions encoded as types like the following:
 -/
 
-def from_and {α β : Type} : α × β → α
-
-
+def from_and {α β : Type} : α × β → α := _
 
 /-!
 #### ∧
 
-/-!
 We now complete our transition into teaching predicate
 logic as embedded in Lean. We all by ourselves embedded
 propositional logic in Lean, and even built validity and
@@ -383,6 +380,7 @@ inductive Sum (α : Type u) (β : Type v) where
   | inl (val : α) : Sum α β
   | inr (val : β) : Sum α β
 -/
+
 /-!
 inductive Or (a b : Prop) : Prop where
   | inl (h : a) : Or a b
@@ -418,10 +416,7 @@ def x := (1,2)
 #check @And
 
 
-def from_ab_proof_a_proof {α β : Prop} : α ∧ β → α
-
-
-
+def from_ab_proof_a_proof {α β : Prop} : α ∧ β → α := _
 
 
 section foo
@@ -520,9 +515,6 @@ a proposition encoded as a type (assuming α, β, and
 γ are defined): (α ∧ β → β ∧ α) ∧ (β ∧ α → α ∧ β).
 -/
 
- which is to say that
-if you have a proof of A ∧ B is equivalent to B ∧ A.
--/
 
 end bar
 

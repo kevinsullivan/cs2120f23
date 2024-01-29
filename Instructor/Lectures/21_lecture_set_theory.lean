@@ -1,22 +1,25 @@
--- import Mathlib.Data.Set.Basic
--- import Mathlib.Logic.Relation
+import Mathlib.Data.Set.Basic
+import Mathlib.Logic.Relation
 
 
 /-!
 # Set Theory
 
-A set is intuitively understood as a collection of objects.
-Such a collection can be finite or infinite. For example, the
-set of natural numbers less than five is finite but the set of
-all natural numbers is infinite.
+A set is intuitively understood as a *collection* of objects.
+Such a collection can be finite or infinite. Infinite sets can
+vary in the degrees of their infinite sites. For example, the
+set of natural numbers less than five is finite, the set of all
+natural numbers is *countably* infinite, and the set of *real*
+numbers is *uncountably infinite*.
 
-Like Boolean algebra or arithmetic, set theory has both objects
-(sets, in the case) and operations on them. Your main aims in this
-chapter are to (1) understand the language of sets and operations
-on them in the abstract, (2) understand how sets and set operations
-are represented in predicate logic (and in Lean), (3) understand
-how to prove propositions about sets by proving their underlying
-logical propositions.
+Like Boolean algebra or arithmetic, set theory is algebraic in that
+it has both objects (sets) and operations involving them. Your aims
+in this chapter are to (1) learb  the language of sets and operations
+on them, in the abstract, (2) understand how sets and set operations
+are represented as one-place predicates and operations on them, in
+predicate logic (Lean in particular), (3) understand how to prove
+propositions about sets by proving corresponding propositions on the
+underlying logical formulations.
 
 The first section of introduces sets and how they are defined
 as predicates in Lean. The second presents the major operations
