@@ -21,7 +21,7 @@
 - [Quantifiers: All](./Lectures/19_lecture_quantifiers_all.lean.md)
 - [Quantifiers: Exists](./Lectures/20_lecture_quantifiers_exists.lean.md)
 - [Set Theory](./Lectures/21_lecture_set_theory.lean.md)
-- [Induction] (./Lectures/22_lecture_induction.lean.md)
+- [Induction](./Lectures/22_lecture_induction.lean.md)
 - [Homework #2](./Homework/hw2.lean.md)
 - [Homework #3](./Homework/hw3.lean.md)
 - [Homework #4](./Homework/hw4.lean.md)
