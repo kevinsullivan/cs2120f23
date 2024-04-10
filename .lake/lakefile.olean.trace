@@ -1,4 +1,4 @@
-{"platform": "linux-64",
+{"platform": "aarch64-unknown-linux-gnu",
  "options": {},
- "leanHash": "8e5cf6466061e7660353d7c3d9b69f744ac29edd",
+ "leanHash": "6fce8f7d5cd18a4419bca7fd51780c71c9b1cc5a",
  "configHash": "14023946103406727006"}
