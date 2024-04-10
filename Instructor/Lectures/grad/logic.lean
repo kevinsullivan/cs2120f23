@@ -676,26 +676,56 @@ specialized instance of which we can read as a proposition
 asserting that its argument is even.
 -/
 
+-- The constructors *are* the introduction rules for this *family*
 inductive IsEven : Nat → Prop
-| zero_is_even : IsEven 0
-| even_plus_2_even : ∀ (n : Nat), IsEven n → IsEven (n + 2)
+| zeroEven : IsEven 0
+| evenPlus2Even : ∀ (n : Nat), IsEven n → IsEven (n + 2)
 
 open IsEven 
 
-example : IsEven 0 := zero_is_even
+/-!
+Proofs are recursively structured. A proof that zero is even is 
+just *zeroEven*. We can read the evenPlus2Even constructor *from
+right to left* as follows: to construct a proof that some natural
+number, n, is even, *it will suffice* to have the value, n, along
+with a proof that it's even. For in that case, you can now apply
+evenPlus2Even to these arguments to get a proof that n + 2 is even.
 
-example : IsEven 4 := 
-  even_plus_2_even
+Inside a proof that 4 is even is the number 2 and a proof that 2
+is even. Inside that object the number 0 and a proof that 0 is
+even. And that's where the recursion ends.
+-/
+example : IsEven 0 := zeroEven
+
+def even4 : IsEven 4 := 
+  evenPlus2Even -- from n and proof of IsEven n to proof of IsEven n+2
     2 
-    (even_plus_2_even 
-      _     -- Lean infers this value
-      _     -- But you need to give a proof
+    (evenPlus2Even 
+      _         -- Lean actually infers this value
+      _         -- COMPLETE THIS PROOF
     )
+
+#check even4
+
+/-!
+Once you fill in the _, this reduction will work
+and show you the nested structure of the proof of
+IsEven 4.
+-/
+#reduce even4
+
+/-!
+#### Elimination
+-/
+example : IsEven 4 → IsEven 2 :=
+λ e4 => match e4 with 
+| IsEven.evenPlus2Even _ e2 => e2 
+
 
 /-!
 We've now seen *two* "inductive families" of propositions
-with corresponding proof constructors applicable to any
+with corresponding proof constructors, applicable to any
 proposition in this family. The first was Eq. Now we've 
 also seen a *logical* definition of *evenness*, in the 
-form of the IsEven parameterized "proposition builder".  
+form of IsEven.  
 -/

@@ -1,5 +1,7 @@
 import Mathlib.Algebra.Group.Defs
 import Mathlib.GroupTheory.GroupAction.Defs
+import Mathlib.Algebra.AddTorsor
+
 /-!
 We now turn to formalization of mathematical structures
 using the rich collection of abstractions already defined
@@ -397,31 +399,44 @@ instance : AddAction Rotation State := {
     add_vadd := sorry
   }
 
-#reduce ((2 • r120) + (3 • r240) + (0 • r120)) +ᵥ r120
+#check VAdd.vadd ((2 • r120) + (3 • r240) + (0 • r120)) s0
+
+
 
 #check AddGroup.mk
 
 /-!
 ## Torsors (of Point-like objects)
 
-Definition of subtraction of positional States.
-On a clock, for example, you can subtract 3PM from
-5PM to get two hours: the duration that, when added
-to 3PM, gets you back to 5PM. Here our "clock" has
-only three positions.
--/
-def sub_State : State → State → Rotation
--- p2-p1 ...
-| s0, s0 => r0
-| s0, s120 => r240
-| s0, s240 => r120
-| s120, s0 => r120
-| s120, s120 => r0
-| s120, s240 => r240
-| s240, s0 => r240
-| s240, s120 => r120
-| s240, s240 => r0
+We've now established a firm separation between
+point-like and vector-like things, and that we
+can have structures in which vector-like things
+that have an associated monoid structure can be
+defined as acting on corresponding point-like
+things, subject to certain axioms. Central is
+the idea that, while points aren't vectors, and
+can't be added like vectors, differences between
+points can be defined as giving rise to vectors,
+each of which is precisely the difference vector
+that needs to be added to the second point to get
+back to the first. p2 - p1 = v s.t. v + p1 = p2.
 
+We get that vector-like transformations on points
+have a natural monoidal structure. But what kind
+of things are the sets of points themselves? They
+don't contain vectors, so they aren't anything
+like vector spaces. There is no operation to add
+add points, and the very concept doesn't really
+make sense. What is 3PM + 5PM?
+
+The answer is, informally speaking, that a set
+of points with differences that constitute a
+monoid, or group, or module, or vector space
+(M) is called an M-torsor. Differences of points
+are actions (in the monoid, group, module, etc.)
+that act on points in ways that follow ordinary
+rules of arithmetic.
+-/
 
 /-!
 Homework #1: Endow Rotation with the additional structure of an additive group.
@@ -434,7 +449,6 @@ AddGroup.mk.{u}
   (add_left_neg : ∀ (a : A), -a + a = 0) :
 AddGroup A
 -/
-
 -- Hint:
 #check SubNegMonoid.mk
 /-!
@@ -450,9 +464,94 @@ SubNegMonoid.mk.{u}
 SubNegMonoid G
 -/
 
+-- Rotation-specific implementation of negation
+def neg_Rotation : Rotation → Rotation
+| r0 => r0
+| r120 => r240
+| r240 => r120
+
 /-!
-Homework #2: Endow State and Rotation with the additional structure of an
-additive torsor over that (additive) group.
+We now endow rotations with Rotation-specific subtraction.
+Doing that gives us unary negation, subtraction as addition
+of the negative, and multiplication or a rotation by any
+*integer* value, including negative values.
+-/
+
+instance : Neg Rotation := { neg := neg_Rotation }
+
+/-!
+Now we have negation notation and
+computation.
+-/
+
+#reduce -r0
+#reduce -r120
+#reduce -r240
+
+instance : Sub Rotation := { sub := λ r2 r1 => r2 + -r1 }
+
+-- Look, ma: I can subtract!
+#reduce r240 - 0
+#reduce r240 - r120
+#reduce r240 - r240
+#reduce r120 - 0
+#reduce r120 - r120
+#reduce r120 - r240
+#reduce r0 - 0
+#reduce r0 - r120
+#reduce r0 - r240
+
+-- You finish!
+
+#check AddTorsor
+/-!
+class AddTorsor (G : outParam (Type*)) (P : Type*) [outParam <| AddGroup G] extends AddAction G P,
+  VSub G P where
+  [nonempty : Nonempty P]
+  /-- Torsor subtraction and addition with the same element cancels out. -/
+  vsub_vadd' : ∀ p1 p2 : P, (p1 -ᵥ p2 : G) +ᵥ p2 = p1
+  /-- Torsor addition and subtraction with the same element cancels out. -/
+  vadd_vsub' : ∀ (g : G) (p : P), g +ᵥ p -ᵥ p = g
+#align add_torsor AddTorsor
+-/
+
+instance : SubNegMonoid Rotation := {}
+
+instance : AddGroup Rotation := ⟨
+  by
+    intro a
+    show Add.add (-a) a = 0
+    simp [Neg.neg]
+    cases a
+    repeat {
+      simp [add_Rotations, neg_Rotation, Add.add]
+      rfl
+    }
+ ⟩
+
+/-!
+Homework #2: Endow State and Rotation with the 
+additional structure of an additive torsor over 
+that (additive) group.
 -/
 
 -- Hint: follow the same approach
+
+/-
+Definition of subtraction of positional States.
+On a clock, for example, you can subtract 3PM from
+5PM (i.e., 5PM - 3PM) to get two hours. This is the
+vector-like duration that, when added to the point
+in time, 3PM, gets you 5PM.
+-/
+def sub_State : State → State → Rotation
+-- p2-p1 ...
+| s0, s0 => r0
+| s0, s120 => r240
+| s0, s240 => r120
+| s120, s0 => r120
+| s120, s120 => r0
+| s120, s240 => r240
+| s240, s0 => r240
+| s240, s120 => r120
+| s240, s240 => r0

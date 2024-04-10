@@ -59,11 +59,53 @@ List.rec.{u_1, u}
 def len_nil := 0
 
 -- inductive step-up function
-def len_cons : _ 
-| _ => _
+def len_cons : Nat → List Nat → Nat → Nat
+| _, List.nil, _ => 1
+| _, _, ans => 1 + ans
 
 -- test: expect 3
-#reduce (List.rec 0 list_step : List Nat → Nat) [1,2,3]
+#reduce (List.rec 0 len_cons : List Nat → Nat) []
+#reduce (List.rec 0 len_cons : List Nat → Nat) [1,2,3]
+
+
+/-!
+Let's generalize to polymorphic list
+-/
+
+def list_nil_α := 0
+def len_cons_α { α : Type } : α → List α → Nat → Nat
+| _, List.nil, _ => 1
+| _, _, ans => 1 + ans
+
+
+#reduce (@List.rec Nat _ 0 len_cons_α : List Nat → Nat) [1,2,3]
+#reduce (@List.rec Bool _ 0 len_cons_α) [true,true,false]
+
+ 
+/-!
+Now let's use induction tactic
+-/
+
+theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
+  induction k with
+  | zero => rfl
+  | succ n ih =>
+      by _ 
+
+
+#print Nat
+#print List
+
+
+def list_len { α : Type } : List α → Nat :=
+λ l => 
+by induction l with
+| nil => _
+| cons h t a => 1 + a 
+
+#reduce list_len [1,2,3]
+
+--#reduce (List.rec 0 list_step : List Nat → Nat) [1,2,3]
 
 
 
