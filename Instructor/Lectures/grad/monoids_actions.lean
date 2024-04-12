@@ -515,11 +515,10 @@ class AddTorsor (G : outParam (Type*)) (P : Type*) [outParam <| AddGroup G] exte
 #align add_torsor AddTorsor
 -/
 
-instance : SubNegMonoid Rotation := {}
+instance : SubNegMonoid Rotation := ⟨ _, _, _, _, _⟩ 
 
-instance : AddGroup Rotation := ⟨
-  by
-    intro a
+instance : AddGroup Rotation := ⟨ _ ⟩ 
+/-
     show Add.add (-a) a = 0
     simp [Neg.neg]
     cases a
@@ -528,6 +527,8 @@ instance : AddGroup Rotation := ⟨
       rfl
     }
  ⟩
+-/
+
 
 /-!
 Homework #2: Endow State and Rotation with the 

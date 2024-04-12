@@ -1,55 +1,66 @@
--- Some concepts (each with a single implciit constructor/value called mk)
-structure Message   -- we will enable tagging
-structure Video     -- we will enable tagging
-structure Auth      -- cannot be tagged
-
-/-!
-Taggability of instances of type α means you can get 
-or set a list of tags associated with any α instance.
--/
-structure Tag
-
-class Taggable (α : Type) where
-(getTags : α → List Tag)        -- I/O
-(setTags : α → List Tag → Unit) -- I/O
-
--- We enable taggability for Message and Video concepts but not for Auth
-instance : Taggable Message :=  { 
-                                  getTags := λ (m : Message) => _
-                                  setTags := λ (m : Message) (tags : List Tag) => _
-                                }
-instance : Taggable Video :=    { 
-                                  getTags := λ (v : Video) => _ 
-                                  setTags := λ (v : Video) (tags : List Tag) => _
-                                }
-
-/-!
-Now we can write polymorphic yet strongly and statically typed actions.
-This function takes a target type (such as Message or Video) as long as
-there's also an implementation of Taggable for that specific type, along
-with a "target" instance, targ, of that taggable type (such as Message or 
-Video). With all that in hand, it invokes the getTags operation for that
-type of taggable instance to get its associated tags.
--/
-
-def getTags {targType : Type} [Taggable targType] (targ : targType) : List Tag := 
-  Taggable.getTags targ
+universe u
+structure Concept : Type where
+(name : String := "")
+(purpose : String := "")
 
 
 /-!
-Demo.
-
-(1) Create instances of Message, Video, Auth, and Tag.
+-- Questionnaire data type and a few examples
 -/
-def m := Message.mk
-def v := Video.mk
-def a := Auth.mk
-def t := Tag.mk
+structure Question
+structure Questionnaire where
+(questions : List Question)
+
+def locationQuestionnaire : Questionnaire := Questionnaire.mk []
+def temperatureQuestionnaire : Questionnaire := Questionnaire.mk []
+def contributorsQuestionnaire : Questionnaire := Questionnaire.mk []
+-- def modQuestionnaire : Questionnaire := Questionnaire.comp [locationQuestionnaire, temperatureQuestionnaire, contruibutorsQuestionnaire]
+
 
 /-!
-We can now get the tags associated with a message or a
-video but not from an auth instance.
+Survey concept and some examples
 -/
-#check getTags m    -- returns tags on message m
-#check getTags v    -- returns tags on video v 
-#check getTags a    -- tagging not support for auth 
+inductive Survey  -- CONCEPT (ALONG WITH OPERATIONS, EVENTS)
+| elem (c : Concept := ⟨ "", "" ⟩) (q : Questionnaire) 
+| comp (c : Concept := ⟨ "", "" ⟩) (l : List Survey)
+
+
+/-!
+-/
+def locationSurvey := Survey.elem ⟨ "loc", "get loc info" ⟩ locationQuestionnaire  
+def temperatureSurvey := Survey.elem ⟨ "temp", "get temp info" ⟩ temperatureQuestionnaire
+def contributorsSurvey := Survey.elem ⟨ "contrib", "get contrib factors info" ⟩ contributorsQuestionnaire
+def modSurvey := Survey.comp ⟨ "mod survey", "get 3-part survey result" ⟩ [locationSurvey, temperatureSurvey, contributorsSurvey]
+
+
+/-!
+Resiliency Resources (what is the generalized concept here, general, akin to survey)
+-/
+structure Followup :=
+new :: (c : Concept)
+
+def resiliencyResources := Followup.new ⟨ "", "" ⟩ 
+
+
+
+/-!
+MoD App
+-/
+
+structure MoDApp
+(c : Concept := ⟨ "MoD App", "Take survey and provide followup" ⟩)
+(modSurvey : Survey := modSurvey)
+(followUp : Followup := resiliencyResources )
+
+/-!
+By policy we've synchronized "being a concept" with
+"having a possibly parameterized full-stack codebase 
+implementation." Moreover, "being a concept" concretel
+means, in this design, holding a (unique) instance of 
+type, Concept. Users should enforce uniqueness for now.
+
+So, in the system we're defining here, MoDApp, will be
+a concept type in our new ontology, so "noo ModApp", an
+application of our build time "new" operator to MoDApp,
+will build and deploy a new instance of this type, with  
+-/
