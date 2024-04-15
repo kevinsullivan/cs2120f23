@@ -23,11 +23,45 @@ binary relation from α → β, etc
 inverse image
 -/
 
+inductive Person : Type
+| lu
+| mary 
+| jane
+
+open Person
+
+def Likes : Person → Person → Prop :=
+  λ p1 p2 => 
+    (p1 = lu ∧ p2 = mary) ∨ 
+    (p1 = mary ∧ p2 = lu)
+
+#reduce Likes lu mary
+
+#reduce Likes lu jane
+
+
+example : Likes lu mary := Or.inl ⟨ rfl, rfl⟩
+
+#reduce Likes lu jane
+
+example : ¬ Likes lu jane := 
+λ h : Likes lu jane => by
+  unfold Likes at h
+  cases h with 
+  | inl l => nomatch l.2
+  | inr r => nomatch r.1
+
+  /-
+    cases h with
+  | inl hp => apply Or.inr; exact hp
+  | inr hq => apply Or.inl; exact hq
+  -/
+
 /-
 order relations
 - partial order: reflexive, antisymmetric, transitive
 - poset: a set α along with a partial order on α
-- total order: partial order ∧ ∀ a b, a < b ∨ b < a
+- total order: partial order ∧ ∀ a b, a ≤ b ∨ b ≤ a
 -/
 
 /-
